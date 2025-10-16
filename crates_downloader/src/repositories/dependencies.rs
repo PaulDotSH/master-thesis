@@ -3,6 +3,7 @@ use crate::database::Database;
 use crate::models::{DependencyRecord, NewDependency};
 use crate::schema::dependencies;
 use chrono::Utc;
+use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use std::collections::{HashMap, HashSet};
 
@@ -95,5 +96,56 @@ pub async fn enable_dependency_triggers(db: &Database) -> Result<(), anyhow::Err
     diesel::sql_query("ALTER TABLE dependencies ENABLE TRIGGER ALL")
         .execute(&mut conn)
         .await?;
+    Ok(())
+}
+
+pub async fn delete_dependencies_for_crate(db: &Database, crate_id: i64) -> Result<(), anyhow::Error> {
+    let mut conn = db.get_connection().await?;
+    diesel::delete(dependencies::table.filter(dependencies::crate_id.eq(crate_id)))
+        .execute(&mut conn)
+        .await?;
+    Ok(())
+}
+
+pub async fn bulk_delete_dependencies_for_crates(
+    db: &Database,
+    crate_ids: &[i64],
+) -> Result<(), anyhow::Error> {
+    if crate_ids.is_empty() {
+        return Ok(());
+    }
+
+    let mut conn = db.get_connection().await?;
+    
+    diesel::delete(dependencies::table.filter(dependencies::crate_id.eq_any(crate_ids)))
+        .execute(&mut conn)
+        .await?;
+    
+    Ok(())
+}
+
+pub async fn insert_dependencies_for_crate(
+    db: &Database,
+    crate_id: i64,
+    dependency_ids: &Vec<i64>,
+) -> Result<(), anyhow::Error> {
+    let mut conn = db.get_connection().await?;
+    
+    let new_dependencies: Vec<NewDependency> = dependency_ids
+        .iter()
+        .map(|dep_id| NewDependency {
+            crate_id,
+            dependency_id: *dep_id,
+            db_created_at: Utc::now().naive_utc(),
+            db_updated_at: Utc::now().naive_utc(),
+        })
+        .collect();
+
+    diesel::insert_into(dependencies::table)
+        .values(&new_dependencies)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+    
     Ok(())
 }

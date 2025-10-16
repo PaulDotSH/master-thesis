@@ -2,3 +2,4 @@
 /db-dump
 target/
 **/*/.env
+/logs

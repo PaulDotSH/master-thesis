@@ -8,6 +8,9 @@ mod repositories;
 mod schema;
 
 use clap::{Parser, Subcommand};
+use tracing::{info, error};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 
 #[derive(Parser)]
 #[command(name = "crates_downloader")]
@@ -19,49 +22,90 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Update the database with fresh data from crates.io
     UpdateDatabase,
-    /// Run security and code analysis on downloaded crates
     RunAnalysis,
 }
 
+// TODO: Check tomorrow if DB update is working correctly
+
 #[tokio::main]
 async fn main() {
+    // Set up logging to both file and console
+    let file_appender = RollingFileAppender::new(Rotation::DAILY, "logs", "crates_downloader.log");
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+    
+    tracing_subscriber::registry()
+        .with(
+            EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| EnvFilter::new("info"))
+        )
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_writer(std::io::stdout)
+        )
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_writer(non_blocking)
+                .with_ansi(false)
+        )
+        .init();
+
+    info!("Starting crates_downloader application");
+    
     let cli = Cli::parse();
     let config = config::Config::default();
-    let database = database::Database::new(&config)
-        .await
-        .expect("Failed to create database");
+    let database = match database::Database::new(&config).await {
+        Ok(db) => {
+            info!("Successfully connected to database");
+            db
+        },
+        Err(e) => {
+            error!("Failed to create database connection: {}", e);
+            panic!("Failed to create database");
+        }
+    };
 
     match cli.command {
         Commands::UpdateDatabase => {
-            println!("Updating database...");
+            info!("Starting database update process");
             
-            // Download fresh data from crates.io
-            downloader::CratesDownloader::prepare_source_data()
-                .await
-                .expect("Failed to prepare source data from crates.io");
+            info!("Downloading the data from crates.io");
+            if let Err(e) = downloader::CratesDownloader::prepare_source_data().await {
+                error!("Failed to prepare source data from crates.io: {}", e);
+                panic!("Failed to prepare source data from crates.io");
+            }
+            info!("Successfully downloaded and prepared source data");
 
-            // Populate the database (will skip if already populated)
-            let crate_count = repositories::crates::count_crates(&database)
-                .await
-                .expect("Failed to count crates");
+            let crate_count = match repositories::crates::count_crates(&database).await {
+                Ok(count) => count,
+                Err(e) => {
+                    error!("Failed to count crates: {}", e);
+                    panic!("Failed to count crates");
+                }
+            };
 
             if crate_count == 0 {
-                println!("Database is empty. Populating database...");
-                data_import::populate_db(&database, &config)
-                    .await
-                    .expect("Failed to populate database");
+                info!("Database is empty. Starting initial population");
+                if let Err(e) = data_import::populate_db(&database, &config).await {
+                    error!("Failed to populate database: {}", e);
+                    panic!("Failed to populate database");
+                }
+                info!("Database population completed successfully");
             } else {
-                println!("Database already contains {} crates. Skipping population.", crate_count);
+                info!("Database contains {} crates. Starting incremental update", crate_count);
+                if let Err(e) = data_import::update_db(&database, &config).await {
+                    error!("Failed to update database: {}", e);
+                    panic!("Failed to update database");
+                }
+                info!("Database update completed successfully");
             }
-            
-            println!("Database update completed.");
         }
         Commands::RunAnalysis => {
-            println!("Running analysis...");
+            info!("Starting analysis process");
             // TODO: Implement analysis functionality
-            println!("Analysis functionality not yet implemented.");
+            info!("Analysis functionality not yet implemented");
         }
     }
+    
+    info!("Application completed successfully");
 }

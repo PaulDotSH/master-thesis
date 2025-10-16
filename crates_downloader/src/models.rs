@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use serde::Deserialize;
 
 // CSV Record structs (for reading from CSV files)
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 #[allow(dead_code)]
 pub struct CrateRecord {
     pub created_at: String,
@@ -57,4 +57,19 @@ pub struct NewDependency {
     pub dependency_id: i64,
     pub db_created_at: NaiveDateTime,
     pub db_updated_at: NaiveDateTime,
+}
+
+// Database Queryable structs (for reading from database)
+#[derive(Debug, Queryable, Selectable)]
+#[diesel(table_name = crates)]
+#[allow(dead_code)]
+pub struct Crate {
+    pub id: i64,
+    pub name: String,
+    pub repository: String,
+    pub crate_downloads: i64,
+    pub db_created_at: NaiveDateTime,
+    pub db_updated_at: NaiveDateTime,
+    pub crate_created_at: NaiveDateTime,
+    pub crate_updated_at: NaiveDateTime,
 }
