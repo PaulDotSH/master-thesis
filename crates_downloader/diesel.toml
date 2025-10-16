@@ -1,0 +1,9 @@
+# For documentation on how to configure this file,
+# see https://diesel.rs/guides/configuring-diesel-cli
+
+[print_schema]
+file = "src/schema.rs"
+custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
+
+[migrations_directory]
+dir = "/run/media/admin/504994d8-94c7-414c-bd84-9945ca26767d/master-thesis/crates_downloader/migrations"

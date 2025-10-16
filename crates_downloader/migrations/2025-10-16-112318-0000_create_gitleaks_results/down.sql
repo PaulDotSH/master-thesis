@@ -1,0 +1,1 @@
+DROP TABLE gitleaks_results CASCADE;

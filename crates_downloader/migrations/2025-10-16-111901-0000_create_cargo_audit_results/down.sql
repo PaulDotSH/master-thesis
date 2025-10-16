@@ -1,0 +1,1 @@
+DROP TABLE cargo_audit_results CASCADE;
