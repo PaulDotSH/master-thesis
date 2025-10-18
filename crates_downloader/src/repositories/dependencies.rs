@@ -170,23 +170,32 @@ pub async fn insert_dependencies_for_crate(
     crate_id: i64,
     dependency_ids: &Vec<i64>,
 ) -> Result<(), anyhow::Error> {
-    let mut conn = db.get_connection().await?;
+    if dependency_ids.is_empty() {
+        return Ok(());
+    }
 
-    let new_dependencies: Vec<NewDependency> = dependency_ids
-        .iter()
-        .map(|dep_id| NewDependency {
-            crate_id,
-            dependency_id: *dep_id,
-            db_created_at: Utc::now().naive_utc(),
-            db_updated_at: Utc::now().naive_utc(),
-        })
-        .collect();
+    // Insert in chunks to avoid "error encoding message to server" for crates with many dependencies
+    const CHUNK_SIZE: usize = 1000;
+    
+    for chunk in dependency_ids.chunks(CHUNK_SIZE) {
+        let mut conn = db.get_connection().await?;
 
-    diesel::insert_into(dependencies::table)
-        .values(&new_dependencies)
-        .on_conflict_do_nothing()
-        .execute(&mut conn)
-        .await?;
+        let new_dependencies: Vec<NewDependency> = chunk
+            .iter()
+            .map(|dep_id| NewDependency {
+                crate_id,
+                dependency_id: *dep_id,
+                db_created_at: Utc::now().naive_utc(),
+                db_updated_at: Utc::now().naive_utc(),
+            })
+            .collect();
+
+        diesel::insert_into(dependencies::table)
+            .values(&new_dependencies)
+            .on_conflict_do_nothing()
+            .execute(&mut conn)
+            .await?;
+    }
 
     Ok(())
 }

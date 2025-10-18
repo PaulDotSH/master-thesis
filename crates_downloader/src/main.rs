@@ -93,6 +93,7 @@ async fn main() {
                 );
                 if let Err(e) = data_import::update_db(&database, &config).await {
                     error!("Failed to update database: {}", e);
+                    panic!("Failed to update database");
                 }
                 info!("Database update completed successfully");
             }
