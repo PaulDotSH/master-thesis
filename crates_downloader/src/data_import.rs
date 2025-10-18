@@ -7,11 +7,11 @@ use crate::models::CrateDownloadRecord;
 use crate::repositories::{crates as crates_repo, dependencies as deps_repo};
 use chrono::NaiveDateTime;
 use std::collections::HashMap;
-use tracing::{info, warn, error, debug};
+use tracing::{debug, error, info, warn};
 
 pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::Error> {
     info!("Starting database population");
-    
+
     // Read and insert crates
     info!("Reading crates from CSV");
     let crate_records = read_crates_csv("db-dump/crates.csv")?;
@@ -70,37 +70,36 @@ pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::E
 
 pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Error> {
     info!("Starting optimized database update process");
-    
+
     info!("Loading all existing crates from database into memory");
     let all_db_crates = crates_repo::get_all_crates(db).await?;
-    let db_crates_map: HashMap<i64, crate::models::Crate> = all_db_crates
-        .into_iter()
-        .map(|c| (c.id, c))
-        .collect();
-    info!("Loaded {} crates into memory (~{}MB)", 
+    let db_crates_map: HashMap<i64, crate::models::Crate> =
+        all_db_crates.into_iter().map(|c| (c.id, c)).collect();
+    info!(
+        "Loaded {} crates into memory (~{}MB)",
         db_crates_map.len(),
-        (db_crates_map.len() * 200) / 1_000_000  // Rough estimate
+        (db_crates_map.len() * 200) / 1_000_000 // Rough estimate
     );
-    
+
     info!("Reading CSV files");
     let crate_records = read_crates_csv("db-dump/crates.csv")?;
     info!("Read {} crates from CSV", crate_records.len());
-    
+
     let crates_downloads = read_crates_downloads_csv("db-dump/crate_downloads.csv")?;
     let downloads_map: HashMap<i32, i64> = crates_downloads
         .into_iter()
         .map(|d| (d.crate_id, d.downloads))
         .collect();
-    
+
     info!("Reading versions.csv to create version->crate mapping");
     let versions = read_versions_csv("db-dump/versions.csv")?;
     let version_to_crate: HashMap<i32, i32> =
         versions.into_iter().map(|v| (v.id, v.crate_id)).collect();
     info!("Created mapping for {} versions", version_to_crate.len());
-    
+
     info!("Reading dependencies from CSV");
     let all_dependencies = read_dependencies_csv("db-dump/dependencies.csv")?;
-    
+
     // Group dependencies by crate_id (via version_id -> crate_id mapping)
     let mut crate_dependencies: HashMap<i32, Vec<i32>> = HashMap::new();
     for dep in &all_dependencies {
@@ -111,9 +110,12 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
                 .push(dep.crate_id);
         }
     }
-    
-    info!("Grouped dependencies for {} crates", crate_dependencies.len());
-    
+
+    info!(
+        "Grouped dependencies for {} crates",
+        crate_dependencies.len()
+    );
+
     // Compare and build batches in memory
     info!("Comparing CSV data with database and building update batches");
     let mut updates_batch = Vec::new();
@@ -122,15 +124,18 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
     let mut new_dependencies: Vec<(i64, Vec<i64>)> = Vec::new();
     let mut skipped_count = 0;
     let mut error_count = 0;
-    
+
     for record in &crate_records {
         let crate_id = record.id as i64;
-        
+
         // Parse timestamps from CSV
         let csv_updated_at_clean = match record.updated_at.split('+').next() {
             Some(s) => s,
             None => {
-                error!("Failed to parse updated_at timestamp for crate {}: invalid format in '{}'", record.name, record.updated_at);
+                error!(
+                    "Failed to parse updated_at timestamp for crate {}: invalid format in '{}'",
+                    record.name, record.updated_at
+                );
                 error_count += 1;
                 continue;
             }
@@ -138,29 +143,40 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         let csv_created_at_clean = match record.created_at.split('+').next() {
             Some(s) => s,
             None => {
-                error!("Failed to parse created_at timestamp for crate {}: invalid format in '{}'", record.name, record.created_at);
+                error!(
+                    "Failed to parse created_at timestamp for crate {}: invalid format in '{}'",
+                    record.name, record.created_at
+                );
                 error_count += 1;
                 continue;
             }
         };
-        
-        let csv_updated_at = match NaiveDateTime::parse_from_str(csv_updated_at_clean, "%Y-%m-%d %H:%M:%S%.f") {
-            Ok(dt) => dt,
-            Err(e) => {
-                error!("Failed to parse updated_at timestamp for crate {}: {} (value: '{}')", record.name, e, csv_updated_at_clean);
-                error_count += 1;
-                continue;
-            }
-        };
-        let csv_created_at = match NaiveDateTime::parse_from_str(csv_created_at_clean, "%Y-%m-%d %H:%M:%S%.f") {
-            Ok(dt) => dt,
-            Err(e) => {
-                error!("Failed to parse created_at timestamp for crate {}: {} (value: '{}')", record.name, e, csv_created_at_clean);
-                error_count += 1;
-                continue;
-            }
-        };
-        
+
+        let csv_updated_at =
+            match NaiveDateTime::parse_from_str(csv_updated_at_clean, "%Y-%m-%d %H:%M:%S%.f") {
+                Ok(dt) => dt,
+                Err(e) => {
+                    error!(
+                        "Failed to parse updated_at timestamp for crate {}: {} (value: '{}')",
+                        record.name, e, csv_updated_at_clean
+                    );
+                    error_count += 1;
+                    continue;
+                }
+            };
+        let csv_created_at =
+            match NaiveDateTime::parse_from_str(csv_created_at_clean, "%Y-%m-%d %H:%M:%S%.f") {
+                Ok(dt) => dt,
+                Err(e) => {
+                    error!(
+                        "Failed to parse created_at timestamp for crate {}: {} (value: '{}')",
+                        record.name, e, csv_created_at_clean
+                    );
+                    error_count += 1;
+                    continue;
+                }
+            };
+
         let repository = record
             .repository
             .as_ref()
@@ -168,9 +184,9 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
             .filter(|r| !r.is_empty())
             .unwrap_or("")
             .to_string();
-        
+
         let downloads = downloads_map.get(&record.id).copied().unwrap_or(0);
-        
+
         if let Some(db_crate) = db_crates_map.get(&crate_id) {
             // Crate exists, check if CSV is newer
             if csv_updated_at > db_crate.crate_updated_at {
@@ -182,9 +198,9 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
                     csv_created_at,
                     csv_updated_at,
                 ));
-                
+
                 crates_to_update_deps.push(crate_id);
-                
+
                 if let Some(deps) = crate_dependencies.get(&record.id) {
                     let dep_ids: Vec<i64> = deps.iter().map(|&id| id as i64).collect();
                     new_dependencies.push((crate_id, dep_ids));
@@ -194,31 +210,35 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
             }
         } else {
             // Crate doesn't exist, add to insert batch
-            inserts_batch.push((* record).clone());
-            
+            inserts_batch.push((*record).clone());
+
             if let Some(deps) = crate_dependencies.get(&record.id) {
                 let dep_ids: Vec<i64> = deps.iter().map(|&id| id as i64).collect();
                 new_dependencies.push((crate_id, dep_ids));
             }
         }
     }
-    
+
     info!("Analysis complete:");
     info!("  Crates to update: {}", updates_batch.len());
     info!("  Crates to insert: {}", inserts_batch.len());
     info!("  Crates to skip: {}", skipped_count);
     if error_count > 0 {
-        warn!("  Parse errors: {} (check error logs for details)", error_count);
+        warn!(
+            "  Parse errors: {} (check error logs for details)",
+            error_count
+        );
     } else {
         info!("  Parse errors: {}", error_count);
     }
-    
+
     // Execute batch updates
     if !updates_batch.is_empty() {
         info!("Executing batch updates in chunks of 5000");
         for (i, chunk) in updates_batch.chunks(5000).enumerate() {
-            debug!("  Updating chunk {}/{} ({} crates)", 
-                i + 1, 
+            debug!(
+                "  Updating chunk {}/{} ({} crates)",
+                i + 1,
                 (updates_batch.len() + 4999) / 5000,
                 chunk.len()
             );
@@ -226,12 +246,12 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         }
         info!("Batch updates completed successfully");
     }
-    
+
     // Insert new crates
     if !inserts_batch.is_empty() {
         info!("Inserting {} new crates", inserts_batch.len());
         crates_repo::insert_crates(db, &inserts_batch, config).await?;
-        
+
         // Update downloads for new crates
         let downloads_to_insert: Vec<CrateDownloadRecord> = inserts_batch
             .iter()
@@ -243,20 +263,30 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         crates_repo::insert_crates_downloads(db, &downloads_to_insert, config).await?;
         info!("New crates inserted successfully");
     }
-    
+
     // Delete old dependencies for updated crates
     if !crates_to_update_deps.is_empty() {
-        info!("Deleting old dependencies for {} crates", crates_to_update_deps.len());
+        info!(
+            "Deleting old dependencies for {} crates",
+            crates_to_update_deps.len()
+        );
         for (i, chunk) in crates_to_update_deps.chunks(10000).enumerate() {
-            debug!("  Deleting chunk {}/{}", i + 1, (crates_to_update_deps.len() + 9999) / 10000);
+            debug!(
+                "  Deleting chunk {}/{}",
+                i + 1,
+                (crates_to_update_deps.len() + 9999) / 10000
+            );
             deps_repo::bulk_delete_dependencies_for_crates(db, chunk).await?;
         }
         info!("Old dependencies deleted successfully");
     }
-    
+
     // Insert new dependencies
     if !new_dependencies.is_empty() {
-        info!("Inserting new dependencies for {} crates", new_dependencies.len());
+        info!(
+            "Inserting new dependencies for {} crates",
+            new_dependencies.len()
+        );
         for (i, (crate_id, dep_ids)) in new_dependencies.iter().enumerate() {
             if i % 1000 == 0 && i > 0 {
                 debug!("  Progress: {}/{}", i, new_dependencies.len());
@@ -267,7 +297,7 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         }
         info!("New dependencies inserted successfully");
     }
-    
+
     info!("Database update completed:");
     info!("  Updated crates: {}", updates_batch.len());
     info!("  Inserted crates: {}", inserts_batch.len());

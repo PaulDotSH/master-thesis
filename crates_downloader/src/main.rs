@@ -1,5 +1,6 @@
 mod config;
 mod csv_reader;
+mod analysis;
 mod data_import;
 mod database;
 mod downloader;
@@ -8,9 +9,9 @@ mod repositories;
 mod schema;
 
 use clap::{Parser, Subcommand};
-use tracing::{info, error};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 #[derive(Parser)]
 #[command(name = "crates_downloader")]
@@ -33,32 +34,26 @@ async fn main() {
     // Set up logging to both file and console
     let file_appender = RollingFileAppender::new(Rotation::DAILY, "logs", "crates_downloader.log");
     let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
-    
+
     tracing_subscriber::registry()
-        .with(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| EnvFilter::new("info"))
-        )
-        .with(
-            tracing_subscriber::fmt::layer()
-                .with_writer(std::io::stdout)
-        )
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
+        .with(tracing_subscriber::fmt::layer().with_writer(std::io::stdout))
         .with(
             tracing_subscriber::fmt::layer()
                 .with_writer(non_blocking)
-                .with_ansi(false)
+                .with_ansi(false),
         )
         .init();
 
     info!("Starting crates_downloader application");
-    
+
     let cli = Cli::parse();
     let config = config::Config::default();
     let database = match database::Database::new(&config).await {
         Ok(db) => {
             info!("Successfully connected to database");
             db
-        },
+        }
         Err(e) => {
             error!("Failed to create database connection: {}", e);
             panic!("Failed to create database");
@@ -68,7 +63,7 @@ async fn main() {
     match cli.command {
         Commands::UpdateDatabase => {
             info!("Starting database update process");
-            
+
             info!("Downloading the data from crates.io");
             if let Err(e) = downloader::CratesDownloader::prepare_source_data().await {
                 error!("Failed to prepare source data from crates.io: {}", e);
@@ -92,20 +87,21 @@ async fn main() {
                 }
                 info!("Database population completed successfully");
             } else {
-                info!("Database contains {} crates. Starting incremental update", crate_count);
+                info!(
+                    "Database contains {} crates. Starting incremental update",
+                    crate_count
+                );
                 if let Err(e) = data_import::update_db(&database, &config).await {
                     error!("Failed to update database: {}", e);
-                    panic!("Failed to update database");
                 }
                 info!("Database update completed successfully");
             }
         }
         Commands::RunAnalysis => {
             info!("Starting analysis process");
-            // TODO: Implement analysis functionality
-            info!("Analysis functionality not yet implemented");
+            analysis::analysis::analyze_crates(&database, &config).await.expect("Failed to analyze crates");
         }
     }
-    
+
     info!("Application completed successfully");
 }

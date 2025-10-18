@@ -91,14 +91,28 @@ pub async fn count_crates(db: &Database) -> Result<i64, anyhow::Error> {
     Ok(count)
 }
 
-pub async fn get_crate_by_id(db: &Database, crate_id: i64) -> Result<Option<Crate>, anyhow::Error> {
+/// Batch fetch multiple crates by their IDs in a single query.
+/// Returns a HashMap mapping crate_id -> Crate for efficient lookup.
+pub async fn get_crates_by_ids(db: &Database, crate_ids: &[i64]) -> Result<std::collections::HashMap<i64, Crate>, anyhow::Error> {
+    use std::collections::HashMap;
+    
+    if crate_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    
     let mut conn = db.get_connection().await?;
-    let result = crates::table
-        .find(crate_id)
-        .first::<Crate>(&mut conn)
-        .await
-        .optional()?;
-    Ok(result)
+    let crates_list: Vec<Crate> = crates::table
+        .filter(crates::id.eq_any(crate_ids))
+        .select(Crate::as_select())
+        .load(&mut conn)
+        .await?;
+    
+    let crates_map: HashMap<i64, Crate> = crates_list
+        .into_iter()
+        .map(|c| (c.id, c))
+        .collect();
+    
+    Ok(crates_map)
 }
 
 pub async fn get_all_crates(db: &Database) -> Result<Vec<Crate>, anyhow::Error> {
@@ -110,28 +124,16 @@ pub async fn get_all_crates(db: &Database) -> Result<Vec<Crate>, anyhow::Error> 
     Ok(all_crates)
 }
 
-pub async fn update_crate(
-    db: &Database,
-    crate_id: i64,
-    name: &str,
-    repository: &str,
-    downloads: i64,
-    crate_created_at: NaiveDateTime,
-    crate_updated_at: NaiveDateTime,
-) -> Result<(), anyhow::Error> {
+pub async fn get_top_download_crates(db: &Database, limit: i64) -> Result<Vec<Crate>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
-    diesel::update(crates::table.find(crate_id))
-        .set((
-            crates::name.eq(name),
-            crates::repository.eq(repository),
-            crates::crate_downloads.eq(downloads),
-            crates::crate_created_at.eq(crate_created_at),
-            crates::crate_updated_at.eq(crate_updated_at),
-            crates::db_updated_at.eq(chrono::Utc::now().naive_utc()),
-        ))
-        .execute(&mut conn)
+    let top_crates = crates::table
+        .select(Crate::as_select())
+        .order(crates::crate_downloads.desc())
+        .limit(limit)
+        .load::<Crate>(&mut conn)
         .await?;
-    Ok(())
+    
+    Ok(top_crates)
 }
 
 pub async fn batch_update_crates(

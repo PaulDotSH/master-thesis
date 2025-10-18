@@ -5,5 +5,6 @@ CREATE TABLE scan_results (
     llm_notes VARCHAR NOT NULL,
     has_executable_files BOOLEAN not null,
     cargo_audit_max_dep_score smallint not null,
-    cargo_audit_vulns_count smallint not null
+    cargo_audit_vulns_count smallint not null,
+    db_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )

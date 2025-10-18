@@ -3,3 +3,4 @@
 target/
 **/*/.env
 /logs
+crates_downloader/logs

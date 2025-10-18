@@ -1,0 +1,2 @@
+instead of inserting current time as analysis finished, insert creation time of db-dump archive
+think of a way to fix crates showing "incorrect" dependencies score because we take one time the lastest library version and cargo audit checks the exact version used

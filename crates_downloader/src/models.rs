@@ -1,4 +1,4 @@
-use crate::schema::{crates, dependencies};
+use crate::schema::{crates, dependencies, cargo_audit_results};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -60,7 +60,7 @@ pub struct NewDependency {
 }
 
 // Database Queryable structs (for reading from database)
-#[derive(Debug, Queryable, Selectable)]
+#[derive(Debug, Clone, Queryable, Selectable)]
 #[diesel(table_name = crates)]
 #[allow(dead_code)]
 pub struct Crate {
@@ -72,4 +72,12 @@ pub struct Crate {
     pub db_updated_at: NaiveDateTime,
     pub crate_created_at: NaiveDateTime,
     pub crate_updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = cargo_audit_results)]
+pub struct NewCargoAuditResult {
+    pub crate_: Option<i64>,
+    pub rustsec_id: String,
+    pub severity: Option<i16>,
 }

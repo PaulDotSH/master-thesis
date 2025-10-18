@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::database::Database;
 use crate::models::{DependencyRecord, NewDependency};
 use crate::schema::dependencies;
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use std::collections::{HashMap, HashSet};
@@ -99,12 +99,53 @@ pub async fn enable_dependency_triggers(db: &Database) -> Result<(), anyhow::Err
     Ok(())
 }
 
-pub async fn delete_dependencies_for_crate(db: &Database, crate_id: i64) -> Result<(), anyhow::Error> {
+#[derive(Debug, Queryable, Selectable)]
+#[diesel(table_name = dependencies)]
+pub struct Dependency {
+    #[allow(dead_code)]
+    pub crate_id: i64,
+    pub dependency_id: i64,
+    #[allow(dead_code)]
+    pub db_created_at: NaiveDateTime,
+    #[allow(dead_code)]
+    pub db_updated_at: NaiveDateTime,
+}
+
+pub async fn get_dependencies_for_crate(db: &Database, crate_id: i64) -> Result<Vec<Dependency>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
-    diesel::delete(dependencies::table.filter(dependencies::crate_id.eq(crate_id)))
-        .execute(&mut conn)
+    let dependencies = dependencies::table
+        .filter(dependencies::crate_id.eq(crate_id))
+        .select(Dependency::as_select())
+        .load(&mut conn)
         .await?;
-    Ok(())
+    Ok(dependencies)
+}
+
+/// Batch fetch dependencies for multiple crates at once
+/// Returns a HashMap mapping crate_id -> Vec<dependency_id>
+pub async fn get_dependencies_for_crates(db: &Database, crate_ids: &[i64]) -> Result<std::collections::HashMap<i64, Vec<i64>>, anyhow::Error> {
+    use std::collections::HashMap;
+    
+    if crate_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    
+    let mut conn = db.get_connection().await?;
+    let dependencies_list: Vec<Dependency> = dependencies::table
+        .filter(dependencies::crate_id.eq_any(crate_ids))
+        .select(Dependency::as_select())
+        .load(&mut conn)
+        .await?;
+    
+    // Group dependencies by crate_id
+    let mut deps_map: HashMap<i64, Vec<i64>> = HashMap::new();
+    for dep in dependencies_list {
+        deps_map.entry(dep.crate_id)
+            .or_insert_with(Vec::new)
+            .push(dep.dependency_id);
+    }
+    
+    Ok(deps_map)
 }
 
 pub async fn bulk_delete_dependencies_for_crates(
@@ -116,11 +157,11 @@ pub async fn bulk_delete_dependencies_for_crates(
     }
 
     let mut conn = db.get_connection().await?;
-    
+
     diesel::delete(dependencies::table.filter(dependencies::crate_id.eq_any(crate_ids)))
         .execute(&mut conn)
         .await?;
-    
+
     Ok(())
 }
 
@@ -130,7 +171,7 @@ pub async fn insert_dependencies_for_crate(
     dependency_ids: &Vec<i64>,
 ) -> Result<(), anyhow::Error> {
     let mut conn = db.get_connection().await?;
-    
+
     let new_dependencies: Vec<NewDependency> = dependency_ids
         .iter()
         .map(|dep_id| NewDependency {
@@ -146,6 +187,6 @@ pub async fn insert_dependencies_for_crate(
         .on_conflict_do_nothing()
         .execute(&mut conn)
         .await?;
-    
+
     Ok(())
 }

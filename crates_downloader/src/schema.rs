@@ -68,6 +68,7 @@ diesel::table! {
         has_executable_files -> Bool,
         cargo_audit_max_dep_score -> Int2,
         cargo_audit_vulns_count -> Int2,
+        db_created_at -> Timestamp,
     }
 }
 

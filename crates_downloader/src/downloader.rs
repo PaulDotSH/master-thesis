@@ -1,5 +1,5 @@
 use std::fs::File;
-use tracing::{info, error, debug};
+use tracing::{debug, error, info};
 
 pub struct CratesDownloader {}
 
@@ -7,16 +7,16 @@ impl CratesDownloader {
     pub async fn download_crates_db() -> Result<(), anyhow::Error> {
         info!("Starting download of crates.io database dump");
         let url = "https://static.crates.io/db-dump.tar.gz";
-        
+
         let response = reqwest::get(url).await.map_err(|e| {
             error!("Failed to download from {}: {}", url, e);
             e
         })?;
-        
+
         debug!("Download successful, reading response bytes");
         let bytes = response.bytes().await?;
         info!("Downloaded {} bytes", bytes.len());
-        
+
         std::fs::write("db-dump.tar.gz", bytes)?;
         info!("Saved database dump to db-dump.tar.gz");
         Ok(())
@@ -28,16 +28,16 @@ impl CratesDownloader {
             error!("Failed to open db-dump.tar.gz: {}", e);
             e
         })?;
-        
+
         let tar = flate2::read::GzDecoder::new(tar_gz);
         let mut archive = tar::Archive::new(tar);
         std::fs::create_dir_all("./db-dump")?;
-        
+
         archive.unpack("./db-dump").map_err(|e| {
             error!("Failed to extract archive: {}", e);
             e
         })?;
-        
+
         info!("Successfully extracted database dump to ./db-dump");
         Ok(())
     }
