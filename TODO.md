@@ -1,0 +1,13 @@
+modules:
+- LLM
+- Code Similarity & typosquatting stuff
+- code entropy
+- executables in repo
+- build.rs behavior
+    - network calls
+    - obfuscated strings (high entropy)
+    - weird behavior?
+    - look into
+    - domains matching free tlds
+    - exec stuff in build.rs
+    - raw ips in build.rs

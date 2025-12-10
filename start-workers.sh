@@ -1,0 +1,1 @@
+sudo docker-compose -f docker-compose.workers.yml up -d --scale worker=24

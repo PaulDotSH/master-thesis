@@ -1,0 +1,58 @@
+2025-12-09T23:48:54.011591Z  INFO crates_downloader: Starting crates_downloader application
+2025-12-09T23:48:58.228673Z  INFO crates_downloader: Starting crates_downloader application
+2025-12-09T23:48:58.228746Z  INFO crates_downloader: Successfully connected to database
+2025-12-09T23:48:58.228754Z  INFO crates_downloader: Starting analysis process - building dependency graph in Redis
+2025-12-09T23:48:58.231860Z  INFO crates_downloader: Starting with 0 root crates
+2025-12-09T23:48:58.231867Z  INFO crates_downloader: Total crates to analyze (including transitive deps): 0
+2025-12-09T23:48:58.231871Z  INFO crates_downloader: Checking which crates need analyzing...
+2025-12-09T23:48:58.232321Z  INFO crates_downloader: Found 0 crates needing analysis (out of 0 total)
+2025-12-09T23:48:58.232325Z  INFO crates_downloader: No crates need analysis. All done!
+2025-12-09T23:49:07.174756Z  INFO crates_downloader: Starting crates_downloader application
+2025-12-09T23:49:07.174831Z  INFO crates_downloader: Successfully connected to database
+2025-12-09T23:49:07.174836Z  INFO crates_downloader: Starting database update process
+2025-12-09T23:49:07.174840Z  INFO crates_downloader: Downloading the data from crates.io
+2025-12-09T23:49:07.174844Z  INFO crates_downloader::downloader: Preparing source data from crates.io
+2025-12-09T23:49:07.174848Z  INFO crates_downloader::downloader: Starting download of crates.io database dump
+2025-12-09T23:49:17.233541Z  INFO crates_downloader::downloader: Downloaded 1083977475 bytes
+2025-12-09T23:49:17.699787Z  INFO crates_downloader::downloader: Saved database dump to db-dump.tar.gz
+2025-12-09T23:49:17.699794Z  INFO crates_downloader::downloader: Extracting database dump archive
+2025-12-09T23:49:27.552575Z  INFO crates_downloader::downloader: Successfully extracted database dump to ./db-dump
+2025-12-09T23:49:27.552584Z  INFO crates_downloader::downloader: Cleaning up and organizing extracted files
+2025-12-09T23:49:31.993275Z  INFO crates_downloader::downloader: Cleanup and organization completed successfully
+2025-12-09T23:49:31.993287Z  INFO crates_downloader::downloader: Source data preparation completed
+2025-12-09T23:49:31.993291Z  INFO crates_downloader: Successfully downloaded and prepared source data
+2025-12-09T23:49:31.996483Z  INFO crates_downloader: Database is empty. Starting initial population
+2025-12-09T23:49:31.996487Z  INFO crates_downloader::data_import: Starting database population
+2025-12-09T23:49:31.996489Z  INFO crates_downloader::data_import: Reading crates from CSV
+2025-12-09T23:49:32.855165Z  INFO crates_downloader::data_import: Number of crates to be inserted: 209679
+2025-12-09T23:49:32.855173Z  INFO crates_downloader::data_import: Inserting crates into database
+2025-12-09T23:49:34.755001Z  INFO crates_downloader::data_import: Total crates in database: 209679
+2025-12-09T23:49:34.755010Z  INFO crates_downloader::data_import: Inserting crates_downloads
+2025-12-09T23:49:38.169424Z  INFO crates_downloader::data_import: Reading versions.csv to create version->crate mapping
+2025-12-09T23:49:39.915673Z  INFO crates_downloader::data_import: Created mapping for 1826693 versions
+2025-12-09T23:49:39.915681Z  INFO crates_downloader::data_import: Building set of existing crate IDs
+2025-12-09T23:49:39.918856Z  INFO crates_downloader::data_import: Found 209679 crate IDs in crates.csv
+2025-12-09T23:49:39.918861Z  INFO crates_downloader::data_import: Inserting dependencies
+2025-12-09T23:49:41.895584Z  INFO crates_downloader::data_import: Total dependencies to insert: 19164974
+2025-12-09T23:50:48.790069Z  INFO crates_downloader::data_import: Database populated successfully
+2025-12-09T23:50:48.828268Z  INFO crates_downloader: Database population completed successfully
+2025-12-09T23:50:48.828276Z  INFO crates_downloader: Application completed successfully
+2025-12-09T23:50:52.647654Z  INFO crates_downloader: Starting crates_downloader application
+2025-12-09T23:50:52.647751Z  INFO crates_downloader: Successfully connected to database
+2025-12-09T23:50:52.647760Z  INFO crates_downloader: Starting analysis process - building dependency graph in Redis
+2025-12-09T23:50:52.754484Z  INFO crates_downloader: Starting with 209679 root crates
+2025-12-09T23:50:53.248505Z  INFO crates_downloader: Total crates to analyze (including transitive deps): 209679
+2025-12-09T23:50:53.379158Z  INFO crates_downloader: Checking which crates need analyzing...
+2025-12-09T23:50:53.465075Z  INFO crates_downloader: Found 209679 crates needing analysis (out of 209679 total)
+2025-12-09T23:50:53.510692Z  INFO crates_downloader: Filtered dependency graph to 177062 crates needing analysis
+2025-12-09T23:50:53.511653Z  INFO crates_downloader::queue: Connected to Redis at redis://localhost:6379
+2025-12-09T23:50:53.511660Z  INFO crates_downloader::queue: Initializing dependency graph for 209679 crates
+2025-12-09T23:50:53.512388Z  INFO crates_downloader::queue: Cleared 3 Redis keys
+2025-12-09T23:50:53.515991Z  INFO crates_downloader::queue: Building filtered dependency graph...
+2025-12-09T23:50:53.629036Z  INFO crates_downloader::queue: Detecting and breaking dependency cycles upfront...
+2025-12-09T23:50:53.689715Z  INFO crates_downloader::queue: Found 25850 cycle edges to break upfront
+2025-12-09T23:50:55.914464Z  INFO crates_downloader::queue: Dependency graph initialized: 33369 ready immediately, 176310 with dependencies, 25850 cycle edges broken
+2025-12-09T23:50:55.928530Z  INFO crates_downloader: ✓ Dependency graph initialized: Progress: 0.0% | Ready: 33369 | In Progress: 0 | Completed: 0 | Failed: 0 | Remaining: 209679 / 209679
+2025-12-09T23:50:55.928538Z  INFO crates_downloader: Start workers with: cargo run --release -- worker
+2025-12-09T23:50:55.928541Z  INFO crates_downloader: Or scale with Docker: docker-compose up -d --scale worker=10
+2025-12-09T23:50:55.958738Z  INFO crates_downloader: Application completed successfully

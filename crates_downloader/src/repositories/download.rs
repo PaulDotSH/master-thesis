@@ -64,10 +64,14 @@ pub async fn download_repo(url: &str, target_dir: &str) -> Result<(), anyhow::Er
     
     let output = Command::new("git")
         .arg("clone")
-        .arg(&sanitized_url)
-        .arg(target_dir)
         .arg("--depth")
         .arg("1")
+        .arg("--single-branch")
+        .arg("--no-tags")
+        .arg("--filter=blob:none")  // Blobless clone - faster for large repos
+        .arg(&sanitized_url)
+        .arg(target_dir)
+        .env("GIT_TERMINAL_PROMPT", "0")  // Disable prompts
         .output()
         .await?;
     

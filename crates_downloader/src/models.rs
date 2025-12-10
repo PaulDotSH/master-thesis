@@ -1,4 +1,4 @@
-use crate::schema::{crates, dependencies, cargo_audit_results};
+use crate::schema::{crates, dependencies, cargo_audit_results, gitleaks_results};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -80,4 +80,14 @@ pub struct NewCargoAuditResult {
     pub crate_: Option<i64>,
     pub rustsec_id: String,
     pub severity: Option<i16>,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = gitleaks_results)]
+pub struct NewGitleaksResult {
+    pub crate_: Option<i64>,
+    pub rule_id: String,
+    pub secret: String,
+    pub loc: String,
+    pub entropy: f64,
 }

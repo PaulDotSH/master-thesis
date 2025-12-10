@@ -1,0 +1,28 @@
+# Docker Compose for workers only - connects to host's PostgreSQL and Redis
+# Usage: sudo docker-compose -f docker-compose.workers.yml up -d --build --scale worker=10
+
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: worker
+    network_mode: "host"
+    environment:
+      - RUST_LOG=info
+      # Connect to host's PostgreSQL and Redis via localhost (using host network)
+      - DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/crates
+      - REDIS_URL=redis://127.0.0.1:6379
+    volumes:
+      - ./crates_downloader/config.toml:/app/config.toml
+      - /tmp/crates:/tmp/crates  # RAM disk mount - run: sudo mount -t tmpfs -o size=4G tmpfs /tmp/crates
+      - ./logs/docker:/app/logs  # Persist logs to host
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G

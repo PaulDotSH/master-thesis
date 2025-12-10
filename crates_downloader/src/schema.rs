@@ -46,9 +46,13 @@ diesel::table! {
         id -> Uuid,
         #[sql_name = "crate"]
         crate_ -> Nullable<Int8>,
-        #[max_length = 10]
-        rustsec_id -> Varchar,
-        severity -> Nullable<Int2>,
+        #[max_length = 255]
+        rule_id -> Varchar,
+        #[max_length = 255]
+        secret -> Varchar,
+        #[max_length = 255]
+        loc -> Varchar,
+        entropy -> Float8,
     }
 }
 

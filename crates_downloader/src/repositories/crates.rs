@@ -115,6 +115,16 @@ pub async fn get_crates_by_ids(db: &Database, crate_ids: &[i64]) -> Result<std::
     Ok(crates_map)
 }
 
+pub async fn get_crate_by_id(db: &Database, crate_id: i64) -> Result<Crate, anyhow::Error> {
+    let mut conn = db.get_connection().await?;
+    let crate_data = crates::table
+        .filter(crates::id.eq(crate_id))
+        .select(Crate::as_select())
+        .first::<Crate>(&mut conn)
+        .await?;
+    Ok(crate_data)
+}
+
 pub async fn get_all_crates(db: &Database) -> Result<Vec<Crate>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
     let all_crates = crates::table

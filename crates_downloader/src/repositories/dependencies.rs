@@ -101,16 +101,15 @@ pub async fn enable_dependency_triggers(db: &Database) -> Result<(), anyhow::Err
 
 #[derive(Debug, Queryable, Selectable)]
 #[diesel(table_name = dependencies)]
+#[allow(dead_code)]
 pub struct Dependency {
-    #[allow(dead_code)]
     pub crate_id: i64,
     pub dependency_id: i64,
-    #[allow(dead_code)]
     pub db_created_at: NaiveDateTime,
-    #[allow(dead_code)]
     pub db_updated_at: NaiveDateTime,
 }
 
+#[allow(dead_code)]
 pub async fn get_dependencies_for_crate(db: &Database, crate_id: i64) -> Result<Vec<Dependency>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
     let dependencies = dependencies::table
@@ -198,4 +197,48 @@ pub async fn insert_dependencies_for_crate(
     }
 
     Ok(())
+}
+
+/// Collect all transitive dependencies starting from a set of root crates.
+/// This recursively finds all dependencies of dependencies until no new crates are found.
+/// Returns all crate IDs that need to be processed (roots + all transitive deps).
+pub async fn collect_transitive_dependencies(
+    db: &Database,
+    root_crate_ids: &[i64],
+) -> Result<(HashSet<i64>, HashMap<i64, Vec<i64>>), anyhow::Error> {
+    use tracing::info;
+    
+    let mut all_crate_ids: HashSet<i64> = root_crate_ids.iter().copied().collect();
+    let mut all_dependencies: HashMap<i64, Vec<i64>> = HashMap::new();
+    let mut to_explore: Vec<i64> = root_crate_ids.to_vec();
+    let mut iteration = 0;
+    
+    while !to_explore.is_empty() {
+        iteration += 1;
+        info!("Collecting transitive dependencies - iteration {}, exploring {} crates, total so far: {}", 
+              iteration, to_explore.len(), all_crate_ids.len());
+        
+        // Fetch dependencies for all crates we're exploring
+        let deps = get_dependencies_for_crates(db, &to_explore).await?;
+        
+        // Find new crates we haven't seen yet
+        let mut new_crates = Vec::new();
+        for (crate_id, dep_ids) in deps {
+            all_dependencies.insert(crate_id, dep_ids.clone());
+            for dep_id in dep_ids {
+                if all_crate_ids.insert(dep_id) {
+                    // This is a new crate we haven't seen
+                    new_crates.push(dep_id);
+                }
+            }
+        }
+        
+        // Next iteration, explore the newly discovered crates
+        to_explore = new_crates;
+    }
+    
+    info!("Transitive dependency collection complete: {} total crates (from {} roots)", 
+          all_crate_ids.len(), root_crate_ids.len());
+    
+    Ok((all_crate_ids, all_dependencies))
 }

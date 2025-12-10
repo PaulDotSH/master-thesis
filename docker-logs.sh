@@ -1,0 +1,1 @@
+sudo docker-compose -f docker-compose.workers.yml logs | grep -i "error\|failed" | head -50

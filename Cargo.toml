@@ -4,3 +4,10 @@ members = [
 ]
 
 resolver = "3"
+
+[profile.production]
+inherits = "release"
+lto = true
+codegen-units = 1
+strip = true
+overflow-checks = false

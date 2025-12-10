@@ -1,18 +1,58 @@
-use tokio::process::Command;
+use anyhow::Context;
 use sonic_rs::JsonValueTrait;
+use tokio::process::Command;
+use tracing::{debug, info, warn};
 
 pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(String, u8)>, anyhow::Error> {
-    let stdout = Command::new("cargo")
+    // Verify the directory exists before running cargo audit
+    if !std::path::Path::new(crate_dir).exists() {
+        anyhow::bail!("Crate directory '{}' does not exist", crate_dir);
+    }
+    
+    debug!("Running cargo audit for crate_dir: {}", crate_dir);
+    
+    // Run cargo audit with --no-fetch to use the already-initialized database
+    // This prevents concurrent git fetch operations that cause conflicts
+    let output = Command::new("cargo")
         .arg("audit")
         .arg("--json")
+        .arg("--no-fetch")
         .current_dir(crate_dir)
         .output()
-        .await?;
+        .await
+        .context(format!("Failed to execute cargo audit for '{}'", crate_dir))?;
     
-    // Using sonic_rs for speed
-    let stdout = String::from_utf8(stdout.stdout)?;
+    // Check if command succeeded
+    // Note: cargo audit returns exit code 0 for no vulnerabilities, 1 for vulnerabilities found
+    // Both are valid cases. Only other exit codes are actual failures.
+    let exit_code = output.status.code();
+    if exit_code != Some(0) && exit_code != Some(1) {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        debug!("cargo audit stderr: {}", stderr);
+        debug!("cargo audit stdout: {}", stdout);
+        
+        anyhow::bail!("cargo audit command failed with exit code {:?}\nstderr: {}\nstdout: {}", 
+                     exit_code, stderr, stdout);
+    }
 
-    let json: sonic_rs::Value = sonic_rs::from_str(&stdout)?;
+    // Using sonic_rs for speed
+    let stdout = String::from_utf8(output.stdout)
+        .context(format!("Failed to parse cargo audit output as UTF-8 for '{}'", crate_dir))?;
+    
+    // Trim whitespace and check if output is empty/whitespace-only
+    let stdout = stdout.trim();
+    if stdout.is_empty() {
+        warn!("cargo audit returned empty or whitespace-only stdout for crate_dir: {}", crate_dir);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if !stderr.is_empty() {
+            warn!("cargo audit stderr (possibly informational): {}", stderr);
+        }
+        return Ok(Vec::new());
+    }
+
+    let json: sonic_rs::Value = sonic_rs::from_str(&stdout)
+        .context(format!("Failed to parse cargo audit JSON output for '{}'", crate_dir))?;
     
     let mut vulnerabilities = Vec::new();
     
@@ -43,6 +83,7 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
         }
     }
     
+    info!("Completed cargo audit for '{}': found {} vulnerabilities", crate_dir, vulnerabilities.len());
     Ok(vulnerabilities)
 }
 
