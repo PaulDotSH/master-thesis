@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "crates_downloader",
+  "crates_downloader", "webpanel",
 ]
 
 resolver = "3"

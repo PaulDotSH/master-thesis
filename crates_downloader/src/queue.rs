@@ -432,6 +432,30 @@ impl WorkQueue {
         Ok(recovered)
     }
 
+    /// Requeue a specific in-progress item back to the ready queue
+    /// 
+    /// Used during graceful shutdown to return work that won't be completed
+    pub async fn requeue_item(&mut self, crate_id: i64) -> Result<(), anyhow::Error> {
+        let crate_id_str = crate_id.to_string();
+        
+        // Remove from in_progress
+        let removed: i32 = self.client
+            .srem(IN_PROGRESS_SET, &crate_id_str)
+            .await
+            .context("Failed to remove from in_progress")?;
+        
+        if removed > 0 {
+            // Add back to ready queue (at the front for priority)
+            let _: () = self.client
+                .lpush(READY_QUEUE, &crate_id_str)
+                .await
+                .context("Failed to add back to ready queue")?;
+            info!("Requeued crate {} back to ready queue", crate_id);
+        }
+        
+        Ok(())
+    }
+
     /// Fix dependency cycles that block the queue
     /// 
     /// This method:

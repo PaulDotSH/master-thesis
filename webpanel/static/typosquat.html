@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typosquatting - Crates Security Scanner</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <h2>Crates Scanner</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" data-page="dashboard">Dashboard</a></li>
+            <li><a href="/crates.html" data-page="crates">Crates</a></li>
+            <li><a href="/dependencies.html" data-page="dependencies">Dependencies</a></li>
+            <li><a href="/scan-results.html" data-page="scan-results">Scan Results</a></li>
+            <li><a href="/vulnerabilities.html" data-page="vulnerabilities">Vulnerabilities</a></li>
+            <li><a href="/secrets.html" data-page="secrets">Secrets</a></li>
+            <li><a href="/typosquat.html" class="active" data-page="typosquat">Typosquatting</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>Typosquatting Candidates</h1>
+            <p class="subtitle">Crates with suspiciously similar names to popular packages</p>
+        </header>
+
+        <section id="typosquat-table" class="table-container"></section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let typosquatTable;
+
+        function renderScore(score) {
+            const riskClass = score >= 80 ? 'danger' : score >= 50 ? 'warning' : 'success';
+            return `
+                <div>
+                    <span class="badge badge-${riskClass}">${score}</span>
+                    <div class="score-bar">
+                        <div class="score-bar-fill ${riskClass}" style="width: ${score}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            typosquatTable = new DataTable({
+                containerId: 'typosquat-table',
+                fetchData: (params) => Api.getTyposquat(params),
+                columns: [
+                    { 
+                        key: 'crate_name', 
+                        label: 'Suspicious Crate',
+                        render: (val) => `<a href="https://crates.io/crates/${encodeURIComponent(val)}" target="_blank">${escapeHtml(val)}</a>`
+                    },
+                    { 
+                        key: 'similar_crate_name', 
+                        label: 'Similar To',
+                        render: (val) => `<a href="https://crates.io/crates/${encodeURIComponent(val)}" target="_blank">${escapeHtml(val)}</a>`
+                    },
+                    { 
+                        key: 'combined_score', 
+                        label: 'Combined Score',
+                        render: renderScore
+                    },
+                    { 
+                        key: 'levenshtein_score', 
+                        label: 'Levenshtein',
+                        render: (val) => val
+                    },
+                    { 
+                        key: 'jaro_winkler_score', 
+                        label: 'Jaro-Winkler',
+                        render: (val) => val
+                    },
+                    { 
+                        key: 'keyboard_distance_score', 
+                        label: 'Keyboard',
+                        render: (val) => val
+                    },
+                    { 
+                        key: 'prefix_similarity_score', 
+                        label: 'Prefix',
+                        render: (val) => val
+                    }
+                ],
+                filters: [
+                    { key: 'crate_name', label: 'Crate Name', type: 'text', placeholder: 'Search...' },
+                    { key: 'min_combined_score', label: 'Min Score', type: 'number', placeholder: '0' }
+                ],
+                defaultSort: 'combined_score',
+                defaultSortDesc: true
+            });
+            window['typosquat-tableTable'] = typosquatTable;
+        });
+    </script>
+</body>
+</html>

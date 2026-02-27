@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Results - Crates Security Scanner</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <h2>Crates Scanner</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" data-page="dashboard">Dashboard</a></li>
+            <li><a href="/crates.html" data-page="crates">Crates</a></li>
+            <li><a href="/dependencies.html" data-page="dependencies">Dependencies</a></li>
+            <li><a href="/scan-results.html" class="active" data-page="scan-results">Scan Results</a></li>
+            <li><a href="/vulnerabilities.html" data-page="vulnerabilities">Vulnerabilities</a></li>
+            <li><a href="/secrets.html" data-page="secrets">Secrets</a></li>
+            <li><a href="/typosquat.html" data-page="typosquat">Typosquatting</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>Scan Results</h1>
+            <p class="subtitle">Security analysis results for scanned crates</p>
+        </header>
+
+        <section id="scan-results-table" class="table-container"></section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Scan Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let scanResultsTable;
+        
+        function renderScore(score) {
+            const riskClass = getRiskClass(score);
+            return `
+                <div>
+                    <span class="badge badge-${riskClass}">${score}</span>
+                    <div class="score-bar">
+                        <div class="score-bar-fill ${riskClass}" style="width: ${score}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBool(val) {
+            return val 
+                ? '<span class="badge badge-danger">Yes</span>' 
+                : '<span class="badge badge-success">No</span>';
+        }
+
+        async function showDetails(id) {
+            try {
+                const result = await Api.getScanResult(id);
+                document.getElementById('modal-title').textContent = `Scan: ${result.crate_name}`;
+                document.getElementById('modal-body').innerHTML = `
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Crate ID</label>
+                            <span>${result.id}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Crate Name</label>
+                            <span><a href="https://crates.io/crates/${encodeURIComponent(result.crate_name)}" target="_blank">${escapeHtml(result.crate_name)}</a></span>
+                        </div>
+                        <div class="detail-item">
+                            <label>LLM Malicious Score</label>
+                            <span>${renderScore(result.llm_malicious_score)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Has Malicious Deps</label>
+                            <span>${renderBool(result.has_malicious_dependencies)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Has Executable Files</label>
+                            <span>${renderBool(result.has_executable_files)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Vulnerabilities Count</label>
+                            <span>${result.cargo_audit_vulns_count}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Max Vuln Severity</label>
+                            <span>${result.cargo_audit_max_dep_score}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Entropy Score</label>
+                            <span>${result.entropy_score.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-item full-width" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 15px;">
+                            <label>Build.rs Analysis</label>
+                        </div>
+                        <div class="detail-item">
+                            <label>Network Calls</label>
+                            <span>${renderBool(result.build_rs_network_calls)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Link Directive</label>
+                            <span>${renderBool(result.build_rs_has_link_directive)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Process Spawning</label>
+                            <span>${renderBool(result.build_rs_has_process_spawning)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Raw IP Addresses</label>
+                            <span>${renderBool(result.build_rs_has_raw_ip)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Free TLDs</label>
+                            <span>${renderBool(result.build_rs_has_free_tlds)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Build.rs Entropy</label>
+                            <span>${result.build_rs_entropy_score.toFixed(2)}</span>
+                        </div>
+                        ${result.llm_notes ? `
+                        <div class="detail-item full-width">
+                            <label>LLM Analysis Notes</label>
+                            <span style="white-space: pre-wrap; font-size: 0.9rem;">${escapeHtml(result.llm_notes)}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.getElementById('modal-overlay').classList.add('active');
+            } catch (error) {
+                console.error('Failed to load details:', error);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        document.getElementById('modal-overlay').addEventListener('click', (e) => {
+            if (e.target.id === 'modal-overlay') closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            scanResultsTable = new DataTable({
+                containerId: 'scan-results-table',
+                fetchData: (params) => Api.getScanResults(params),
+                columns: [
+                    { key: 'id', label: 'ID' },
+                    { 
+                        key: 'crate_name', 
+                        label: 'Crate',
+                        render: (val, row) => `<a href="#" onclick="showDetails(${row.id}); return false;">${escapeHtml(val)}</a>`
+                    },
+                    { 
+                        key: 'llm_malicious_score', 
+                        label: 'Risk Score',
+                        render: renderScore
+                    },
+                    { 
+                        key: 'has_malicious_dependencies', 
+                        label: 'Malicious Deps',
+                        render: renderBool
+                    },
+                    { 
+                        key: 'cargo_audit_vulns_count', 
+                        label: 'Vulns',
+                        render: (val) => val > 0 ? `<span class="badge badge-warning">${val}</span>` : val
+                    },
+                    { 
+                        key: 'build_rs_network_calls', 
+                        label: 'Network',
+                        render: renderBool
+                    },
+                    { 
+                        key: 'build_rs_has_process_spawning', 
+                        label: 'Process',
+                        render: renderBool
+                    },
+                    { 
+                        key: 'entropy_score', 
+                        label: 'Entropy',
+                        render: (val) => val.toFixed(2)
+                    }
+                ],
+                filters: [
+                    { key: 'crate_name', label: 'Crate Name', type: 'text', placeholder: 'Search...' },
+                    { key: 'min_llm_score', label: 'Min Score', type: 'number', placeholder: '0' },
+                    { key: 'max_llm_score', label: 'Max Score', type: 'number', placeholder: '100' },
+                    { 
+                        key: 'has_malicious_dependencies', 
+                        label: 'Has Malicious', 
+                        type: 'select',
+                        options: [
+                            { value: 'true', label: 'Yes' },
+                            { value: 'false', label: 'No' }
+                        ]
+                    },
+                    { 
+                        key: 'build_rs_network_calls', 
+                        label: 'Network Calls', 
+                        type: 'select',
+                        options: [
+                            { value: 'true', label: 'Yes' },
+                            { value: 'false', label: 'No' }
+                        ]
+                    }
+                ],
+                defaultSort: 'llm_score',
+                defaultSortDesc: true
+            });
+            window['scan-results-tableTable'] = scanResultsTable;
+        });
+    </script>
+</body>
+</html>

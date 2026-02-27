@@ -1,4 +1,4 @@
-use crate::schema::{crates, dependencies, cargo_audit_results, gitleaks_results};
+use crate::schema::{crates, dependencies, cargo_audit_results, gitleaks_results, typosquat_results};
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -90,4 +90,33 @@ pub struct NewGitleaksResult {
     pub secret: String,
     pub loc: String,
     pub entropy: f64,
+}
+
+// Typosquat detection models
+#[derive(Debug, Clone, Insertable)]
+#[diesel(table_name = typosquat_results)]
+pub struct NewTyposquatResult {
+    pub crate_id: i64,
+    pub similar_crate_id: i64,
+    pub levenshtein_score: i16,
+    pub damerau_levenshtein_score: i16,
+    pub jaro_winkler_score: i16,
+    pub keyboard_distance_score: i16,
+    pub prefix_similarity_score: i16,
+    pub combined_score: i16,
+}
+
+#[derive(Debug, Clone, Queryable, Selectable)]
+#[diesel(table_name = typosquat_results)]
+pub struct TyposquatResult {
+    pub id: i64,
+    pub crate_id: i64,
+    pub similar_crate_id: i64,
+    pub levenshtein_score: i16,
+    pub damerau_levenshtein_score: i16,
+    pub jaro_winkler_score: i16,
+    pub keyboard_distance_score: i16,
+    pub prefix_similarity_score: i16,
+    pub combined_score: i16,
+    pub db_created_at: NaiveDateTime,
 }

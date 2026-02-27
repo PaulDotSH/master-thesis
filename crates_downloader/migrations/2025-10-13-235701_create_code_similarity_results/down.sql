@@ -1,1 +1,0 @@
-DROP TABLE code_similarity_results CASCADE;

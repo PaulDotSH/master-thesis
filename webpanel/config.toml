@@ -1,0 +1,4 @@
+connection_string = "postgres://postgres:postgres@localhost:5432/crates"
+max_connections = 10
+server_host = "0.0.0.0"
+server_port = 3000

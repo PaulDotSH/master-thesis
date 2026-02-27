@@ -125,6 +125,16 @@ pub async fn get_crate_by_id(db: &Database, crate_id: i64) -> Result<Crate, anyh
     Ok(crate_data)
 }
 
+pub async fn get_crate_by_name(db: &Database, name: &str) -> Result<Crate, anyhow::Error> {
+    let mut conn = db.get_connection().await?;
+    let crate_data = crates::table
+        .filter(crates::name.eq(name))
+        .select(Crate::as_select())
+        .first::<Crate>(&mut conn)
+        .await?;
+    Ok(crate_data)
+}
+
 pub async fn get_all_crates(db: &Database) -> Result<Vec<Crate>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
     let all_crates = crates::table

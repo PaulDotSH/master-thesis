@@ -6,3 +6,11 @@ redis_url = "redis://localhost:6379"
 use_only_first_x_crates = 10
 max_crates_downloads = 0
 insert_crates_in_chunks = 1000
+
+# LM Studio configuration
+lm_studio_url = "http://localhost:1234/v1"
+lm_studio_model = "qwen/qwen2.5-coder-14b"
+llm_max_tokens = 4096
+llm_temperature = 0.1
+llm_max_context_chars = 24576  # 24KB, adjust based on model context window
+llm_enabled = false  # Set to false to disable LLM analysis (saves computation)

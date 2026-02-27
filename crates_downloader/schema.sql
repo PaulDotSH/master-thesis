@@ -32,11 +32,3 @@ CREATE TABLE scan_results (
     has_malicious_dependencies BOOLEAN NOT NULL,
     llm_malicious_score SMALLINT NOT NULL,
 )
-
-CREATE TABLE code_similarity_results (
-    crate_id BIGINT PRIMARY KEY references crates(id),
-    other_crate_id BIGINT PRIMARY KEY references crates(id),
-    code_similarity_score SMALLINT NOT NULL,
-);
-
-CREATE UNIQUE INDEX idx_code_similarity_results ON code_similarity_results (crate_id, other_crate_id);
