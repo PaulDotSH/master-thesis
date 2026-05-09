@@ -16,6 +16,7 @@
             <li><a href="/crates.html" data-page="crates">Crates</a></li>
             <li><a href="/dependencies.html" data-page="dependencies">Dependencies</a></li>
             <li><a href="/scan-results.html" class="active" data-page="scan-results">Scan Results</a></li>
+            <li><a href="/metrics.html" data-page="metrics">Metrics</a></li>
             <li><a href="/vulnerabilities.html" data-page="vulnerabilities">Vulnerabilities</a></li>
             <li><a href="/secrets.html" data-page="secrets">Secrets</a></li>
             <li><a href="/typosquat.html" data-page="typosquat">Typosquatting</a></li>
@@ -97,10 +98,6 @@
                         <div class="detail-item">
                             <label>Max Vuln Severity</label>
                             <span>${result.cargo_audit_max_dep_score}</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Entropy Score</label>
-                            <span>${result.entropy_score.toFixed(2)}</span>
                         </div>
                         <div class="detail-item full-width" style="border-top: 1px solid var(--border); margin-top: 10px; padding-top: 15px;">
                             <label>Build.rs Analysis</label>
@@ -192,9 +189,9 @@
                         render: renderBool
                     },
                     { 
-                        key: 'entropy_score', 
-                        label: 'Entropy',
-                        render: (val) => val.toFixed(2)
+                        key: 'has_executable_files', 
+                        label: 'Executables',
+                        render: renderBool
                     }
                 ],
                 filters: [

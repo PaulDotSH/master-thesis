@@ -1,0 +1,78 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% cap: intro %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}\label{cap:intro}
+
+\section{Context and Motivation}\label{sect:context-motivation}
+
+All relatively modern software relies on thirdparty packages, distributed through different centralized registries. The Rust programming language has grown from it's initial release by Mozilla back in 2015, to today where crates.io hosts over 150.000 crates with multiple billions of downloads, being the pillar of the Rust library supply chain.
+
+This growth can be a double-edged sword, while being beneficial for productivity, it introduces an immense attack surface, which remains underexplored as of now. In most languages, including Rust, when a developer adds a dependency to their project, they not only trust the direct dependency but also all its entire dependency tree, which can contain hundreds if not thousands of packages. A single compromised dependency, wether due to an unpatched vulnerability, a typosquat or due to an adversary takeover, can propagate malicious code across a wide part of the ecosystem.
+
+% TODO: Citation
+Relatively recent incidents in other package ecosystems, such as npm's attack in 2018 known as `event-stream`, `ua-parser-js` from 2021 and the `colors.js` and `faker.js` sabotages in 2022, demonstrated that supply chain attacks are practical attacks, very effective and can become extremely complex. Rust's memory safety gurantees mitigate some classes of vulnerabilities (such as buffer overflows), they provide no help against attacks such as memory-safe malicious code and secret exfiltration from the environment.
+
+Another attack vector specific to some languages, including Rust, is that the build system allows arbitrary code execution by crates at compile time, using `build.rs` scripts. The scripts can perform operations such as network communication, process execution and have file system access. This mechanism is essential for some usecases such as native library linking and code generation, however it also is a dangerous attack vector that can infect a machine just compiling a malicious crate, without ever executing the resulted binary.
+
+The motivation comes from the observation that some security tools already exist for specific Rust crate analysis, however no ecosystem-wide comprehensive framework exists, that integrates multiple modules and can apply them at scale. 
+
+\section{Problem Statement}\label{sect:problem-statement}
+
+Rust's crate ecosystem, lacks a scalable analysis framework that is capable of performing module-based scanning, first, the scale of crates.io is massive, with over 150.000+ crates, any ecosystem-wide analysis requires a scalable and distributed arhitecture, capable of processing crates efficiently. Individual tools address specific parts of security analtysis, such as secrets scanning and existing known vunlerabilities. There is no existing solution that combines build script analysis, malicious code detection, typosquatting crate name analysis, vulnerability scanning and secret detection into a complete comprehensive solution. It is also the case that a crate with no direct vulnerabilities can still pose a risk if it exports an API dependent on a vulnerable package, tracking these risks is still an existing challenge. The `build.rs` script allows arbitrary code execution at compile time and it is the case that no study has tracked possibly suspicious build script behaviours across the entire crates.io database. While typosquatting has been studied in other package libraries such as npm and PyPI, the Rust's ecosystem has seen no studies regarding this. Large Language Models have demonstrated capabilities in understanding code, however the deployment of LLM analysis at scale has not been explored over package libraries.
+
+
+\section{Objectives}\label{sect:objectives}
+
+The objective of this thesis is to design, implement and evaluate a toolkit facilitating comprehensive distributed security analysis over the Rust's crate ecosystem, the specific objectives are:
+
+Designing a modular toolkit, which unifies multiple modules and analysis techniques into a single pipeline, enabling user friendly security assessment of crates published on crates.io
+Implementing distributed processing over the entire toolkit, using a "in-memory database"-based work queue, together with topological ordering of the crates dependencies, we enable horizontal scaling across workers and achieving acceptable throughput on consumer hardware.
+Develop and integrate multiple analysis modules such as: vulnerability scanning using RustSec's Database, secret detection in available source code, heuristic `build.rs` analysis for detecting unusual behaviours such as network communication, process execution, obfuscated/encrypted code and suspicious TLD usage, LLM-based malicious code scoring, typosquatting detection using multiple similarity algorithms (evenshtein, Damerau-Levenshtein, Jaro-Winkler, keyboard proximity distance, and prefix), and dependency chain propagation analysis.
+Conduct an entire ecosystem-wide analysis, either by running the framework on a subset of the crates.io registry, or the entire database, characterizing and doing manual analysis on provided warnings.
+Develop a web-based dashboard for user friendly exploration and visualization of analysis results.
+Evaluate the framework's performance and scalability, measuring throughput, bottlenecks and possible improvements.
+
+\section{Scope and Delimitations}\label{sect:scope-delimitations}
+
+TODO: Formatting, cleaning, typos, etc
+
+In scope:
+\begin{itemize}
+	\item Analysis of multiple crates published on crates.io, imported from the official database dump
+	\item Multiple analysis modules as described in the objective list
+	\item Analysis of crate source code from the git repository
+	\item Having distributed processing capabilities using an in-memory database for work distribution and PostgreSQL for resulting data
+	\item A web dashboard for visualization
+	\item Performance evaluation of analysis and of found problems and exploits
+\end{itemize}
+
+Out of scope:
+\begin{itemize}
+	\item Dynamic analysis or runtime behavior
+	\item Analysis of compiled binaries
+	\item Manual verification of all results, due to the framework being designed as a screening tool, requiring human validation
+	\item Real-time monitoring
+	\item Analysis of other package ecosystems
+	\item Formal proofs for detection correctness
+\end{itemize}
+
+\section{Thesis Structure}\label{sect:thesis-structure}
+
+This thesis is organized in this way:
+
+Chapter 2  - State of the art: Is a review about existing research and literature on software supply chain security, malicious code detection techniques, package vulnerabilities, typosquatting and build scripts used maliciously. It identifies a research gap related to the previously mentioned objectives.
+
+Chapter 3 - Methodology: Describes the research, data collection and importing, framework design, analysis modules and the evaluation metrics used.
+
+Chapter 4 - System architecture: We detail the high level arhitecture, covering the data importing, dependency graph creation, the design of the work queue, database schema, the dasbboard and deployment infrastructure and optimization scripts.
+
+Chapter 5 - Analysis Modules: We detail the analysis modules used, algorithms, heuristics, fault tolerance and optimization.
+
+Chapter 6 - Implementation Details - We present the technology stack, the CLI app usage, the queue implementation and database implementation
+
+Chapter 7 - Results \& Evaluation - This chapter is about the findings resulted by running the framework, vulnerability, leaked secrets, build system statistics, typosquatting possibilities, dependency chain risks and performance benchmarks.
+
+Chapter 8 - Discussion: We interpret the results, compare them to existing literature, discuss limitations and address threats to validity.
+
+Chapter 9 - Conclusion \& Future Work: We present a summary of the contribution of this thesis and state possible directions for future research or development

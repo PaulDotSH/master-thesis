@@ -1,0 +1,172 @@
+\chapter{System Architecture}\label{chapter:chap4}
+
+\section{High-Level Architecture Overview}\label{sect:arch-overview}
+
+The framework uses a producer-consumer arhitecture with a central layer, the main components are:
+
+1. Data Pipeline - Imports all the crate information required from the crates.io database into PostgreSQL
+
+2. Producer - Constructs the Redis dependency graph and inserts crates with no unprocessed dependencies into the queue
+
+3. Worker - It claims a crate from the Redis ready queue, runs all modules and inserts the results into PostgreSQL
+
+4. Final processing: Computes transitive dependency risk after all analyses are finished.
+
+5. Web Panel - A browser interface for visualizing results
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+	>=Latex,
+	node distance=1.5cm and 1.4cm,
+	box/.style={draw, rounded corners, align=center, minimum width=2.8cm, minimum height=1.05cm, font=\small},
+	queue/.style={draw, rounded corners, align=center, minimum width=3.4cm, minimum height=1.45cm, font=\small}
+]
+
+\node[box] (dump) {crates.io\\DB Dump (CSV)};
+\node[box, right=of dump] (ingest) {Data Ingestion\\Pipeline};
+\node[box, right=of ingest] (pgmeta) {PostgreSQL\\Database};
+
+\node[box, below=of pgmeta] (producer) {Producer\\(Graph Builder)};
+\node[queue, below=of producer] (redis) {Redis Work Queue\\Ready | In Progress | Complete | Dep Graph};
+
+\node[box, below left=1.8cm and 2.3cm of redis] (w1) {Worker 1\\Audit | Gitleaks\\Build.rs | LLM};
+\node[box, below=1.8cm of redis] (w2) {Worker 2\\Audit | Gitleaks\\Build.rs | LLM};
+\node[box, below right=1.8cm and 2.3cm of redis] (wn) {Worker N\\Audit | Gitleaks\\Build.rs | LLM};
+
+\node[box, below=of w2] (pgres) {PostgreSQL (Results)};
+\node[box, right=of pgres] (web) {Web Dashboard};
+
+\draw[->, thick] (dump) -- (ingest);
+\draw[->, thick] (ingest) -- (pgmeta);
+\draw[->, thick] (pgmeta) -- (producer);
+\draw[->, thick] (producer) -- (redis);
+
+\draw[->, thick] (redis) -- (w1);
+\draw[->, thick] (redis) -- (w2);
+\draw[->, thick] (redis) -- (wn);
+
+\draw[->, thick] (w1) -- (pgres);
+\draw[->, thick] (w2) -- (pgres);
+\draw[->, thick] (wn) -- (pgres);
+
+\draw[->, thick] (pgres) -- (web);
+
+\end{tikzpicture}%
+}
+\caption{High-level architecture of the distributed crate analysis framework.}
+\label{fig:high-level-architecture}
+\end{figure}
+
+\section{Data Ingestion Pipeline}\label{sect:data-pipeline}
+
+This pipeline processes CSV files from the crates.io database dump archive:
+
+- crates.csv - contains core metadata (ID, name, repository URL, etc.)
+- crate\_downloads.csv - download count for each crate
+- versions.csv - version specific metadata
+- dependencies.csv - crate dependency associations between versions, including the dependency type and version id
+
+These CSVs are all processed, firstly we resolve crate-version relationships and after processing we perform batch inserts into PostgreSQL.
+
+\section{Dependency Graph Construction}\label{sect:dep-graph}
+
+The dependency graph is a DAG where nodes represent crates and edges represent dependency relationships.
+The graph is build by:
+
+1. Query PostgreSQL for all depdendencies
+
+2. For each crate build a dependency set in Redis, 
+tracking unprocessed depdendencies.
+
+3. Build a reverse index to be able to get which crates depend on a target crate.
+
+4. Pushing crates ready to process (with zero unprocessed dependencies) into the Redis ready queue.
+
+After a worker analyses a crate, it has to atomically update the depdendency sets of all that crate's dependent crates. If any of these's sets becomes an empty set, it is pushed into the ready queue.
+
+Dependency cycles are detected using depth first search and are resolved by breaking cycle edges.
+
+\section{Distributed Work Queue}\label{sect:work-queue}
+
+The Redis queue has the following structures:
+
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Redis Key} & \textbf{Type} & \textbf{Purpose} \\
+\hline
+\texttt{crate:ready} & List & FIFO queue of crate IDs ready for analysis \\
+\hline
+\texttt{crate:in\_progress} & Set & Crate IDs currently being analyzed (atomic claim) \\
+\hline
+\texttt{crate:completed} & Set & Crate IDs successfully analyzed \\
+\hline
+\texttt{crate:failed} & Set & Crate IDs that failed analysis \\
+\hline
+\end{tabular}
+
+A worker uses 'BRPOPLPUSH' to do an atomic claim of a crate, this ensure there are no race conditions. Failed crates are marked as failed but are not requeued and do not block dependent crates from being processed. This can be further improved if 
+
+\section{Database Schema Design}\label{sect:db-schema}
+
+The PostgreSQL database contains the following tables:
+
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Table} & \textbf{Description} & \textbf{Key Fields} \\
+\hline
+\texttt{crates} & Crate metadata from crates.io & id, name, repository, crate\_downloads, timestamps \\
+\hline
+\texttt{dependencies} & Dependency edges between crates & crate\_id, dependency\_id (composite PK) \\
+\hline
+\texttt{scan\_results} & Aggregated analysis results per crate & FK to crates, LLM score, boolean flags, build.rs heuristics, entropy \\
+\hline
+\texttt{cargo\_audit\_results} & Individual vulnerability findings & UUID PK, FK to crate, rustsec\_id, CVSS score \\
+\hline
+\texttt{gitleaks\_results} & Individual secret findings & UUID PK, FK to crate, rule\_id, secret, location, entropy \\
+\hline
+\texttt{typosquat\_results} & Potential typosquatting pairs & FK pair to crates, multiple similarity scores + combined score \\
+\hline
+\texttt{runner\_metadata} & Analysis run tracking & timestamp PK, last checked crate \\
+\hline
+\end{tabularx}
+
+The schema was designed to use indexing for commonly used queries for filtering, combined scores and crate ids.
+
+\section{Web Dashboard}\label{sect:web-dashboard}
+
+The web dashboard is implemented as a standalone project using Axum and provides an API for querying the database.
+The frontend supports the following features:
+
+- Dashboard view - Showing high level statistics such as crates analyzed, vulnerability count, secrets found and others providing charts for easy visualization.
+
+- Crates browser - a paginated, sortable and filterable list of all the analyzed crates.
+
+- Scan results view - A filterable, sortable and paginated list of all crates with their metadata.
+
+- Scan results page - Same as the others in terms of feature, showing information such as build.rs heuristics, vulnerability results and more.
+
+- Vulnerability viewer - Lists all cargo audit findings for all crates with the serverity score and links to the advisory page.
+
+- Secrets viewer - Shows all gitleaks findings for all crates, with rule IDs, entropy and location in the repository.
+
+- Typosquatting viewer - Shows all typosquatting pairs with all of the similarity scores from all algorithms used, together with the combined score
+
+- Dependency browser - Shows the dependencies between crates.
+
+All endpoints support pagination, sorting and multiple filtering.
+
+\section{Deployment and Infrastructure}\label{sect:deployment}
+
+The workers are containerized using Docker to ensure easy scalability on a single or multiple machines, the sample production deployment is the following:
+
+- PostgreSQL database with persistent storage
+
+- Redis for the work queue and depdendency graph
+
+- Worker containers, by using a custom Dockerfile we can scale multiple workers using 'ocker-compose up -d --scale worker=N' where N is the number of workers to start. Each worker has a limit of 2 cores and 4GB of RAM.
+
+To achieve maximum I/O performance the analysis is done on a temporary mounted RAM disk at /tmp/crates, eliminating the disk I/O bottleneck during cloning and analysis.
+
+Multiple machines can be used by configuring the workers on multiple machines to connect to the central Redis instance, this enables scaling across a cluster if needed.

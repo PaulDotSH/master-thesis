@@ -30,8 +30,6 @@ pub struct BuildRsAnalysisResult {
     pub has_raw_ip: bool,
     /// True if build.rs contains free/suspicious TLDs
     pub has_free_tlds: bool,
-    /// General entropy score for the entire crate
-    pub crate_entropy_score: f32,
 }
 
 /// Network libraries commonly used in Rust that could be suspicious in build.rs
@@ -68,12 +66,7 @@ pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, 
     // Check if build.rs exists
     if !build_rs_path.exists() {
         debug!("No build.rs found in {}", crate_dir);
-        // Return default result with crate entropy
-        let crate_entropy = calculate_crate_entropy(crate_dir).await.unwrap_or(0.0);
-        return Ok(BuildRsAnalysisResult {
-            crate_entropy_score: crate_entropy,
-            ..Default::default()
-        });
+        return Ok(BuildRsAnalysisResult::default());
     }
     
     info!("Analyzing build.rs in {}", crate_dir);
@@ -89,7 +82,6 @@ pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, 
     let has_process_spawning = check_process_spawning(&content)?;
     let has_raw_ip = check_raw_ip_addresses(&content)?;
     let has_free_tlds = check_free_tlds(&content)?;
-    let crate_entropy_score = calculate_crate_entropy(crate_dir).await.unwrap_or(0.0);
     
     let result = BuildRsAnalysisResult {
         has_network_calls,
@@ -98,7 +90,6 @@ pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, 
         has_process_spawning,
         has_raw_ip,
         has_free_tlds,
-        crate_entropy_score,
     };
     
     info!(
@@ -253,46 +244,6 @@ fn check_free_tlds(content: &str) -> Result<bool, anyhow::Error> {
     let pattern = r#"\.(tk|ml|ga|cf|gq|xyz|top|work|click|link|host)\b"#;
     let re = Regex::new(pattern).context("Failed to compile free TLDs regex")?;
     Ok(re.is_match(content))
-}
-
-/// Calculate average entropy of all Rust source files in the crate
-async fn calculate_crate_entropy(crate_dir: &str) -> Result<f32, anyhow::Error> {
-    let mut total_entropy = 0.0f32;
-    let mut file_count = 0u32;
-    
-    // Walk through the crate directory and find .rs files
-    let mut dirs_to_scan = vec![crate_dir.to_string()];
-    
-    while let Some(dir) = dirs_to_scan.pop() {
-        let mut entries = match fs::read_dir(&dir).await {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
-        
-        while let Ok(Some(entry)) = entries.next_entry().await {
-            let path = entry.path();
-            
-            if path.is_dir() {
-                // Skip target, .git, and other non-source directories
-                let dir_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                if !["target", ".git", "node_modules", "vendor"].contains(&dir_name) {
-                    dirs_to_scan.push(path.to_string_lossy().to_string());
-                }
-            } else if path.extension().map(|e| e == "rs").unwrap_or(false) {
-                if let Ok(content) = fs::read_to_string(&path).await {
-                    let entropy = calculate_shannon_entropy(&content);
-                    total_entropy += entropy;
-                    file_count += 1;
-                }
-            }
-        }
-    }
-    
-    if file_count == 0 {
-        return Ok(0.0);
-    }
-    
-    Ok(total_entropy / file_count as f32)
 }
 
 #[cfg(test)]

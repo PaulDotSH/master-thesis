@@ -61,6 +61,8 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/cargo-audit", get(routes::cargo_audit::list_cargo_audit))
         // Gitleaks API
         .route("/api/gitleaks", get(routes::gitleaks::list_gitleaks))
+        // Metrics API
+        .route("/api/metrics", get(routes::metrics::list_metrics))
         // Typosquat API
         .route("/api/typosquat", get(routes::typosquat::list_typosquat))
         // Static files (frontend)

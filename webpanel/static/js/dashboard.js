@@ -16,6 +16,14 @@ async function loadStats() {
         document.getElementById('vulnerabilities-count').textContent = formatNumber(stats.vulnerabilities_count);
         document.getElementById('secrets-found').textContent = formatNumber(stats.secrets_found);
         document.getElementById('typosquat-count').textContent = formatNumber(stats.typosquat_count);
+        document.getElementById('avg-analysis-duration').textContent =
+            stats.avg_analysis_duration_ms !== null && stats.avg_analysis_duration_ms !== undefined
+                ? Math.round(stats.avg_analysis_duration_ms).toLocaleString()
+                : '-';
+        document.getElementById('latest-analysis-duration').textContent =
+            stats.latest_analysis_duration_ms !== null && stats.latest_analysis_duration_ms !== undefined
+                ? formatNumber(stats.latest_analysis_duration_ms)
+                : '-';
     } catch (error) {
         console.error('Failed to load stats:', error);
     }

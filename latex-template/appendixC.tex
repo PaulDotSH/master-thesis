@@ -1,0 +1,44 @@
+\chapter{Web Dashboard API Reference}\label{appendix:api-ref}
+
+TODO: Make webpanel use sailfish
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Description} \\
+\hline
+\texttt{/api/stats} & GET & Dashboard aggregate statistics \\
+\hline
+\texttt{/api/stats/severity} & GET & Vulnerability severity distribution \\
+\hline
+\texttt{/api/stats/risk} & GET & LLM risk score distribution \\
+\hline
+\texttt{/api/stats/build-rs} & GET & Build script indicator statistics \\
+\hline
+\texttt{/api/stats/top-downloaded} & GET & Top 10 crates by download count \\
+\hline
+\texttt{/api/stats/gitleaks-rules} & GET & Top 10 Gitleaks rules by frequency \\
+\hline
+\texttt{/api/crates} & GET & Paginated crate list (filterable) \\
+\hline
+\texttt{/api/crates/\{id\}} & GET & Single crate by ID \\
+\hline
+\texttt{/api/crates/name/\{name\}} & GET & Single crate by name \\
+\hline
+\texttt{/api/dependencies} & GET & Paginated dependency list \\
+\hline
+\texttt{/api/scan-results} & GET & Paginated scan results (filterable) \\
+\hline
+\texttt{/api/scan-results/\{id\}} & GET & Single scan result \\
+\hline
+\texttt{/api/cargo-audit} & GET & Paginated audit results \\
+\hline
+\texttt{/api/gitleaks} & GET & Paginated secret findings \\
+\hline
+\texttt{/api/typosquat} & GET & Paginated typosquatting pairs \\
+\hline
+\end{tabular}
+\caption{API Endpoints}
+\label{tab:api-endpoints}
+\end{table}

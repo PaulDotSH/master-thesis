@@ -1,6 +1,24 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
+    analysis_metrics (id) {
+        id -> Uuid,
+        crate_id -> Int8,
+        total_duration_ms -> Int8,
+        cargo_audit_duration_ms -> Nullable<Int8>,
+        gitleaks_duration_ms -> Nullable<Int8>,
+        executable_check_duration_ms -> Nullable<Int8>,
+        build_rs_analysis_duration_ms -> Nullable<Int8>,
+        llm_analysis_duration_ms -> Nullable<Int8>,
+        download_duration_ms -> Nullable<Int8>,
+        #[max_length = 255]
+        worker_id -> Nullable<Varchar>,
+        started_at -> Timestamp,
+        completed_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     cargo_audit_results (id) {
         id -> Uuid,
         #[sql_name = "crate"]
@@ -71,7 +89,6 @@ diesel::table! {
         build_rs_has_process_spawning -> Bool,
         build_rs_has_raw_ip -> Bool,
         build_rs_has_free_tlds -> Bool,
-        entropy_score -> Float4,
     }
 }
 
@@ -94,8 +111,10 @@ diesel::joinable!(cargo_audit_results -> crates (crate_));
 diesel::joinable!(gitleaks_results -> crates (crate_));
 diesel::joinable!(runner_metadata -> crates (last_checked_crate));
 diesel::joinable!(scan_results -> crates (id));
+diesel::joinable!(analysis_metrics -> crates (crate_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    analysis_metrics,
     cargo_audit_results,
     crates,
     dependencies,

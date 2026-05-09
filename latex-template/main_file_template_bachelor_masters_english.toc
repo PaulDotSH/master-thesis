@@ -1,0 +1,128 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Context and Motivation}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{8}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{8}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Scope and Delimitations}{8}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Thesis Structure}{9}{section.1.5}%
+\contentsline {chapter}{\numberline {2}State of the art}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Software Supply Chain Security}{11}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Historical Context and Evolution}{11}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Landmark Supply Chain Incidents}{11}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Rust-Specific Supply Chain Incidents}{12}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Classification of Supply Chain Attacks}{13}{subsection.2.1.4}%
+\contentsline {paragraph}{Ohm et al. (2020) ``Backstabber's Knife Collection''}{13}{section*.4}%
+\contentsline {paragraph}{Ladisa et al. (2023) ``A Taxonomy of Attacks on Open-Source Software Supply Chains''}{14}{section*.5}%
+\contentsline {subsection}{\numberline {2.1.5}The Dependency Problem at Scale}{14}{subsection.2.1.5}%
+\contentsline {section}{\numberline {2.2}Package Ecosystem Security Analysis}{15}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Vulnerability Databases and Advisory Systems}{15}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Large-Scale Ecosystem Security Studies}{16}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Typosquatting in Package Registries}{17}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Definition and Threat Model}{17}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Typosquatting Patterns}{17}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}String Similarity Algorithms for Detection}{18}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Typosquatting in the Rust Ecosystem}{18}{subsection.2.3.4}%
+\contentsline {paragraph}{Rust Foundation Typosquatting Protection}{18}{section*.6}%
+\contentsline {section}{\numberline {2.4}Malicious Code Detection in Package Ecosystems}{18}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Categories of Malicious Behavior}{18}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Static Analysis Approaches}{19}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Dynamic Analysis Approaches}{19}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Machine Learning Approaches}{20}{subsection.2.4.4}%
+\contentsline {section}{\numberline {2.5}Build Script Security Risks}{20}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Build Script Security in Rust}{20}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Security Implications}{20}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Community Discussions and Proposed Mitigations}{21}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Heuristic Detection of Suspicious Build Scripts}{21}{subsection.2.5.4}%
+\contentsline {section}{\numberline {2.6}Large Language Models for Code Analysis}{21}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Evolution of Code-Aware Language Models}{21}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}LLMs for Vulnerability Detection}{22}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}Challenges in Large-Scale LLM Security Analysis}{22}{subsection.2.6.3}%
+\contentsline {subsection}{\numberline {2.6.4}Local vs. API-Based LLM Deployment}{22}{subsection.2.6.4}%
+\contentsline {section}{\numberline {2.7}Secret Detection in Source Code}{23}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}The Problem of Hardcoded Secrets}{23}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}Secret Detection Approaches}{23}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}Gitleaks}{23}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}Secrets in the Rust Ecosystem}{23}{subsection.2.7.4}%
+\contentsline {section}{\numberline {2.8}Existing Tools and Related Work}{23}{section.2.8}%
+\contentsline {subsection}{\numberline {2.8.1}Rust-Specific Security Tools}{23}{subsection.2.8.1}%
+\contentsline {subsection}{\numberline {2.8.2}General-Purpose Security Tools}{24}{subsection.2.8.2}%
+\contentsline {subsection}{\numberline {2.8.3}Commercial Supply Chain Security Platforms}{24}{subsection.2.8.3}%
+\contentsline {subsection}{\numberline {2.8.4}Academic Research on Ecosystem Security}{24}{subsection.2.8.4}%
+\contentsline {section}{\numberline {2.9}Distributed Systems for Large-Scale Analysis}{24}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Challenges of Ecosystem-Scale Analysis}{24}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}Work Queue Architectures}{25}{subsection.2.9.2}%
+\contentsline {section}{\numberline {2.10}Summary and Research Gap}{25}{section.2.10}%
+\contentsline {subsection}{\numberline {2.10.1}Ecosystem-Specific Gaps for Rust}{25}{subsection.2.10.1}%
+\contentsline {subsection}{\numberline {2.10.2}Methodological Gaps}{26}{subsection.2.10.2}%
+\contentsline {subsection}{\numberline {2.10.3}Contributions of This Thesis}{26}{subsection.2.10.3}%
+\contentsline {chapter}{\numberline {3}Methodology}{27}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Research Approach}{27}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Threat Model}{27}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}System Model}{27}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Attacker Model}{27}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Attacker Classes}{28}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Attack Vectors Addressed}{28}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}Scope and Assumptions}{28}{subsection.3.2.5}%
+\contentsline {section}{\numberline {3.3}Data Collection Strategy}{29}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Analysis Framework Design}{29}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Evaluation Metrics}{29}{section.3.5}%
+\contentsline {chapter}{\numberline {4}System Architecture}{31}{chapter.4}%
+\contentsline {section}{\numberline {4.1}High-Level Architecture Overview}{31}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Data Ingestion Pipeline}{32}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Dependency Graph Construction}{32}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Distributed Work Queue}{32}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Database Schema Design}{32}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Web Dashboard}{33}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Deployment and Infrastructure}{34}{section.4.7}%
+\contentsline {chapter}{\numberline {5}Analysis Modules}{35}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Cargo Audit - Vulnerability Scanning}{35}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Gitleaks - Secret Detection}{35}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Build Script Analysis}{35}{section.5.3}%
+\contentsline {section}{\numberline {5.4}LLM-Assisted Malicious Code Detection}{36}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Typosquatting Detection}{36}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Transitive Dependency Risk Propagation}{37}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Implementation Details}{39}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Technology Stack}{40}{section.6.1}%
+\contentsline {section}{\numberline {6.2}CLI Application Structure}{41}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Redis Queue Implementation}{41}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Cycle Detection and Resolution}{41}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Worker Lifecycle and Fault Tolerance}{41}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Batch Processing and Database Optimization}{42}{section.6.6}%
+\contentsline {chapter}{\numberline {7}Results and Evaluation}{43}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Dataset Overview}{43}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Vulnerability Landscape}{44}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Secret Leakage Findings}{44}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Build Script Risk Assessment}{45}{section.7.4}%
+\contentsline {section}{\numberline {7.5}LLM Malicious Code Analysis}{45}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Typosquatting Detection Results}{45}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Dependency Chain Risk Propagation}{45}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Performance and Scalability}{45}{section.7.8}%
+\contentsline {chapter}{\numberline {8}Discussion}{53}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Interpretation of Results}{53}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Comparison with Existing Approaches}{53}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Limitations}{53}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Detection Limitations}{53}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}LLM-Specific Limitations}{54}{subsection.8.3.2}%
+\contentsline {subsection}{\numberline {8.3.3}Scalability and Resource Limitations}{54}{subsection.8.3.3}%
+\contentsline {subsection}{\numberline {8.3.4}Ground Truth Limitations}{54}{subsection.8.3.4}%
+\contentsline {subsection}{\numberline {8.3.5}Generalizability Limitations}{54}{subsection.8.3.5}%
+\contentsline {section}{\numberline {8.4}Threats to Validity}{54}{section.8.4}%
+\contentsline {chapter}{\numberline {9}Conclusions and Future Work}{57}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Summary of Contributions}{57}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Future Directions}{57}{section.9.2}%
+\contentsline {chapter}{Bibliography}{57}{section.9.2}%
+\contentsline {chapter}{\numberline {A}Database Schema}{59}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Configuration Reference}{61}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Web Dashboard API Reference}{63}{appendix.C}%
+\contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{65}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Software Artifacts}{65}{section.D.1}%
+\contentsline {section}{\numberline {D.2}Data Artifacts}{65}{section.D.2}%
+\contentsline {section}{\numberline {D.3}Hardware Requirements}{65}{section.D.3}%
+\contentsline {section}{\numberline {D.4}Software Requirements}{66}{section.D.4}%
+\contentsline {section}{\numberline {D.5}Reproduction Steps}{66}{section.D.5}%
+\contentsline {section}{\numberline {D.6}Expected Outputs}{67}{section.D.6}%
+\contentsline {chapter}{\numberline {E}Glossary}{69}{appendix.E}%
+\contentsline {chapter}{\numberline {F}Generative AI Tools Usage}{71}{appendix.F}%
+\contentsline {section}{\numberline {F.1}ChatGPT Details}{71}{section.F.1}%
+\contentsline {section}{\numberline {F.2}Deep L Details}{72}{section.F.2}%
+\contentsline {section}{\numberline {F.3}Microsoft Copilot}{72}{section.F.3}%

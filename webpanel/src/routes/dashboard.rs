@@ -1,13 +1,14 @@
 use axum::{extract::State, Json};
 use diesel::prelude::*;
 use diesel::dsl::count_star;
+use diesel::sql_types::{Double, Nullable};
 use diesel_async::RunQueryDsl;
 use std::sync::Arc;
 
 use crate::db::DbPool;
 use crate::models::DashboardStats;
 use crate::routes::AppError;
-use crate::schema::{cargo_audit_results, crates, dependencies, gitleaks_results, scan_results, typosquat_results};
+use crate::schema::{analysis_metrics, cargo_audit_results, crates, dependencies, gitleaks_results, scan_results, typosquat_results};
 
 pub async fn get_stats(
     State(pool): State<Arc<DbPool>>,
@@ -64,6 +65,20 @@ pub async fn get_stats(
         .first(&mut conn)
         .await?;
 
+    // Average analysis duration (ms)
+    let avg_analysis_duration_ms: Option<f64> = analysis_metrics::table
+        .select(diesel::dsl::sql::<Nullable<Double>>("AVG(total_duration_ms)::float8"))
+        .first(&mut conn)
+        .await?;
+
+    // Latest analysis duration (ms)
+    let latest_analysis_duration_ms: Option<i64> = analysis_metrics::table
+        .select(analysis_metrics::total_duration_ms)
+        .order(analysis_metrics::completed_at.desc())
+        .first::<i64>(&mut conn)
+        .await
+        .ok();
+
     Ok(Json(DashboardStats {
         total_crates,
         total_dependencies,
@@ -73,6 +88,8 @@ pub async fn get_stats(
         vulnerabilities_count,
         secrets_found,
         typosquat_count,
+        avg_analysis_duration_ms,
+        latest_analysis_duration_ms,
     }))
 }
 

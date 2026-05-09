@@ -1,0 +1,147 @@
+\chapter{Methodology}\label{chapter:chap3}
+
+\section{Research Approach}\label{sect:research-approach}
+
+This thesis implements a novel framework with empirical evaluation of its application to the Rust crate ecosystem. The research process has 4 steps.
+
+1. Problem identification and requirement analysis: literature review of supply chain security and attacks, identification of research gap and objectives establishment.
+
+2. Design and development: Iterative implementation and design of the presetnted framework, keeping in mind the requirement of scalability.
+
+3. Empirical application: Execution against a subset of the crates.io database.
+
+4. Evaluation and discussion: Result analysis, measurements, comparison and future work ideas.
+
+\section{Threat Model}\label{sect:threat-model}
+
+\subsection{System Model}\label{subsect:system-model}
+
+The ecosystem has the following principal entities:
+
+- Crate maintainers: Individuals/organizations that develop the crates. They control the repository, source code and metadata.
+- Consumers: Developers who have at least a crate dependent on a project.
+- Crates.io registry: The centralized repository that stores the crate versions, metadata and sometimes code, and provides them to the consumers.
+- Build infrastructure: Cargo, rustc and CI/CD systems.
+- End users: Users of software build using crates from crates.io, who can also be affected by any compromise in the supply chain
+
+\subsection{Attacker Model}\label{subsect:attacker-model}
+
+We consider attackers with the following skills:
+Package registration - an attacker can register any crate name allowed by crates.io and with no existing crate
+Code publication - an attacker can publish crate versions containing arbitrary code
+Build-time execution - Code can be executed at compile-time using build.rs
+Metadata manipulation - Keywords, descriptions and documentations from a crate page are written by the authors
+Ecosystem knowledge - knowledge of popular crate names, popular keywords, types of crates, naming conventions, etc.
+Resources - limited resources compared to nation sponsored actors
+
+We assume attacke4rs cannot modify crates infrastructure or compromise it's server, or find any exploits that would allow them to modify crates owned by other maintainers without having direct access to their accounts, or do Man in the Middle (MITM) attacks between victims and crates.io.
+
+\subsection{Attacker Classes}\label{subsect:attacker-classes}
+
+
+\begin{tabular}{|l|l|l|p{6cm}|}
+\hline
+\textbf{Class} & \textbf{Motivation} & \textbf{Resources} & \textbf{Examples} \\
+\hline
+"Skid" & Experimentation & Low & Copy-paste/Vibecoded malware \\
+\hline
+Criminal & Financial gain & Medium & Professionally developed Stealers, C2, ransomware \\
+\hline
+Advanced Criminal & Targeted financial gain & High & Sophisticated attacks, targeted espionage \\
+\hline
+Nation-State & Espionage, sabotage & Very High & Long-term infiltration (i.e. xz-utils), infrastructure compromise \\
+\hline
+\end{tabular}
+
+The framework primarily targets "skids" and "criminal" attackers, whose techniques are less advanced and more easily detectable using static analysis. Advanced attackers could evade automated detection due to factors like complex obfuscation and understantment of the system.
+
+
+\subsection{Attack Vectors Addressed}\label{subsect:attack-vectors}
+
+\begin{tabular}{|p{5cm}|p{3.5cm}|p{6cm}|}
+\hline
+\textbf{Attack Vector} & \textbf{Detection Module} & \textbf{Detection Approach} \\
+\hline
+Known vulnerabilities & Cargo Audit & RustSec database matching \\
+\hline
+Hardcoded secrets & Gitleaks & Regex + entropy analysis \\
+\hline
+Malicious build.rs & Build Script Heuristics & Network, IP, TLD, process, entropy patterns \\
+\hline
+Typosquatting & Typosquat Scorer & Multi-algorithm string similarity \\
+\hline
+Obfuscated/novel malware & LLM Analysis & Semantic code understanding \\
+\hline
+Transitive compromise & Dependency Propagation & Graph-based risk propagation \\
+\hline
+\end{tabular}
+
+\subsection{Scope and Assumptions}\label{subsect:scope-assumptions}
+
+We operate the framework under these assumptions:
+
+1. The source code is available and hosted on a git repository that doesn't rate limit or restrict our access, grabbed from the crates.io database.
+
+2. LLM reliability, due to models becomming better at code reviews, and the 
+framework being easy to extend for API usage with state of the art models
+
+3. Attackers reuse patterns and techniques that can be found through the use of heuristics.
+
+The following are out of scope for this thesis:
+
+- Dynamic/Runtime analysis using sandboxed or emulated execution
+
+- Analysis of compiled binaries
+
+- Analysis of network behavior at runtime (included in runtime analysis)
+
+- Compromised crates through hacked accounts or infrastructure exploits
+
+- Detection of social engineering
+
+\section{Data Collection Strategy}\label{sect:data-collection}
+
+The crate metadata source is the crates.io database dump published by the crates.io team, containing CSV files of all published crates including metadata, such as name, description, repository url, etc; version information, download statistics, and dependency relationships
+
+These CSV files are processed and inserted into a PostgreSQL database using a custom pipeline that resolves dependency references and constructs a dependency graph. The source code of the repositories is obtained by cloning the last commit of the git repository from the crate metadata.
+
+The system supports a configurable scope using the 'use\_only\_first\_x\_crates' field from the configuration toml file, together with the single crate analysis parameter, allowing the analysis of a single crate and its dependencies.
+
+\section{Analysis Framework Design}\label{sect:framework-design}
+
+The design was focused on the following principles:
+
+- Modularity: Having independent modules that can removed or added easily, possibly requiring DB changes
+
+- Horizontal scalability: We have the possibility of adding worker nodes from a single or multiple machines to increase throughput
+
+- Topological processing: Processing dependencies before dependents to enable transitive risk propagation
+
+- Fault tolerance
+
+\section{Evaluation Metrics}\label{sect:evaluation-metrics}
+
+The evaluation will consist of two parts:
+
+Security analysis
+
+- Number and severity distribution of vulnerabilities
+
+- Number, types, average/median entropy of secrets
+
+- Characteristics of build scripts
+
+- Distribution of LLM scores
+
+- Number and quality of typosquatting candidates
+
+- Transitive risk propagation statistics
+
+\break
+System performance
+
+- System Throughput
+
+- Worker speed-up scale
+
+- Resource utilization

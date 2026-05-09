@@ -30,6 +30,8 @@ pub struct CrateDownloadRecord {
 pub struct DependencyRecord {
     pub crate_id: i32,
     pub version_id: i32,
+    /// Dependency kind: 0=normal, 1=dev, 2=build
+    pub kind: i32,
 }
 
 #[derive(Debug, Deserialize)]

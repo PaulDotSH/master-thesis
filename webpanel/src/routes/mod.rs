@@ -4,6 +4,7 @@ pub mod dependencies;
 pub mod scan_results;
 pub mod cargo_audit;
 pub mod gitleaks;
+pub mod metrics;
 pub mod typosquat;
 
 use axum::{

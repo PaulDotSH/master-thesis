@@ -228,32 +228,32 @@ async fn main() {
         }
         Commands::Worker => {
             info!("Starting worker process - consuming from Redis dependency graph");
-            
+
             let mut queue = queue::WorkQueue::new(&config.redis_url)
                 .await
                 .expect("Failed to connect to Redis");
-            
+
             // Show initial stats
             let stats = queue.get_stats().await.expect("Failed to get stats");
             info!("Queue status: {}", stats);
-            
+
             // Check for and recover any stale in-progress items on startup
             let recovered = queue.recover_stale_items().await.unwrap_or(0);
             if recovered > 0 {
                 info!("Recovered {} stale items from previous workers", recovered);
             }
-            
+
             // Set up graceful shutdown handling
             let shutdown = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
             let shutdown_clone = shutdown.clone();
-            
+
             tokio::spawn(async move {
                 let ctrl_c = async {
                     tokio::signal::ctrl_c()
                         .await
                         .expect("Failed to install Ctrl+C handler");
                 };
-                
+
                 #[cfg(unix)]
                 let terminate = async {
                     tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
@@ -261,10 +261,10 @@ async fn main() {
                         .recv()
                         .await;
                 };
-                
+
                 #[cfg(not(unix))]
                 let terminate = std::future::pending::<()>();
-                
+
                 tokio::select! {
                     _ = ctrl_c => {
                         info!("Received Ctrl+C, initiating graceful shutdown...");
@@ -273,14 +273,23 @@ async fn main() {
                         info!("Received SIGTERM, initiating graceful shutdown...");
                     }
                 }
-                
+
                 shutdown_clone.store(true, std::sync::atomic::Ordering::SeqCst);
             });
-            
+
             let mut consecutive_empty = 0;
             const MAX_EMPTY_CHECKS: u32 = 3;
             let mut current_crate_id: Option<i64> = None;
-            
+
+            // Cache cleanup every N crates analyzed by this worker
+            const CACHE_CLEANUP_INTERVAL_CRATES: u32 = 100;
+            let mut crates_since_cleanup: u32 = 0;
+
+            // Run initial cache cleanup on startup
+            if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
+                warn!("Initial cache cleanup failed: {:?}", e);
+            }
+
             loop {
                 // Check for shutdown signal
                 if std::sync::atomic::AtomicBool::load(&shutdown, std::sync::atomic::Ordering::SeqCst) {
@@ -364,6 +373,16 @@ async fn main() {
                     if stats.completed % 10 == 0 || stats.ready < 10 {
                         info!("{}", stats);
                     }
+                }
+
+                // Cleanup caches every N crates to prevent disk exhaustion
+                crates_since_cleanup += 1;
+                if crates_since_cleanup >= CACHE_CLEANUP_INTERVAL_CRATES {
+                    info!("Running cache cleanup after {} crates...", crates_since_cleanup);
+                    if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
+                        warn!("Cache cleanup failed: {:?}", e);
+                    }
+                    crates_since_cleanup = 0;
                 }
             }
         }

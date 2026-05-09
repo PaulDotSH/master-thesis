@@ -1,0 +1,75 @@
+\chapter{Database Schema}\label{appendix:db-schema}
+
+\begin{verbatim}
+CREATE TABLE crates (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL,
+    repository TEXT NOT NULL,
+    crate_downloads BIGINT NOT NULL,
+    db_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    db_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    crate_created_at TIMESTAMP NOT NULL,
+    crate_updated_at TIMESTAMP NOT NULL
+);
+
+CREATE TABLE dependencies (
+    crate_id BIGINT NOT NULL REFERENCES crates(id),
+    dependency_id BIGINT NOT NULL REFERENCES crates(id),
+    db_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    db_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (crate_id, dependency_id)
+);
+
+CREATE TABLE scan_results (
+    id BIGINT PRIMARY KEY REFERENCES crates(id),
+    has_malicious_dependencies BOOLEAN NOT NULL,
+    llm_malicious_score SMALLINT NOT NULL,
+    llm_notes TEXT,
+    has_executable_files BOOLEAN,
+    cargo_audit_max_dep_score SMALLINT,
+    cargo_audit_vulns_count SMALLINT,
+    build_rs_network_calls BOOLEAN,
+    build_rs_has_link_directive BOOLEAN,
+    build_rs_entropy_score DOUBLE PRECISION,
+    build_rs_has_process_spawning BOOLEAN,
+    build_rs_has_raw_ip BOOLEAN,
+    build_rs_has_free_tlds BOOLEAN,
+    entropy_score DOUBLE PRECISION
+);
+
+CREATE TABLE cargo_audit_results (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    crate_ BIGINT REFERENCES crates(id),
+    rustsec_id VARCHAR(10) NOT NULL,
+    severity SMALLINT
+);
+
+CREATE TABLE gitleaks_results (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    crate_ BIGINT REFERENCES crates(id),
+    rule_id VARCHAR(255) NOT NULL,
+    secret VARCHAR(255) NOT NULL,
+    loc VARCHAR(255) NOT NULL,
+    entropy DOUBLE PRECISION NOT NULL
+);
+
+CREATE TABLE typosquat_results (
+    id BIGSERIAL PRIMARY KEY,
+    crate_id BIGINT NOT NULL REFERENCES crates(id),
+    similar_crate_id BIGINT NOT NULL REFERENCES crates(id),
+    levenshtein_score SMALLINT NOT NULL,
+    damerau_levenshtein_score SMALLINT NOT NULL,
+    jaro_winkler_score SMALLINT NOT NULL,
+    keyboard_distance_score SMALLINT NOT NULL,
+    prefix_similarity_score SMALLINT NOT NULL,
+    combined_score SMALLINT NOT NULL,
+    db_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (crate_id, similar_crate_id),
+    CHECK (crate_id != similar_crate_id)
+);
+
+CREATE TABLE runner_metadata (
+    run_time TIMESTAMP PRIMARY KEY,
+    last_checked_crate BIGINT REFERENCES crates(id)
+);
+\end{verbatim}

@@ -1,0 +1,31 @@
+\chapter{Conclusions and Future Work}\label{chapter:chap9}
+
+\section{Summary of Contributions}\label{sect:contributions}
+
+The thesis makes the following significant contributions:
+
+- Comprehensive analysis framework - Implemented multiple analysis modules each with a focus on different techinques
+
+- Distributed arhitecture - The redis work queues and topological ordering, together with the producer-consumer design and parallel processing we enable horizontal scaling achieving high throughput
+
+- Analysis modules - Composite typosquatting scoring, heuristic analysis of build scripts targeting language specific attack vectors
+
+- Empirical security assesment - Provide useful insights into the security landscape of the entire ecosystem.
+
+- Web dashboard - Interactive and friendly exploration of results
+
+\section{Future Directions}\label{sect:future-directions}
+
+We discovered serveral possible future directions:
+
+- Analysis of specific crates versions, tracking vulnerabilities of a crate based on the specific version of the dependent.
+
+- Real-time monitoring can be improved, continous scanning and alerting on new findings.
+
+- Improved LLM integration for usage of advanced providers, better prompting and usage of more advanced models.
+
+- Sandboxed build script execution for hybrid analysis, implementing a sandboxed environment would help to execute the script in a safe manner and extract information about the behavior providing better classification
+
+- Collaborative review would be great to integrate with cargo crev to notify maintainers or contributors about possible security issues
+
+- Caching of repositories would greatly improve the performance of the system, by avoiding the need to clone each repository every time.

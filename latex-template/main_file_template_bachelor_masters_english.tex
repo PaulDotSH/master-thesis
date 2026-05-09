@@ -1,0 +1,316 @@
+\documentclass[12pt,a4paper]{book}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\usepackage{amsmath,amsthm,amssymb,graphicx,hyperref}
+\usepackage[left=1.2in,right=1.2in,top=1in,bottom=1in]{geometry}
+\usepackage{listings}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{multirow}
+%\usepackage[romanian]{babel}
+\usepackage[english]{babel}
+\usepackage{xcolor}
+\usepackage{paralist}
+\RequirePackage{hyphenat}
+\usepackage{algorithm, algpseudocode}%algorithmic
+\usepackage[inline]{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\theoremstyle{remark}
+\newtheorem{rem}{Remark}[section]
+\newtheorem{exmp}{Example}[section]
+
+
+\begin{document}
+\sloppy
+
+\thispagestyle{empty}
+\begin{center}
+\begin{figure}[h!]
+\vspace{-20pt}
+\begin{center}
+\includegraphics[width=100pt]{FI.png}
+\end{center}
+\end{figure}
+
+
+{\large{\bf WEST UNIVERSITY OF TIMI\c SOARA
+
+FACULTY OF COMPUTER SCIENCE
+
+MASTER STUDY PROGRAM: CYBERSECURITY  
+}}
+
+\vspace{120pt}
+{\huge {\bf MASTER THESIS}}
+
+\vspace{160pt}
+\end{center}
+
+{\large\noindent{\bf SUPERVISOR:
+\hspace{172pt} GRADUATE: }
+
+\noindent  Dr. Lect. Darius Galis \hfill 
+\noindent  Paul - Andrei Abrudan
+}
+
+\vfill
+\begin{center}
+{\bf TIMI\c SOARA
+
+2026}
+\end{center}
+\newpage
+\thispagestyle{empty}
+\begin{center}
+{\large{\bf WEST UNIVERSITY OF TIMI\c SOARA
+		
+FACULTY OF  COMPUTER SCIENCE
+		
+MASTER STUDY PROGRAM:  CYBERSECURITY }}
+
+\vspace{200pt}
+{\huge {\bf Automated Security Analysis of the Rust Crate Ecosystem: A Distributed Framework for Vulnerability and Malicious Code Detection }}
+
+\vspace{153pt}
+\end{center}
+
+{\large\noindent{\bf SUPERVISOR:\hfill GRADUATE:}
+
+\noindent  Dr. Lect. Darius Galis \hfill 
+\noindent  Paul - Andrei Abrudan}
+ 
+
+\vfill
+\begin{center}
+{\bf TIMI\c SOARA
+
+2026}
+\end{center}
+
+\newpage
+\normalsize{}
+
+\section*{Abstract} 
+The Rust programming language has gained popularity in multiple programming fields due to its memofry safety features and performance. Rust's package ecosystem, crates.io, delivers over 150.000 crates to the language's users. Due to the rapid growth of the language and ecosystem, potential security risks are present, including known vulnerabilities in dependencies, a history of supply chain attacks through code injection and typosquatting, secrets being leaked in source code and cases of malicious build scripts present in the optional build.rs file at the root of the packages. This thesis presents a distributed framework for automating security analysis on the Rust package library ecosystem. The system parses metadata from the crates.io database dump, constructing a dependency graph and applying multiple analysis modules: Vulnerability scanning using `cargo audit`, which uses the RustSec Advisory Database, Secret leakage detection using the FOSS tool GitLeaks, heurisitc analysis for the `build.rs` script, detecting network calls, process creation, obfuscation and suspicious TLDs used, the possibility of LLM code scoring using LM Studio's REST API, typosquatting detection using multiple string similarity algorithms and transitive dependency chain risk propagation. Horizontal scaling is possible across multiple nodes, achieved with Redis used as a work queue, with the possibility of upgrading to a faster in-memory database. The results are persisted in a PostgreSQL database and can be visualized through the web dashboard. This thesis aims to make it easier to search for cases of malicious dependencies in the Rust ecosystem, providing tools for security auditing.
+\newline
+\textbf{Keywords:} crates.io, Rust, supply chain security, typosquatting, distributed systems, software security
+
+
+\newpage
+
+\section*{Statement of Scientific integrity} 
+
+I declare that this BSc / MSc thesis is an original report and represents my own work, conducted under supervision of [name(s) supervisor(s)]. All research methods, data collection, analysis and interpretation presented in this thesis are accurately reported and all sources have been cited appropriately where I have made use of ideas and/or visuals of others.
+
+\textcolor{blue}{If you did not use generative AI tools:} I did not use generative AI during the writing and research process.
+
+\textcolor{blue}{If you used generative AI tools:} I used generative AI during the writing and research process. The details are in the Appendix \ref{genAIUsage}.
+
+
+
+
+\newpage
+\normalsize{}
+
+\tableofcontents
+\input{cap1}
+\input{cap2}
+\input{cap3}
+\input{cap4}
+\input{cap5}
+\input{cap6}
+\input{cap7}
+\input{cap8}
+\input{cap9}
+
+% \chapter{Some Latex Commands}
+
+% In this chapter are presented some useful Latex commands that could be used in thesis written part.
+
+
+% \section{Enumeration usage}
+% Enumeration with numeric label:
+% \begin{enumerate}
+%     \item Option 1
+%     \item Option 2
+%     \item Option 3
+% \end{enumerate}
+
+% Enumeration without label:
+% \begin{itemize}
+%     \item Option 1
+%     \item Option 2
+%     \item Option 3
+% \end{itemize}
+
+% \section{If you need to add: definitions,  theorems, ...}
+% \begin{defn} ...
+% \end{defn}
+% \begin{thm} ...
+% \end{thm}
+% \begin{proof} ...
+% \end{proof}
+% \begin{rem} ...
+% \end{rem}
+% \begin{exmp} ...
+% \end{exmp}
+
+% \section{Bibliography References}
+% The bibliography has to be referenced in thesis content using cite (e.g. \cite{knuth1998}).
+
+% \section{Figure}
+% Each figure has to have a caption that is a suggestive description of what  the  picture represents (e.g. Figure \ref{fig:siglaUVT}).
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.25\linewidth]{FI.png}
+%     \caption{ FMI logo scaled at 25\% of text width}
+%     \label{fig:siglaUVT}
+% \end{figure}
+
+% \section{Algorithm pseudo-code}
+% Pseudo-code is a formal way to describe an algorithm, is more clear than a textual description ore code (e.g. Algorithm \ref{alg:alg_ex}).
+
+% \begin{algorithm}[!ht]
+% \caption{An algorithm with caption}\label{alg:alg_ex}
+% \begin{algorithmic}[1]
+% \Require $n \geq 0$
+% \Ensure $y = x^n$
+% \State $y \gets 1$
+% \State $X \gets x$
+% \State $N \gets n$
+% \While{$N \neq 0$}
+% \If{$N$ is even}
+%     \State $X \gets X \times X$
+%     \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+% \ElsIf{$N$ is odd}
+%     \State $y \gets y \times X$
+%     \State $N \gets N - 1$
+% \EndIf
+% \EndWhile
+% \end{algorithmic}
+% \end{algorithm}
+
+% \section{Source Code}
+% If the thesis contains source code from the application, do not use print-screens, or verbatim  use listing  (e.g. listing \ref{lst:p1}). 
+
+% \begin{lstlisting}[language=Python, numbers=left,
+%     stepnumber=1, caption=An exemple of Python code, label=lst:p1]
+% import numpy as np
+    
+% def incmatrix(genl1,genl2):
+%     m = len(genl1)
+%     n = len(genl2)
+%     M = None #to become the incidence matrix
+%     VT = np.zeros((n*m,1), int)  #dummy variable
+    
+%     #compute the bitwise xor matrix
+%     M1 = bitxormatrix(genl1)
+%     M2 = np.triu(bitxormatrix(genl2),1) 
+
+%     for i in range(m-1):
+%         for j in range(i+1, m):
+%             [r,c] = np.where(M2 == M1[i,j])
+%             for k in range(len(r)):
+%                 VT[(i)*n + r[k]] = 1;
+%                 VT[(i)*n + c[k]] = 1;
+%                 VT[(j)*n + r[k]] = 1;
+%                 VT[(j)*n + c[k]] = 1;
+                
+%                 if M is None:
+%                     M = np.copy(VT)
+%                 else:
+%                     M = np.concatenate((M, VT), 1)
+                
+%                 VT = np.zeros((n*m,1), int)
+    
+%     return M
+% \end{lstlisting}
+
+% \section{Tablels}
+
+% A simple example of a table (see Table \ref{tab:my_tabel}). 
+
+% \begin{table}[!ht]
+%     \centering
+%     \begin{tabular}{|l | c |  c | c |} 
+%  \hline
+%  Stopping criteria & \textbf{Alg.1} & \textbf{Alg.2} & \textbf{Alg.3} \\  
+%  \hline\hline
+% \textbf{ MSQ} & 0.97 & 0.8 & 00.60 \\ 
+%  \hline
+%  \textbf{R2} & 0.77 & 0.78 & 0.54 \\
+%  \hline
+ 
+%  \hline
+% \end{tabular}
+%     \caption{Algorithm comparison}
+%     \label{tab:my_tabel}
+% \end{table}
+
+
+% For more details about how to create a table, use the following reference \url{https://www.overleaf.com/learn/latex/Tables}.
+
+
+\bibliography{mybib}
+\bibliographystyle{alpha}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+
+\appendix
+\input{appendixA}
+\input{appendixB}
+\input{appendixC}
+\input{appendixD}
+\input{appendixE}
+
+\chapter{Generative AI Tools Usage}
+\label{genAIUsage}
+
+An overview how  generative AI Tools are used in this thesis is presented in Table \ref{tab:genAIOverview}.
+
+\rowcolors{2}{gray!15}{white}
+\begin{table}[h!]
+    \centering
+    \begin{tabularx}{\textwidth}{|l|X|X|X|}
+            \hline \rowcolor{blue!20}
+         AI Tool& Use case & Used in & Remarks \\\hline
+         \multirow{2}{*}{ChatGPT 5.0} & Provide remarks of writing, reviewing typos & All chapters& Prompts in section \ref{sectionGhatGPT}\\ \cline{2-4}
+          
+          & Generate initial state of the art bibliography list & Chapter 2 & Prompts in section \ref{sectionGhatGPT}\\ \hline
+         
+         Microsoft Copilot & Code generation & Chapter 4 pp.2-21  & Details in section \ref{sectionCopilot}\\ \hline
+         Deep L &  Translation of text pages & Chapter 2 & Prompts in section \ref{sectionDeepL} \\ \hline
+         Grammarly & Correct grammar and style mistakes & Entire work & Free version\\ \hline
+         ... &  & & \\\hline
+    \end{tabularx}
+    \caption{Overview of generative AI Usage}
+    \label{tab:genAIOverview}
+\end{table}
+
+
+
+
+    
+\section{ChatGPT Details} 
+\label{sectionGhatGPT}
+
+Specify for each usage the following:
+
+\begin{enumerate}
+    \item Purpose of use
+    \item Method (which promts and for which parts of the thesis)
+    \item How the output has been examined/verified (has the generated output been examined for accuracy and reliability?)
+    \item How the output is implemented/used
+    %\item Add the prompts and output as an attachment or separated file (mandatory)
+\end{enumerate}
+
+\section{Deep L Details}
+\label{sectionDeepL}
+\section{Microsoft Copilot}
+\label{sectionCopilot}
+
+\end{document} 

@@ -1,0 +1,85 @@
+\chapter{Analysis Modules}\label{chapter:chap5}
+
+\section{Cargo Audit - Vulnerability Scanning}\label{sect:cargo-audit}
+
+The cargo audit module uses cargo audit, which is integrated with the RustSec advisory database, a maintained database of security advisories for crates. For each crate's local git clone of the latest hash the module executes the command 'cargo audit --json --no-fetch', the output a JSON from which we can extract vulnerability information and severity scores.
+
+Severity scores are calculated by implementing the CVSS v3.1 calculation from the raw vector strings. Scores are normalized to a 0-100 scale for comparison.
+
+Cargo audit cannot run locally in parallel due to a shared lock, to mitigate this we used docker containers for parallelization.
+
+Results are stored in the 'cargo\_audit\_results' table and 'scan\_results' table for aggregation.
+
+\section{Gitleaks - Secret Detection}\label{sect:gitleaks}
+
+The Gitleaks module detects hardcoded secrets, API keys, tokens, and other credentials present in the source code. Gitleaks output JSON is parsed to extract the following information:
+
+- Rule ID - which represents the type of detected secret
+
+- Secret - The detected value
+
+- Location - Path and line number of the secret from the repository
+
+- Entropy - Caculated shannon entropy by gitleaks of the string, which can indicate if it's a real secret or a false positive
+
+The results are stored in the 'gitleaks\_results'.
+The module is prone to returning false positives due to test secrets present in most of the cases.
+
+\section{Build Script Analysis}\label{sect:build-script}
+
+The build script analysis module has six heuristic implementations to detect potential malicious behavior:
+
+- Network call detection - Strings related to network libraries and calls such as 'reqwest', 'hyper', 'curl', 'ureq', 'tokio::net', 'std::net::TcpStream' and others. Network calls, as previously mentioned, can be used to download payloads or exfiltrate data.
+
+- Link directive detection - Using Regex, we look for patterns such as link attributes, mostly used for FFI and non malicious behaviors, these can be used to link to malicious libraries.
+
+- Shannon entropy calculation - High values can indicate obfuscated or encoded data and code, we also compute an average entropy of all '.rs' files from the repository to compare against.
+
+- Process spawning detection - Using Regex, we look for patterns such as 'Command::new()', '.exec()', '.spawn()' and others. Commonly used to invoke external tools, however it can also be used to execute payloads, attackers often pair this with network calls to download the malicious payload.
+
+- Raw IP addresses - Regex based detection of IP addresses, we exclude local and private ranges, however non private and non local IPs usually are an indicator of suspicious behavior instead of using domain names.
+
+- Suspicious TLDs - Using Regex, we look for free and commonly used TLDs by attackers, such as '.tk', '.ga', '.cf' and others. These TLDs are often used due to them being free or having a low cost of rental.
+
+\section{LLM-Assisted Malicious Code Detection}\label{sect:llm-detect}
+
+The LLM analysis module uses a locally hosted LLM using LM Studio to perform analysis of crate source code. This module is optional due to extremely high computational cost compared to the rest of the modules.
+It opperates in the following way:
+
+- Collects all source code files from a target extension list
+
+- Source files are chunked to batches that fit into the model context window. Files are prioritized by relevance such as 'build.rs', 'lib.rs', 'main.rs' and 'mod.rs'
+
+- Each batch is sent to the LLM together with a prompt that instructs the LLM to evaluate the code for potential malicious behavior, such as reverse shells, unauthorized network access, data exfiltration, cryptocurrency mining and more.
+
+- The LLM returns a score from 0 to 100 together with a summary for each batch. The final score is set to the maximum score across teh batches.
+
+- Crates with a score above the set threshold are flagged for human review.
+
+The module has a five minute timeout per batch.
+
+\section{Typosquatting Detection}\label{sect:typosquatting}
+
+The typosquatting detection module computes pairwise name similarity between crates in parallel using multiple string similarity algorithms:
+
+\begin{tabularx}{\textwidth}{|l|c|X|}
+\hline
+\textbf{Name} & \textbf{Weight} & \textbf{Notes} \\
+\hline
+Levenshtein Distance & 20\% & Minimum number of single-character insertions, deletions, and substitutions required to transform one string into another. \\
+\hline
+Damerau-Levenshtein Distance & 25\% & Levenshtein with consideration of character transpositions \\
+\hline
+Jaro-Winkler Similarity & 25\% & Computes character-level matching with a bonus for common prefixes. \\
+\hline
+Keyboard Proximity Distance & 15\% & Based on the physical distance between characters on a QWERTY keyboard layout, using Euclidean distance between key positions. \\
+\hline
+Prefix Similarity & 15\% & Measures the length of the common prefix relative to the string lengths, with a bonus for prefixes of 3 or more characters. \\
+\hline
+\end{tabularx}
+
+The combined score, after applying the weights, is normalized to a 0-100 scale.
+
+\section{Transitive Dependency Risk Propagation}\label{sect:dep-risk}
+
+After the complete analysis, another step computes the 'has\_malicious\_dependencies' flag for each crate. The computation is done via a single SQL UPDATE query.

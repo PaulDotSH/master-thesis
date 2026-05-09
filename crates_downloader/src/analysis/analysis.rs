@@ -1,7 +1,10 @@
 use diesel_async::RunQueryDsl;
 use anyhow::Context;
+use chrono::Utc;
+use std::time::Instant;
 use tokio::fs::{create_dir_all, remove_dir_all};
-use tracing::{error, info, warn};
+use tokio::io::AsyncReadExt;
+use tracing::{debug, error, info, warn};
 
 use crate::{
     analysis::{
@@ -37,7 +40,52 @@ struct ScanResultData {
     build_rs_has_process_spawning: bool,
     build_rs_has_raw_ip: bool,
     build_rs_has_free_tlds: bool,
-    entropy_score: f32,
+}
+
+/// Per-crate timing metrics stored in analysis_metrics
+#[derive(Debug, Clone)]
+struct AnalysisTiming {
+    total_duration_ms: i64,
+    cargo_audit_duration_ms: Option<i64>,
+    gitleaks_duration_ms: Option<i64>,
+    executable_check_duration_ms: Option<i64>,
+    build_rs_analysis_duration_ms: Option<i64>,
+    llm_analysis_duration_ms: Option<i64>,
+    download_duration_ms: Option<i64>,
+    worker_id: Option<String>,
+    started_at: chrono::NaiveDateTime,
+    completed_at: chrono::NaiveDateTime,
+}
+
+impl AnalysisTiming {
+    fn placeholder() -> Self {
+        let now = Utc::now().naive_utc();
+        Self {
+            total_duration_ms: 0,
+            cargo_audit_duration_ms: None,
+            gitleaks_duration_ms: None,
+            executable_check_duration_ms: None,
+            build_rs_analysis_duration_ms: None,
+            llm_analysis_duration_ms: None,
+            download_duration_ms: None,
+            worker_id: current_worker_id(),
+            started_at: now,
+            completed_at: now,
+        }
+    }
+}
+
+fn current_worker_id() -> Option<String> {
+    std::env::var("HOSTNAME").ok().filter(|s| !s.is_empty())
+}
+
+async fn measure_future_ms<F, T>(future: F) -> (T, i64)
+where
+    F: std::future::Future<Output = T>,
+{
+    let start = Instant::now();
+    let output = future.await;
+    (output, start.elapsed().as_millis() as i64)
 }
 
 /// Represents complete analysis results including both scan results and audit details
@@ -46,10 +94,65 @@ struct AnalysisResult {
     scan_result: ScanResultData,
     audit_results: Vec<(String, u8)>, // (rustsec_id, severity)
     gitleaks_results: Vec<GitleaksResult>,
+    timing: AnalysisTiming,
+}
+
+/// Clean up all caches to prevent disk space exhaustion
+/// Deletes everything except /tmp/crates (where downloaded repos go)
+pub async fn cleanup_cargo_caches() -> Result<(), anyhow::Error> {
+    let dirs_to_delete = [
+        "/usr/local/cargo/registry",
+        "/usr/local/cargo/git",
+        "/usr/local/cargo/target",
+        "/usr/local/rustup",
+        "/advisory-db",
+    ];
+
+    let mut total_cleaned = 0u64;
+
+    for dir in &dirs_to_delete {
+        let path = std::path::Path::new(dir);
+        if !path.exists() {
+            continue;
+        }
+
+        let size_before = dir_size(path).await;
+
+        if let Err(e) = remove_dir_all(path).await {
+            warn!("Failed to remove {}: {:?}", dir, e);
+        } else {
+            total_cleaned += size_before;
+        }
+    }
+
+    if total_cleaned > 0 {
+        let cleaned_mb = total_cleaned as f64 / (1024.0 * 1024.0);
+        info!("Cleaned {:.1} MB", cleaned_mb);
+    }
+
+    Ok(())
+}
+
+/// Calculate directory size recursively
+async fn dir_size(path: &std::path::Path) -> u64 {
+    let mut size = 0u64;
+
+    if let Ok(entries) = std::fs::read_dir(path) {
+        for entry in entries.flatten() {
+            let entry_path = entry.path();
+            if entry_path.is_dir() {
+                size += Box::pin(dir_size(&entry_path)).await;
+            } else if let Ok(metadata) = entry.metadata() {
+                size += metadata.len();
+            }
+        }
+    }
+
+    size
 }
 
 /// Clean up stale temp directories from previous runs/crashes
-/// 
+///
 /// This removes any leftover directories in /tmp/crates that may have been
 /// abandoned due to worker crashes or unexpected termination.
 pub async fn cleanup_temp_directories() -> Result<(), anyhow::Error> {
@@ -163,6 +266,7 @@ pub async fn analyze_crate(c: &Crate, database: &Database, config: &Config) -> R
                 scan_result: create_failed_placeholder_result(c.id, &error_msg),
                 audit_results: Vec::new(),
                 gitleaks_results: Vec::new(),
+                timing: AnalysisTiming::placeholder(),
             }
         }
     };
@@ -196,20 +300,32 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
             scan_result: create_placeholder_result(crate_data.id),
             audit_results: Vec::new(),
             gitleaks_results: Vec::new(),
+            timing: AnalysisTiming::placeholder(),
         });
     }
     
-    let dir = format!("/tmp/crates/{}", crate_data.name);
+    // Use crate_id in path to ensure uniqueness across workers
+    let dir = format!("/tmp/crates/{}_{}", crate_data.name, crate_data.id);
     
     // Create parent directory if it doesn't exist
     create_dir_all("/tmp/crates")
         .await
         .context("Failed to create /tmp/crates directory")?;
     
+    // Clean up any existing directory from previous failed attempts
+    if std::path::Path::new(&dir).exists() {
+        debug!("Cleaning up existing directory: {}", dir);
+        let _ = remove_dir_all(&dir).await;
+    }
     
+    let started_at = Utc::now().naive_utc();
+    let total_start = Instant::now();
+    let download_start = Instant::now();
+
     // Try to download the repository
     match download_repo(&crate_data.repository, &dir).await {
         Ok(_) => {
+            let download_duration_ms = download_start.elapsed().as_millis() as i64;
             info!("Successfully downloaded crate '{}' (id: {}) to {}", crate_data.name, crate_data.id, dir);
             
             // Successfully cloned - perform analysis
@@ -221,13 +337,19 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
             }
             
             // Now propagate the result
-            let result_data = result_data
+            let mut result_data = result_data
                 .context(format!("Failed to perform analysis for crate '{}'", crate_data.name))?;
+
+            result_data.timing.download_duration_ms = Some(download_duration_ms);
+            result_data.timing.total_duration_ms = total_start.elapsed().as_millis() as i64;
+            result_data.timing.started_at = started_at;
+            result_data.timing.completed_at = Utc::now().naive_utc();
             
             info!("Completed analysis for crate: {} (id: {})", crate_data.name, crate_data.id);
             Ok(result_data)
         }
         Err(e) => {
+            let download_duration_ms = download_start.elapsed().as_millis() as i64;
             // Clean up any partial download
             let _ = remove_dir_all(&dir).await;
             
@@ -239,6 +361,18 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
                     scan_result: create_placeholder_result(crate_data.id),
                     audit_results: Vec::new(),
                     gitleaks_results: Vec::new(),
+                    timing: AnalysisTiming {
+                        total_duration_ms: total_start.elapsed().as_millis() as i64,
+                        cargo_audit_duration_ms: None,
+                        gitleaks_duration_ms: None,
+                        executable_check_duration_ms: None,
+                        build_rs_analysis_duration_ms: None,
+                        llm_analysis_duration_ms: None,
+                        download_duration_ms: Some(download_duration_ms),
+                        worker_id: current_worker_id(),
+                        started_at,
+                        completed_at: Utc::now().naive_utc(),
+                    },
                 })
             } else {
                 // Other errors should be propagated with context
@@ -264,7 +398,6 @@ fn create_placeholder_result(crate_id: i64) -> ScanResultData {
         build_rs_has_process_spawning: false,
         build_rs_has_raw_ip: false,
         build_rs_has_free_tlds: false,
-        entropy_score: 0.0,
     }
 }
 
@@ -290,43 +423,123 @@ fn create_failed_placeholder_result(crate_id: i64, error_msg: &str) -> ScanResul
         build_rs_has_process_spawning: false,
         build_rs_has_raw_ip: false,
         build_rs_has_free_tlds: false,
-        entropy_score: 0.0,
     }
 }
 
-// Removed - now using the real gitleaks implementation from gitleaks.rs module
+/// Check for executable files in the crate directory
+/// Detects files with executable permissions or binary file signatures (ELF, Mach-O, PE)
+async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, anyhow::Error> {
+    use std::os::unix::fs::PermissionsExt;
+    use tokio::fs;
 
-/// Sample implementation: Compute code similarity with other crates
-/// Simulates ~4 seconds of processing time
-async fn compute_similarity(_crate_dir: &str, crate_id: i64) -> Result<(), anyhow::Error> {
-    info!("Computing code similarity for crate {}", crate_id);
-    
-    // Simulate similarity computation time
-    // tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
-    
-    // TODO: Real implementation would:
-    // 1. Extract code features/fingerprints
-    // 2. Compare with database of known crates
-    // 3. Insert results into code_similarity_results table
-    
-    info!("Completed similarity analysis for crate {}", crate_id);
-    Ok(())
-}
-
-/// Sample implementation: Check for executable files
-/// Simulates ~1 second of processing time
-async fn check_executable_files(_crate_dir: &str, crate_id: i64) -> Result<bool, anyhow::Error> {
     info!("Checking executable files for crate {}", crate_id);
-    
-    // Simulate file scanning time
-    // tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-    
-    // TODO: Real implementation would:
-    // Walk directory tree and check for executable permissions
-    // or binary files in suspicious locations
-    
-    info!("Completed executable file check for crate {}", crate_id);
-    Ok(false) // No executable files found
+
+    // Use find command to efficiently locate potentially executable files
+    let output = tokio::process::Command::new("find")
+        .arg(crate_dir)
+        .arg("-path")
+        .arg("*/.git/*")
+        .arg("-prune")
+        .arg("-o")
+        .arg("-type")
+        .arg("f")
+        .arg("(")
+        .arg("-perm")
+        .arg("/111")  // Files with any execute bit set
+        .arg("-o")
+        .arg("-name")
+        .arg("*.exe")
+        .arg("-o")
+        .arg("-name")
+        .arg("*.dll")
+        .arg("-o")
+        .arg("-name")
+        .arg("*.so")
+        .arg("-o")
+        .arg("-name")
+        .arg("*.dylib")
+        .arg(")")
+        .arg("-print0")
+        .output()
+        .await
+        .context("Failed to run find command")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(anyhow::anyhow!(
+            "find command failed for crate {}: {}",
+            crate_id,
+            stderr.trim()
+        ));
+    }
+
+    let found_paths: Vec<&[u8]> = output
+        .stdout
+        .split(|b| *b == 0)
+        .filter(|segment| !segment.is_empty())
+        .collect();
+
+    // Check each found file for binary signatures
+    for path_bytes in found_paths {
+        let path_str = String::from_utf8_lossy(path_bytes);
+        let path = std::path::Path::new(path_str.as_ref());
+
+        // Skip if path doesn't exist or isn't a file
+        if !path.is_file() {
+            continue;
+        }
+
+        // Read only the first bytes to check for binary signatures
+        if let Ok(mut file) = fs::File::open(path).await {
+            let mut header = [0u8; 8];
+            let bytes_read = file.read(&mut header).await.unwrap_or(0);
+
+            if bytes_read >= 4 {
+                // ELF signature: 0x7F 'E' 'L' 'F'
+                if header.starts_with(&[0x7F, 0x45, 0x4C, 0x46]) {
+                    info!("Found ELF binary in crate {}: {}", crate_id, path_str);
+                    return Ok(true);
+                }
+
+                // Mach-O signatures (universal, 32-bit, 64-bit)
+                if header.starts_with(&[0xCA, 0xFE, 0xBA, 0xBE])  // Universal binary
+                    || header.starts_with(&[0xFE, 0xED, 0xFA, 0xCE])  // Mach-O 32-bit
+                    || header.starts_with(&[0xFE, 0xED, 0xFA, 0xCF])  // Mach-O 64-bit
+                    || header.starts_with(&[0xCF, 0xFA, 0xED, 0xFE])  // Mach-O 64-bit (reverse)
+                    || header.starts_with(&[0xCE, 0xFA, 0xED, 0xFE])  // Mach-O 32-bit (reverse)
+                {
+                    info!("Found Mach-O binary in crate {}: {}", crate_id, path_str);
+                    return Ok(true);
+                }
+
+                // PE (Windows) signature: 'M' 'Z'
+                if header.starts_with(&[0x4D, 0x5A]) {
+                    info!("Found PE/Windows binary in crate {}: {}", crate_id, path_str);
+                    return Ok(true);
+                }
+
+                // WebAssembly binary: '\0asm'
+                if header.starts_with(&[0x00, 0x61, 0x73, 0x6D]) {
+                    info!("Found WebAssembly binary in crate {}: {}", crate_id, path_str);
+                    return Ok(true);
+                }
+            }
+
+            // Also check for shebang scripts that might be executable
+            if bytes_read >= 2 && header.starts_with(&[0x23, 0x21]) {
+                // Check if file has execute permission
+                if let Ok(metadata) = fs::metadata(path).await {
+                    if metadata.permissions().mode() & 0o111 != 0 {
+                        debug!("Found executable script in crate {}: {}", crate_id, path_str);
+                        // Scripts with shebang are less suspicious, only flag actual binaries
+                    }
+                }
+            }
+        }
+    }
+
+    info!("Completed executable file check for crate {} - no binaries found", crate_id);
+    Ok(false)
 }
 
 /// Performs all analysis steps in parallel and aggregates results
@@ -339,26 +552,32 @@ async fn perform_analysis(
     let crate_id = crate_data.id;
     
     info!("Starting parallel analysis for crate {} (id: {})", crate_data.name, crate_id);
-    
-    // Run non-LLM analysis steps in parallel
-    let (audit_result, gitleaks_result, similarity_result, exec_result, build_rs_result) = tokio::join!(
-        run_cargo_audit(crate_dir, crate_id),
-        run_gitleaks(crate_dir),
-        compute_similarity(crate_dir, crate_id),
-        check_executable_files(crate_dir, crate_id),
-        analyze_build_rs(crate_dir),
-    );
-    
-    // Run LLM analysis only if enabled (it's computationally expensive)
-    let llm_result = if config.llm_enabled {
-        run_llm_analysis(crate_dir, crate_data, config).await
-    } else {
-        info!("LLM analysis disabled, skipping for crate '{}'", crate_data.name);
-        Ok(LlmAnalysisResult {
-            malicious_score: 0,
-            notes: "LLM analysis disabled".to_string(),
-        })
+
+    let llm_future = async {
+        if config.llm_enabled {
+            run_llm_analysis(crate_dir, crate_data, config).await
+        } else {
+            info!("LLM analysis disabled, skipping for crate '{}'", crate_data.name);
+            Ok(LlmAnalysisResult {
+                malicious_score: 0,
+                notes: "LLM analysis disabled".to_string(),
+            })
+        }
     };
+
+    let (
+        (audit_result, cargo_audit_duration_ms),
+        (gitleaks_result, gitleaks_duration_ms),
+        (exec_result, executable_check_duration_ms),
+        (build_rs_result, build_rs_analysis_duration_ms),
+        (llm_result, llm_analysis_duration_ms),
+    ) = tokio::join!(
+        measure_future_ms(run_cargo_audit(crate_dir, crate_id)),
+        measure_future_ms(run_gitleaks(crate_dir)),
+        measure_future_ms(check_executable_files(crate_dir, crate_id)),
+        measure_future_ms(analyze_build_rs(crate_dir)),
+        measure_future_ms(llm_future),
+    );
     
     // Aggregate results from all analyses with proper error context
     let audit_results = audit_result
@@ -366,10 +585,7 @@ async fn perform_analysis(
     
     let gitleaks_results = gitleaks_result
         .context(format!("gitleaks failed for crate '{}'", crate_data.name))?;
-    
-    similarity_result
-        .context(format!("similarity analysis failed for crate '{}'", crate_data.name))?;
-    
+
     let has_executable_files = exec_result
         .context(format!("executable file check failed for crate '{}'", crate_data.name))?;
     
@@ -400,10 +616,21 @@ async fn perform_analysis(
             build_rs_has_process_spawning: build_rs_analysis.has_process_spawning,
             build_rs_has_raw_ip: build_rs_analysis.has_raw_ip,
             build_rs_has_free_tlds: build_rs_analysis.has_free_tlds,
-            entropy_score: build_rs_analysis.crate_entropy_score,
         },
         audit_results,
         gitleaks_results,
+        timing: AnalysisTiming {
+            total_duration_ms: 0,
+            cargo_audit_duration_ms: Some(cargo_audit_duration_ms),
+            gitleaks_duration_ms: Some(gitleaks_duration_ms),
+            executable_check_duration_ms: Some(executable_check_duration_ms),
+            build_rs_analysis_duration_ms: Some(build_rs_analysis_duration_ms),
+            llm_analysis_duration_ms: Some(llm_analysis_duration_ms),
+            download_duration_ms: None,
+            worker_id: current_worker_id(),
+            started_at: Utc::now().naive_utc(),
+            completed_at: Utc::now().naive_utc(),
+        },
     })
 }
 
@@ -427,7 +654,7 @@ async fn batch_insert_results(
         .map(|r| {
             let s = &r.scan_result;
             format!(
-                "({}, {}, {}, '{}', {}, {}, {}, {}, {}, {}, {}, {}, {}, {})",
+                "({}, {}, {}, '{}', {}, {}, {}, {}, {}, {}, {}, {}, {})",
                 s.crate_id,
                 s.has_malicious_dependencies,
                 s.llm_malicious_score,
@@ -440,8 +667,7 @@ async fn batch_insert_results(
                 s.build_rs_entropy_score,
                 s.build_rs_has_process_spawning,
                 s.build_rs_has_raw_ip,
-                s.build_rs_has_free_tlds,
-                s.entropy_score
+                s.build_rs_has_free_tlds
             )
         })
         .collect();
@@ -449,7 +675,7 @@ async fn batch_insert_results(
     let scan_values_str = scan_values.join(", ");
     
     let scan_query = format!(
-        "INSERT INTO scan_results (id, has_malicious_dependencies, llm_malicious_score, llm_notes, has_executable_files, cargo_audit_max_dep_score, cargo_audit_vulns_count, build_rs_network_calls, build_rs_has_link_directive, build_rs_entropy_score, build_rs_has_process_spawning, build_rs_has_raw_ip, build_rs_has_free_tlds, entropy_score)
+        "INSERT INTO scan_results (id, has_malicious_dependencies, llm_malicious_score, llm_notes, has_executable_files, cargo_audit_max_dep_score, cargo_audit_vulns_count, build_rs_network_calls, build_rs_has_link_directive, build_rs_entropy_score, build_rs_has_process_spawning, build_rs_has_raw_ip, build_rs_has_free_tlds)
          VALUES {}
          ON CONFLICT (id) DO UPDATE SET
             has_malicious_dependencies = EXCLUDED.has_malicious_dependencies,
@@ -463,8 +689,7 @@ async fn batch_insert_results(
             build_rs_entropy_score = EXCLUDED.build_rs_entropy_score,
             build_rs_has_process_spawning = EXCLUDED.build_rs_has_process_spawning,
             build_rs_has_raw_ip = EXCLUDED.build_rs_has_raw_ip,
-            build_rs_has_free_tlds = EXCLUDED.build_rs_has_free_tlds,
-            entropy_score = EXCLUDED.entropy_score",
+            build_rs_has_free_tlds = EXCLUDED.build_rs_has_free_tlds",
         scan_values_str
     );
     
@@ -583,6 +808,47 @@ async fn batch_insert_results(
             .execute(&mut conn)
             .await
             .context("Failed to insert gitleaks results")?;
+    }
+
+    // Fourth, persist timing metrics for each analyzed crate
+    let format_i64_opt = |v: Option<i64>| v.map(|x| x.to_string()).unwrap_or_else(|| "NULL".to_string());
+    let format_text_opt = |v: Option<&str>| {
+        v.map(|s| format!("'{}'", s.replace("'", "''")))
+            .unwrap_or_else(|| "NULL".to_string())
+    };
+
+    let metrics_values: Vec<String> = results
+        .iter()
+        .map(|r| {
+            let t = &r.timing;
+            format!(
+                "({}, {}, {}, {}, {}, {}, {}, {}, {}, '{}', '{}')",
+                r.scan_result.crate_id,
+                t.total_duration_ms,
+                format_i64_opt(t.cargo_audit_duration_ms),
+                format_i64_opt(t.gitleaks_duration_ms),
+                format_i64_opt(t.executable_check_duration_ms),
+                format_i64_opt(t.build_rs_analysis_duration_ms),
+                format_i64_opt(t.llm_analysis_duration_ms),
+                format_i64_opt(t.download_duration_ms),
+                format_text_opt(t.worker_id.as_deref()),
+                t.started_at,
+                t.completed_at
+            )
+        })
+        .collect();
+
+    if !metrics_values.is_empty() {
+        let metrics_query = format!(
+            "INSERT INTO analysis_metrics (crate_id, total_duration_ms, cargo_audit_duration_ms, gitleaks_duration_ms, executable_check_duration_ms, build_rs_analysis_duration_ms, llm_analysis_duration_ms, download_duration_ms, worker_id, started_at, completed_at)
+             VALUES {}",
+            metrics_values.join(", ")
+        );
+
+        diesel::sql_query(&metrics_query)
+            .execute(&mut conn)
+            .await
+            .context("Failed to insert analysis metrics")?;
     }
     
     Ok(())

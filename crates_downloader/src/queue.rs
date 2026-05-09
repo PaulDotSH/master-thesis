@@ -250,34 +250,57 @@ impl WorkQueue {
 
     /// Block until a ready crate is available (Worker side)
     /// 
-    /// This is like pop_ready_crate but blocks if the queue is empty
+    /// This is like pop_ready_crate but blocks if the queue is empty.
+    /// Uses atomic claiming to prevent race conditions where multiple workers
+    /// could pick up the same crate if it appears in the queue multiple times.
     pub async fn pop_ready_crate_blocking(&mut self, timeout_secs: f64) -> Result<Option<i64>, anyhow::Error> {
-        // First try non-blocking pop
+        // First try non-blocking pop (which is atomic)
         if let Some(crate_id) = self.pop_ready_crate().await? {
             return Ok(Some(crate_id));
         }
         
-        // Use BLPOP with timeout
-        let result: Option<(String, String)> = self.client
-            .blpop(READY_QUEUE, timeout_secs)
-            .await
-            .context("Failed to block-pop from ready queue")?;
-        
-        match result {
-            Some((_, id_str)) => {
-                let crate_id: i64 = id_str.parse()
-                    .context("Failed to parse crate ID from Redis")?;
-                
-                // Add to in_progress set
-                let _: () = self.client
-                    .sadd(IN_PROGRESS_SET, crate_id.to_string())
-                    .await
-                    .context("Failed to add to in_progress set")?;
-                
-                debug!("Block-popped ready crate {} from queue", crate_id);
-                Ok(Some(crate_id))
+        // Loop until we successfully claim a crate or timeout
+        loop {
+            // Use BLPOP with timeout
+            let result: Option<(String, String)> = self.client
+                .blpop(READY_QUEUE, timeout_secs)
+                .await
+                .context("Failed to block-pop from ready queue")?;
+            
+            match result {
+                Some((_, id_str)) => {
+                    let crate_id: i64 = id_str.parse()
+                        .context("Failed to parse crate ID from Redis")?;
+                    
+                    // Check if already completed (skip if so)
+                    let is_completed: bool = self.client
+                        .sismember(COMPLETED_SET, &id_str)
+                        .await
+                        .context("Failed to check if crate is completed")?;
+                    
+                    if is_completed {
+                        debug!("Skipping crate {} - already completed", crate_id);
+                        continue;  // Try to get another crate
+                    }
+                    
+                    // Atomically try to add to in_progress set
+                    // SADD returns 1 if the element was added, 0 if it already existed
+                    let added: i32 = self.client
+                        .sadd(IN_PROGRESS_SET, &id_str)
+                        .await
+                        .context("Failed to add to in_progress set")?;
+                    
+                    if added == 0 {
+                        // Another worker already claimed this crate - try again
+                        debug!("Crate {} already claimed by another worker, trying next", crate_id);
+                        continue;
+                    }
+                    
+                    debug!("Block-popped and claimed ready crate {} from queue", crate_id);
+                    return Ok(Some(crate_id));
+                }
+                None => return Ok(None), // Timeout
             }
-            None => Ok(None), // Timeout
         }
     }
 
@@ -411,18 +434,24 @@ impl WorkQueue {
             return Ok(0);
         }
         
-        // Move them back to ready queue
+        // Move them back to ready queue - but only if we successfully remove them
+        // This prevents multiple workers from re-adding the same item
         let mut recovered = 0;
         for crate_id_str in in_progress {
-            let _: () = self.client
+            // Only push to ready queue if we successfully removed from in_progress
+            // SREM returns 1 if the element was removed, 0 if it didn't exist
+            let removed: i32 = self.client
                 .srem(IN_PROGRESS_SET, &crate_id_str)
                 .await
                 .context("Failed to remove from in_progress")?;
-            let _: () = self.client
-                .rpush(READY_QUEUE, &crate_id_str)
-                .await
-                .context("Failed to add back to ready queue")?;
-            recovered += 1;
+            
+            if removed > 0 {
+                let _: () = self.client
+                    .rpush(READY_QUEUE, &crate_id_str)
+                    .await
+                    .context("Failed to add back to ready queue")?;
+                recovered += 1;
+            }
         }
         
         if recovered > 0 {

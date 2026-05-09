@@ -3,7 +3,7 @@ connection_string = "postgres://postgres:postgres@localhost:5432/crates"
 llm_malicious_score_threshold = 75
 update_source_data = true
 redis_url = "redis://localhost:6379"
-use_only_first_x_crates = 10
+use_only_first_x_crates = 0
 max_crates_downloads = 0
 insert_crates_in_chunks = 1000
 

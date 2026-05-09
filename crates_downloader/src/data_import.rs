@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::csv_reader::{
     read_crates_csv, read_crates_downloads_csv, read_dependencies_csv, read_versions_csv,
+    get_latest_version_ids,
 };
 use crate::database::Database;
 use crate::models::CrateDownloadRecord;
@@ -31,6 +32,12 @@ pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::E
     // Read versions and create mapping
     info!("Reading versions.csv to create version->crate mapping");
     let versions = read_versions_csv("db-dump/versions.csv")?;
+    
+    // Get only the latest version ID for each crate
+    info!("Computing latest version IDs for each crate");
+    let latest_version_ids = get_latest_version_ids(&versions);
+    info!("Found {} crates with latest versions", latest_version_ids.len());
+    
     let version_to_crate: HashMap<i32, i32> =
         versions.into_iter().map(|v| (v.id, v.crate_id)).collect();
     info!("Created mapping for {} versions", version_to_crate.len());
@@ -41,9 +48,9 @@ pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::E
         crate_records.iter().map(|c| c.id).collect();
     info!("Found {} crate IDs in crates.csv", existing_crate_ids.len());
 
-    // Insert dependencies
-    info!("Inserting dependencies");
-    let dependencies = read_dependencies_csv("db-dump/dependencies.csv")?;
+    // Insert dependencies (only from latest versions, only normal deps)
+    info!("Inserting dependencies (latest version only, runtime deps only)");
+    let dependencies = read_dependencies_csv("db-dump/dependencies.csv", &latest_version_ids)?;
     info!("Total dependencies to insert: {}", dependencies.len());
 
     // Disable constraints and triggers for faster insertion
@@ -93,12 +100,18 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
 
     info!("Reading versions.csv to create version->crate mapping");
     let versions = read_versions_csv("db-dump/versions.csv")?;
+    
+    // Get only the latest version ID for each crate
+    info!("Computing latest version IDs for each crate");
+    let latest_version_ids = get_latest_version_ids(&versions);
+    info!("Found {} crates with latest versions", latest_version_ids.len());
+    
     let version_to_crate: HashMap<i32, i32> =
         versions.into_iter().map(|v| (v.id, v.crate_id)).collect();
     info!("Created mapping for {} versions", version_to_crate.len());
 
-    info!("Reading dependencies from CSV");
-    let all_dependencies = read_dependencies_csv("db-dump/dependencies.csv")?;
+    info!("Reading dependencies from CSV (latest version only, runtime deps only)");
+    let all_dependencies = read_dependencies_csv("db-dump/dependencies.csv", &latest_version_ids)?;
 
     // Group dependencies by crate_id (via version_id -> crate_id mapping)
     let mut crate_dependencies: HashMap<i32, Vec<i32>> = HashMap::new();

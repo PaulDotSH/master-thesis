@@ -13,10 +13,13 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
     
     // Run cargo audit with --no-fetch to use the already-initialized database
     // This prevents concurrent git fetch operations that cause conflicts
+    // Use explicit --db path - advisory-db is at /advisory-db (outside cargo home to survive tmpfs)
     let output = Command::new("cargo")
         .arg("audit")
         .arg("--json")
         .arg("--no-fetch")
+        .arg("--db")
+        .arg("/advisory-db")
         .current_dir(crate_dir)
         .output()
         .await

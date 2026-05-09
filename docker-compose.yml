@@ -48,6 +48,11 @@ services:
       - ./crates_downloader/config.toml:/app/config.toml
       - worker_tmp:/tmp/crates
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:

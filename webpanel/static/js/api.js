@@ -79,6 +79,11 @@ class Api {
         return this.get('/api/gitleaks', params);
     }
 
+    // Analysis metrics
+    static async getMetrics(params = {}) {
+        return this.get('/api/metrics', params);
+    }
+
     // Typosquat
     static async getTyposquat(params = {}) {
         return this.get('/api/typosquat', params);

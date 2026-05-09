@@ -1,0 +1,79 @@
+\chapter{Discussion}\label{chapter:chap8}
+
+\section{Interpretation of Results}\label{sect:interpretation}
+
+The key findings from the analysis is the following:
+
+8.4\% of analyzed crates contain at least one vulnerability, with an average of 4.37 per vulnerable crate. This is lower than the npm rate, however it remains a concern
+
+The top 10 dependent crates have over 350.000 dependent crates.
+
+Over 393.059 secrets were detected by gitleaks, however the majority of them are false positives of generic API key patterns, and probably represent test and constants. The non-generic detections are a small number and should require manual analysis.
+
+Around 4.6\% of crates contain build scripts, with over 240 performing network operations.
+
+\section{Comparison with Existing Approaches}\label{sect:comparison}
+
+TODO: After rerun of framework
+
+\section{Limitations}\label{sect:limitations}
+
+\subsection{Detection Limitations}\label{subsect:detection-limitations}
+
+False negatives:
+
+- Novel patterns and attacks can evade our heuristics
+
+- Custom encoding might be done to try to evade obfuscation detection
+
+- Social engineering and account overtaking are not addressed
+
+False positives:
+
+- Legitimate crates with unusual behavior that still remain benign
+
+- Test code may trigger alerts
+
+- High entryopy with legitimate usecases
+
+- Common naming patterns can produce false alerts of the typosquatting features
+
+\subsection{LLM-Specific Limitations}\label{subsect:llm-limitations}
+
+- LLMs might hallucinate vulnerabilities or hallucinate that benign code is malicious or viceversa
+
+- The very limited context window is a problem due to some libraries having large codebases, which are chunked on the current implementation, which can make the model miss cross-file malicious behavior (behavior that present in two separate files is benign on it's own but either imports or api usage makes it pontentially malicious)
+
+- Reproducibility is another limitation since LLM outputs vary even with low or zero temperature parameter.
+
+- Prompt injection is another problem, adversaries might contain specially encoded unicode characters or try to do prompt injection in comments to evade the model
+
+\subsection{Scalability and Resource Limitations}\label{subsect:scalability-limitations}
+
+LLm inference is extremely computationally expensive for an ecosystem deployment.
+
+Analysis time can take a very long time, especially on large crates, adversaries could do a DoW attack by spamming fake crates with large codebases to attack crates.io.
+
+Storage is another problem if storing crates is required, besides us only cloning with a depth of one and only one branch, some repositories are still large
+
+Besides storage, network bandwidth is also a potential problem, especially if the git services used rate limit us.
+
+\subsection{Ground Truth Limitations}\label{subsect:ground-truth-limitations}
+
+Validation is extremely hard to do, since only a very small number of existing crates have been documented in a public way as malicious
+
+We also have an unknown rate for false negatives since we cannot know how many attacks exists undetected
+
+\subsection{Generalizability Limitations}\label{subsect:generalizability-limitations}
+
+The framework is designed for crates.io and Rust, adoption for other ecosystems would require a full rewrite.
+
+Besides the tools like cargo audit being adapted for Rust, also the build.rs heuristics are also language specific
+
+\section{Threats to Validity}\label{sect:threats}
+
+The CVSS scoring and string similarity algorithms have been tested via unit tests, however we can never know if there are any edge cases
+
+Results are limited to crates with valid repository links in the metadata, some crates have been moved from the link from the metadata and moved to docs.rs (i.e. Find\_Matt\_C)
+
+The LLM score is only a guide and cannot guarantee anything, be it either the presence of malivious behavior or its absence.

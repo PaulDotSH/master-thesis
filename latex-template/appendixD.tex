@@ -1,0 +1,171 @@
+\chapter{Artifact Documentation and Reproducibility}\label{appendix:artifacts}
+
+\section{Software Artifacts}\label{sect:software-artifacts}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Artifact} & \textbf{Description} & \textbf{Location} \\
+\hline
+\texttt{crates\_downloader} & Main analysis framework (Rust) & \texttt{crates\_downloader/} \\
+\hline
+\texttt{webpanel} & Dashboard web application (Rust + Axum) & \texttt{webpanel/} \\
+\hline
+Database migrations & PostgreSQL schema definitions & \texttt{migrations/} \\
+\hline
+Docker configuration & Container orchestration & \texttt{docker-compose.*.yml}, \texttt{Dockerfile} \\
+\hline
+Configuration template & Analysis parameters & \texttt{config.toml} \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Data Artifacts}\label{sect:data-artifacts}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Artifact} & \textbf{Description} & \textbf{Format} \\
+\hline
+crates.io dump & Input data from crates.io & CSV files \\
+\hline
+Analysis results & Complete ecosystem scan & PostgreSQL database dump \\
+\hline
+Vulnerability findings & cargo audit results & JSON / PostgreSQL \\
+\hline
+Secret detections & Gitleaks findings & JSON / PostgreSQL \\
+\hline
+Typosquatting pairs & Similarity computations & PostgreSQL \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Hardware Requirements}\label{sect:hardware-req}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Component} & \textbf{Minimum} & \textbf{Recommended} \\
+\hline
+CPU & 4 cores & 16+ cores \\
+\hline
+RAM & 16 GB & 64 GB \\
+\hline
+Storage & 500 GB SSD & 1 TB NVMe + tmpfs \\
+\hline
+GPU & None (CPU inference) & NVIDIA RTX 5000 series for fast inference \\
+\hline
+Network & 100 Mbps & 1 Gbps \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Software Requirements}\label{sect:software-req}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Software} & \textbf{Version} & \textbf{Purpose} \\
+\hline
+Rust & (stable) & Core application \\
+\hline
+PostgreSQL & 17+ & Data storage \\
+\hline
+Redis & 7+ & Work queue \\
+\hline
+Docker & 24+ & Containerization \\
+\hline
+Docker Compose & 2.20+ & Orchestration \\
+\hline
+Gitleaks & 8+ & Secret detection \\
+\hline
+LM Studio & 0.2.20+ & Local LLM hosting \\
+\hline
+Git & 2.40+ & Repository cloning \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Reproduction Steps}\label{sect:reproduction-steps}
+
+\begin{enumerate}
+    \item \textbf{Clone the repository}:
+\begin{verbatim}
+git clone https://github.com/[REDACTED]/crates-security-framework.git
+cd crates-security-framework
+\end{verbatim}
+
+    \item \textbf{Configure environment}:
+\begin{verbatim}
+cp config.toml.example config.toml
+# Edit config.toml with database and Redis URLs
+\end{verbatim}
+
+    \item \textbf{Start infrastructure}:
+\begin{verbatim}
+docker-compose up -d postgres redis
+\end{verbatim}
+
+    \item \textbf{Initialize database}:
+\begin{verbatim}
+diesel migration run
+\end{verbatim}
+
+    \item \textbf{Download crates.io database dump}:
+\begin{verbatim}
+cargo run --release -- update-database
+\end{verbatim}
+
+    \item \textbf{Build dependency graph}:
+\begin{verbatim}
+cargo run --release -- run-analysis
+\end{verbatim}
+
+    \item \textbf{Start workers (adjust count as needed)}:
+\begin{verbatim}
+docker-compose -f docker-compose.workers.yml up -d --scale worker=10
+\end{verbatim}
+
+    \item \textbf{Monitor progress}:
+\begin{verbatim}
+cargo run --release -- queue-status
+\end{verbatim}
+
+    \item \textbf{Run post-processing}:
+\begin{verbatim}
+cargo run --release -- compute-dependencies
+\end{verbatim}
+
+    \item \textbf{Run typosquatting analysis}:
+\begin{verbatim}
+cargo run --release -- typosquat --min-score 75 --top-crates 10000
+\end{verbatim}
+
+    \item \textbf{Start web dashboard}:
+\begin{verbatim}
+cd webpanel && cargo run --release
+\end{verbatim}
+\end{enumerate}
+
+\section{Expected Outputs}\label{sect:expected-outputs}
+PostgreSQL database containing:
+
+- All crate metadata from crates.io
+
+- Complete dependency graph
+
+- Scan results for all analyzed crates
+
+- Individual vulnerability findings (cargo\_audit\_results)
+
+- Individual secret findings (gitleaks\_results)
+
+- Typosquatting pair candidates (typosquat\_results)
+
+Log files in logs/
+
+Working web dashboard

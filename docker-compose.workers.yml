@@ -17,7 +17,12 @@ services:
       - ./crates_downloader/config.toml:/app/config.toml
       - /tmp/crates:/tmp/crates  # RAM disk mount - run: sudo mount -t tmpfs -o size=4G tmpfs /tmp/crates
       - ./logs/docker:/app/logs  # Persist logs to host
-    restart: unless-stopped
+    restart: on-failure
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:

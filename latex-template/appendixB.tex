@@ -1,0 +1,25 @@
+\chapter{Configuration Reference}\label{appendix:config-ref}
+
+\begin{verbatim}
+# Database
+max_connections = 5
+connection_string = "postgres://postgres:postgres@localhost:5432/crates"
+
+# Redis
+redis_url = "redis://localhost:6379"
+
+# Data Import
+update_source_data = true
+use_only_first_x_crates = 0       # 0 = all crates
+max_crates_downloads = 0          # 0 = no filter
+insert_crates_in_chunks = 4000
+
+# LLM Configuration
+llm_enabled = false
+lm_studio_url = "http://localhost:1234/v1"
+lm_studio_model = "qwen/qwen2.5-coder-14b"
+llm_max_tokens = 4096
+llm_temperature = 0.1
+llm_max_context_chars = 24576
+llm_malicious_score_threshold = 75
+\end{verbatim}

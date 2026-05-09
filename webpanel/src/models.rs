@@ -4,8 +4,8 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::schema::{
-    cargo_audit_results, crates, dependencies, gitleaks_results, runner_metadata, scan_results,
-    typosquat_results,
+    analysis_metrics, cargo_audit_results, crates, dependencies, gitleaks_results,
+    runner_metadata, scan_results, typosquat_results,
 };
 
 // Queryable models with Serialize for JSON responses
@@ -49,7 +49,23 @@ pub struct ScanResult {
     pub build_rs_has_process_spawning: bool,
     pub build_rs_has_raw_ip: bool,
     pub build_rs_has_free_tlds: bool,
-    pub entropy_score: f32,
+}
+
+#[derive(Debug, Clone, Queryable, Selectable, Serialize)]
+#[diesel(table_name = analysis_metrics)]
+pub struct AnalysisMetric {
+    pub id: Uuid,
+    pub crate_id: i64,
+    pub total_duration_ms: i64,
+    pub cargo_audit_duration_ms: Option<i64>,
+    pub gitleaks_duration_ms: Option<i64>,
+    pub executable_check_duration_ms: Option<i64>,
+    pub build_rs_analysis_duration_ms: Option<i64>,
+    pub llm_analysis_duration_ms: Option<i64>,
+    pub download_duration_ms: Option<i64>,
+    pub worker_id: Option<String>,
+    pub started_at: NaiveDateTime,
+    pub completed_at: NaiveDateTime,
 }
 
 #[derive(Debug, Clone, Queryable, Selectable, Serialize)]
@@ -164,6 +180,8 @@ pub struct DashboardStats {
     pub vulnerabilities_count: i64,
     pub secrets_found: i64,
     pub typosquat_count: i64,
+    pub avg_analysis_duration_ms: Option<f64>,
+    pub latest_analysis_duration_ms: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize)]

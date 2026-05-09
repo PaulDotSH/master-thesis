@@ -1,0 +1,43 @@
+2026-04-15T09:55:05.973294Z  INFO crates_downloader: Starting crates_downloader application
+2026-04-15T09:55:05.975568Z  INFO crates_downloader: Successfully connected to database
+2026-04-15T09:55:05.975575Z  INFO crates_downloader: Starting typosquat detection analysis
+2026-04-15T09:55:06.111221Z  INFO crates_downloader: Comparing 245551 crates against 10000 target crates
+2026-04-15T09:58:17.351256Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.368752Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.384956Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.401910Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.417745Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.432597Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.447945Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.462723Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.478173Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.494466Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.509528Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.525308Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.540730Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.554920Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.569359Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.584292Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.598846Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.613883Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.628452Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.643079Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.657860Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.672179Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.686178Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.700419Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.714339Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.728760Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.742929Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.757616Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.771635Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.785706Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.800204Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.813896Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.827922Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.841973Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.857076Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.871759Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.886438Z  INFO crates_downloader: Inserted 1000 typosquat results
+2026-04-15T09:58:17.895812Z  INFO crates_downloader: Inserted 596 typosquat results
+2026-04-15T09:58:17.925018Z  INFO crates_downloader: Application completed successfully

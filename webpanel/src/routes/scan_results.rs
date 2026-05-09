@@ -51,7 +51,6 @@ pub struct ScanResultWithCrate {
     pub build_rs_has_process_spawning: bool,
     pub build_rs_has_raw_ip: bool,
     pub build_rs_has_free_tlds: bool,
-    pub entropy_score: f32,
 }
 
 pub async fn list_scan_results(
@@ -135,10 +134,6 @@ pub async fn list_scan_results(
             if sort_desc { query.order(scan_results::cargo_audit_vulns_count.desc()) }
             else { query.order(scan_results::cargo_audit_vulns_count.asc()) }
         }
-        Some("entropy_score") | Some("entropy") => {
-            if sort_desc { query.order(scan_results::entropy_score.desc()) }
-            else { query.order(scan_results::entropy_score.asc()) }
-        }
         Some("has_malicious_dependencies") => {
             if sort_desc { query.order(scan_results::has_malicious_dependencies.desc()) }
             else { query.order(scan_results::has_malicious_dependencies.asc()) }
@@ -158,7 +153,7 @@ pub async fn list_scan_results(
     };
 
     // Execute query
-    type ResultTuple = (i64, String, bool, i16, String, bool, i16, i16, bool, bool, f32, bool, bool, bool, f32);
+    type ResultTuple = (i64, String, bool, i16, String, bool, i16, i16, bool, bool, f32, bool, bool, bool);
     let results: Vec<ResultTuple> = query
         .select((
             scan_results::id,
@@ -175,7 +170,6 @@ pub async fn list_scan_results(
             scan_results::build_rs_has_process_spawning,
             scan_results::build_rs_has_raw_ip,
             scan_results::build_rs_has_free_tlds,
-            scan_results::entropy_score,
         ))
         .limit(per_page)
         .offset(offset)
@@ -199,7 +193,6 @@ pub async fn list_scan_results(
             build_rs_has_process_spawning: r.11,
             build_rs_has_raw_ip: r.12,
             build_rs_has_free_tlds: r.13,
-            entropy_score: r.14,
         })
         .collect();
 
@@ -212,7 +205,7 @@ pub async fn get_scan_result(
 ) -> Result<Json<ScanResultWithCrate>, AppError> {
     let mut conn = pool.get().await?;
 
-    type ResultTuple = (i64, String, bool, i16, String, bool, i16, i16, bool, bool, f32, bool, bool, bool, f32);
+    type ResultTuple = (i64, String, bool, i16, String, bool, i16, i16, bool, bool, f32, bool, bool, bool);
     let result: ResultTuple = scan_results::table
         .inner_join(crates::table.on(crates::id.eq(scan_results::id)))
         .filter(scan_results::id.eq(id))
@@ -231,7 +224,6 @@ pub async fn get_scan_result(
             scan_results::build_rs_has_process_spawning,
             scan_results::build_rs_has_raw_ip,
             scan_results::build_rs_has_free_tlds,
-            scan_results::entropy_score,
         ))
         .first(&mut conn)
         .await?;
@@ -251,6 +243,5 @@ pub async fn get_scan_result(
         build_rs_has_process_spawning: result.11,
         build_rs_has_raw_ip: result.12,
         build_rs_has_free_tlds: result.13,
-        entropy_score: result.14,
     }))
 }
