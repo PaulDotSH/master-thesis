@@ -11,10 +11,10 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
     
     debug!("Running cargo audit for crate_dir: {}", crate_dir);
     
-    // Run cargo audit with --no-fetch to use the already-initialized database
-    // This prevents concurrent git fetch operations that cause conflicts
+    // Run cargo-audit directly (not via `cargo audit`) because /usr/local/cargo is mounted
+    // as tmpfs in Docker, which hides the `cargo` binary. cargo-audit lives at /usr/local/bin.
     // Use explicit --db path - advisory-db is at /advisory-db (outside cargo home to survive tmpfs)
-    let output = Command::new("cargo")
+    let output = Command::new("cargo-audit")
         .arg("audit")
         .arg("--json")
         .arg("--no-fetch")
@@ -23,7 +23,7 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
         .current_dir(crate_dir)
         .output()
         .await
-        .context(format!("Failed to execute cargo audit for '{}'", crate_dir))?;
+        .context(format!("Failed to execute cargo-audit for '{}'", crate_dir))?;
     
     // Check if command succeeded
     // Note: cargo audit returns exit code 0 for no vulnerabilities, 1 for vulnerabilities found

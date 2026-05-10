@@ -104,8 +104,11 @@ pub async fn cleanup_cargo_caches() -> Result<(), anyhow::Error> {
         "/usr/local/cargo/registry",
         "/usr/local/cargo/git",
         "/usr/local/cargo/target",
-        "/usr/local/rustup",
-        "/advisory-db",
+        // Note: /usr/local/rustup is intentionally excluded - deleting it destroys
+        // the Rust toolchain and breaks cargo audit for all subsequent crates.
+        // With /usr/local/cargo mounted as tmpfs, registry/git/target cleanup is instant.
+        // Note: /advisory-db is intentionally excluded - deleting it breaks cargo-audit
+        // for all subsequent crates (used with --no-fetch --db /advisory-db).
     ];
 
     let mut total_cleaned = 0u64;

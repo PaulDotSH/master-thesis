@@ -1,0 +1,60 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{{OWA}24}
+
+\bibitem[GCL{\etalchar{+}}24]{gong2024securityeval}
+Yinhao Gong, Bian Chen, Zhenyu Li, et~al.
+\newblock {Evaluating the Security of Large Language Models in Code Generation:
+  A Study with SecurityEval}.
+\newblock In {\em Proceedings of the 2024 IEEE/ACM International Conference on
+  Software Engineering (ICSE)}, 2024.
+
+\bibitem[LHZQ23]{li2023chatgpt}
+Haonan Li, Yu~Hao, Yizhuo Zhai, and Zhiyun Qian.
+\newblock {Assessing the Promise and Pitfalls of ChatGPT for Automated
+  Vulnerability Detection}.
+\newblock {\em arXiv preprint arXiv:2308.12434}, 2023.
+
+\bibitem[{Lin}24a]{sigstore2024}
+{Linux Foundation}.
+\newblock {Sigstore: Software Signing for Everybody}, 2024.
+
+\bibitem[{Lin}24b]{spdx2024}
+{Linux Foundation}.
+\newblock {Software Package Data Exchange (SPDX) Specification 2.3}, 2024.
+
+\bibitem[LPMB23]{ladisa2023taxonomy}
+Piergiorgio Ladisa, Henrik Plate, Matias Martinez, and Olivier Barais.
+\newblock {A Taxonomy of Attacks on Open-Source Software Supply Chains}.
+\newblock In {\em Proceedings of the 44th IEEE Symposium on Security and
+  Privacy (S\&P)}, 2023.
+
+\bibitem[{Ope}24]{slsa2024}
+{OpenSSF}.
+\newblock {Supply-chain Levels for Software Artifacts (SLSA) v1.0}, 2024.
+
+\bibitem[OPSM20]{ohm2020backstabber}
+Marc Ohm, Henrik Plate, Arnold Sykosch, and Michael Meier.
+\newblock {Backstabber's Knife Collection: A Review of Open Source Software
+  Supply Chain Attacks}.
+\newblock In {\em Proceedings of the 17th Conference on Detection of Intrusions
+  and Malware, and Vulnerability Assessment (DIMVA)}, 2020.
+
+\bibitem[{OWA}24]{owasp2024}
+{OWASP Foundation}.
+\newblock {OWASP CycloneDX Specification 1.6}, 2024.
+
+\bibitem[{Pyt}23]{pypi2023security}
+{Python Software Foundation}.
+\newblock {Malware Detection on PyPI}, 2023.
+
+\bibitem[{Son}26]{sonatype2026}
+{Sonatype}.
+\newblock {2026 State of the Software Supply Chain}, 2026.
+
+\bibitem[ZSTP19]{zimmermann2019small}
+Markus Zimmermann, Cristian-Alexandru Staicu, Cam Tenny, and Michael Pradel.
+\newblock {Small World with High Risks: A Study of Security Threats in the npm
+  Ecosystem}.
+\newblock In {\em Proceedings of the 28th USENIX Security Symposium}, 2019.
+
+\end{thebibliography}

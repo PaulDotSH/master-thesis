@@ -46,7 +46,9 @@ services:
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./crates_downloader/config.toml:/app/config.toml
-      - worker_tmp:/tmp/crates
+    tmpfs:
+      - /tmp/crates:size=4g      # crate source trees in RAM
+      - /usr/local/cargo:size=2g # cargo registry/git/target in RAM - avoids overlay2 I/O
     restart: unless-stopped
     logging:
       driver: json-file
@@ -64,5 +66,4 @@ services:
 
 volumes:
   postgres_data:
-  worker_tmp:
 

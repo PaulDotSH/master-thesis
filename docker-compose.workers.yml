@@ -17,6 +17,8 @@ services:
       - ./crates_downloader/config.toml:/app/config.toml
       - /tmp/crates:/tmp/crates  # RAM disk mount - run: sudo mount -t tmpfs -o size=4G tmpfs /tmp/crates
       - ./logs/docker:/app/logs  # Persist logs to host
+    tmpfs:
+      - /usr/local/cargo:size=2g  # cargo registry/git/target in RAM - avoids overlay2 I/O
     restart: on-failure
     logging:
       driver: json-file

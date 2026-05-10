@@ -6,14 +6,12 @@
 
 \section{Software Supply Chain Security}\label{sect:supply-chain-security}
 
-\subsection{Historical Context and Evolution}\label{sect:historical-context}
-
 % TODO CITATION
 Software supply chain security can be considered one of the most critical problems in software engineering, it reshaped how software developers and organizations from the field approach software development, deployment and risk assessment. The concept was intoruced by Ken Thompson in the "Reflections on Trusting Trust", where he modified a compiler to insert backdoors in the compiled binary even when the source code was not containing anything malicious. This attack established that the entirety of a software system depends on the unbroken chain of trust.
 
 Following Thompson's work, supply chains remained mostly theoretical or small operations, however the landscpae changed with the rise of open-source package distributores and their ecosystems. A new attack surface of extreme scale was introduced, modern software extensively relies on third-party libraries and dependencies, dependencies having their own dependencies which creates a complex tree that can be exploited. Popular tools and software include hundreds if not thousands of transitive dependencies, each one of them can be a potential attack vector for malicious code injection, new attacks consisting of typosquatting, malicious build files, code injection and more.
 
-\subsection{Landmark Supply Chain Incidents}\label{sect:landmark-incidents}
+\subsection{Supply Chain Incidents}\label{sect:supply-chain-incidents}
 Multiple high profile supply chain attacks have been deployed and demonstrated the high risk of this threat vector. Table~\ref{tab:landmark-incidents} provides an overview of these incidents.
 
 \begin{table}[htbp]
@@ -47,7 +45,6 @@ In 2021, 'ua-parser-js', which is a nother popular npm package with approximatel
 
 A more recent attack, from 2014, is the 'xz-utils' backdoor, where an adversary spent multiple years building trust by contributing to the library, before inserting a complex backdoor in the test files and build system targeting SSH on Linux system, this attack was complex and it contained multiple accounts mentally draining the maintainer. The backdoor was discovered by chance, luckily before being merged into major Linux distros, by Andres Freund, a software engineer working at Microsoft, by observing that on a Debian system ssh logins were unusually slow compared to previous versions, OpenSSH is interacting with a part of xz-utils.
 
-\subsection{Rust-Specific Supply Chain Incidents}\label{sect:rust-supply-chain}
 THe Rust ecosystem is still developing compared to other ecosystems like npm and PyPI, however it still suffered from multiple supply chain attacks. Table~\ref{tab:rust-incidents} summarizes these incidents.
 
 \begin{table}[htbp]
@@ -79,7 +76,7 @@ Multiple campains have been identified by security researchers, having dormant c
 
 Serveral effors were made by researchers to categorize supply chain attacks to have a deeper understanding of vectors and defensive techniques, which include:
 
-\paragraph{Ohm et al. (2020) ``Backstabber's Knife Collection''}
+\paragraph{Ohm et al. (2020) ``Backstabber's Knife Collection''}~\cite{ohm2020backstabber}
 This is a complex review of supply chain attacks which introduced a taxonomy to have them classified:
 \begin{description}
 	\item[Typosquatting] consists of publishing packages with similar names to popular packages, to decieve developers into installing them instead of the proper ones.
@@ -88,8 +85,10 @@ This is a complex review of supply chain attacks which introduced a taxonomy to 
 	\item[Malicious contribution] similar to compromised accounts, but instead of gaining access or taking over an existing account, they submit malicious contributions to the project, sometimes being hidden behind a legitimate possibly large pull request, making use of complexity and human error.
 	\item[Ownership transfer] in some ecosystems it is possible to gain access to a package by being added as a maintainer or requesting ownership transfer for abandoned packages.
 \end{description}
+Besides introducing a taxonomy, Ohm et al.~\cite{ohm2020backstabber} also introduced the "Backstabber's Knife Collection" which is a dataset that compiles 174 malicious packages from npm, PyPI and RubyGems, dated from 2015 to 2019. The dataset has been reused multiple times in empirical studies of supply chain attacks and malicious package detection and behavior.
+There is no comparable dataset for crates.io which is another motivation for our data collection and detection.
 
-\paragraph{Ladisa et al. (2023) ``A Taxonomy of Attacks on Open-Source Software Supply Chains''} was published at IEEE S\&P 2023. This paper proposed another taxonomy based around the lifecycle of software development:
+\paragraph{Ladisa et al. (2023) ``A Taxonomy of Attacks on Open-Source Software Supply Chains''}~\cite{ladisa2023taxonomy} was published at IEEE S\&P 2023. This paper proposed another taxonomy based around the lifecycle of software development:
 \begin{description}
 	\item[Development phase attacks] targeting local environments, such as IDE plugins, development tools and more.
 	\item[Build phase attacks] which compromise build systems such as CI/CD or build dependencies.
@@ -100,17 +99,22 @@ The taxonomy identified over 100 attack vectors across these pases and had defen
 
 \subsection{The Dependency Problem at Scale}\label{sect:dependency-problem}
 
-We can consider the fundamental challenge of supply chain attacks to be the transitive nature of dependencies. Zimmermann et al. (2019) ``Small World with High Risks: A Study of Security Threats in the npm Ecosystem'' analyzed the npm ecosystem and revealed the following:
+We can consider the fundamental challenge of supply chain attacks to be the transitive nature of dependencies. Zimmermann et al.~\cite{zimmermann2019small} ``Small World with High Risks: A Study of Security Threats in the npm Ecosystem'' analyzed the npm ecosystem and revealed the following:
 \begin{itemize}
 	\item The average npm package trusts 79 packages.
 	\item Up to 40\% of packages depend on at least one package with a public known vulnerability, even if it's exploitable or not in a real world scenario.
 	\item A single compromised maintainer account could affect multiple million packages through transitive dependencies.
 \end{itemize}
 
-Comparable comprehensive studies have not been done for crates, however the ecosystem seems to have a similar pattern. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical rust application can have hundreds of transitive dependencies.
+The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing a npm packages trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to NPM's arhitecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical rust application can have hundreds of transitive dependencies.
+Our work partially fills this gap by analyzing the dependency graph of crates.io.
 
 Many crates suffer by the having a single maintainer, which is almost always an unpaid volunteer. The previously mentioned sz-utils incident demonstrated how attackers are able to mentally drain maintainers with harassment and spend multiple years in gaining trust before executing an attack.
 
+\subsection{Supply chain frameworks}\label{sect:supply-chain-frameworks}
+
+The supply-chain levels for software artifacts (SLSA)~\cite{slsa2024} is a framework for securing software supply chains by defining four levels of security. For level 1 it documents the build process, and for levels 2 to 4 it adds cryptographic signing and verification of the software provenance, isolated and reproducible builds and a human review process. SLSA is complementary to supply chain tools such as cargo audit however SLSA focuses on just build integrity and provenance while our framework provides findings that can be used for assessment and mitigations.
+Most of the Rust's ecosystem currently operates at levels 0 to 1 for the majority of the crates, with some using tools for cryptographic signing but this is limited to a small percentage of the crates.
 
 \section{Package Ecosystem Security Analysis}\label{sect:ecosystem-analysis}
 
@@ -146,7 +150,12 @@ Cargo audit is the official tool for checking a project's dependencies agains te
 	\item Warnings for unmaintained crates.
 \end{itemize}
 
-Even though cargo audit is a great tool and highly recommended, the adoption in CI/CD is laking. A 2023 survey found that fewer than 30\% projects using CI/CD included cargo audit checks.
+% Even though `cargo audit` is easy to automate and is recommended by the Rust Secure Code Working Group and practitioner guides as a standard CI step, anecdotal evidence and cross-ecosystem reports suggest that many projects still do not continuously scan their dependencies for known vulnerabilities. For example, Sonatype finds that in other ecosystems, vulnerable components are typically used long after fixed versions exist
+
+\subsection{Software Bill of Materials}\label{sect:software-bill-of-materials}
+A software bill of materials (SBOM) is defined as an inventory of all components, dependencies and metadata of a project, it is intended to improve vulnerability magement across the supply chain. U.S. Executive Order 14028 and CISA's SBOM guidance treat SBOM as a baseline requirement. Rust ecosystem has tools like cargo-sbom for SPDX SBOM~\cite{spdx2024} and cargo-cyclonedx for CycloneDX SBOM~\cite{owasp2024}, however the ecosystem still has a limited adoption and no standardization of their usage or the format used.
+
+Due to the lack of SBOM adoption in this ecosystem, immature tooling and incomplete coverage of all dependencies we do not consider SBOMs to be practical for the implementation in this framework.
 
 \subsection{Large-Scale Ecosystem Security Studies}\label{sect:large-scale-studies}
 
@@ -172,11 +181,13 @@ Cross-ecosystem studies have been also been done:
 	\item Ponta et al. (2020) compared patterns between Maven, npm and PyPI.
 \end{itemize}
 
+PyPI has invested in infrastructure focused on malware detection and telemetry. Livehaul is used to collect download telemetry to detect anomalies. For malware detection specifically, YARA rules are used to scan for known malicious patterns~\cite{pypi2023security}.
+
+Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2026} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY incrase was found in malicious packages. It showed that 95\% of the time when a version with a fixed vulnerability is released, 80\% of the dependents remain on the older version for over a year. The report shows a consistent gap between fixes and patching.
+
 However, despide Rust's high growth and importance in the industry, including security critical fields, there is a lack of a comprehensive security analysis of crates.io, existing research is mainly focused on memory safety and other language features, but not o the entire ecosystem. This thesis aims to address this gap.
 
 \section{Typosquatting in Package Registries}\label{sect:typosquatting}
-
-\subsection{Definition and Threat Model}\label{sect:typosquatting-definition}
 
 Typosquatting is a form of attack where adversaries register malicious packages with names similar to popular packages, usually coantaining just a typo, this is to exploit human error, in case developers mistype packages when adding dependencies.
 
@@ -187,8 +198,6 @@ A possible threat model could be:
 	\item[Victim behavior] Ocassional human errors, poor verification of dependencies, relience on ai autocomplete.
 	\item[Attacker goals] Code execution, which can lead to credential theft, cryptocurrency theft and mining, further remove code execution and more.
 \end{description}
-
-\subsection{Typosquatting Patterns}\label{sect:typosquatting-patterns}
 
 Researchers have identified serveral patterns used in typosquatting attacks, such as:
 \begin{description}
@@ -273,15 +282,11 @@ Graph neural networks model dependencies as graphs and are also used for malicio
 
 Machine learning approaches can be effective, however they face challenges such as class imbalance, concept drift, adversarial evasion especially for text based classification and LLMs.
 
-\section{Build Script Security Risks}\label{sect:build-script-security}
-
-\subsection{Build Script Security in Rust}\label{sect:build-script-security-rust}
+\section{Build Script Security Risks and Detection}\label{sect:build-script-security}
 
 Rust's build.rs feature is very powerful and allows crates to execute arbitrary Rust code at the compile time of a package and its dependents, cargo first checks for a file named 'build.rs' in the root directory of a crate, compiles it's code and executes it before compiling the main crate. This allows the build scripts to perform advanced and complex operations and possibly infect systems.
 
 There are multiple legitimate uses of build scripts such as native library linking to C libraries, code generation such as FFI bindings, protocol buffer compilation and embedding resources, compile-time configuration such as checking for optional dependencies, setting flags based on the environment and current platform, calling external tools and more.
-
-\subsection{Security Implications}\label{sect:build-script-security-implications}
 
 However, the same power that enables build scripts to be a great tool for the previously mentioned use cases, also makes it a very dangerous attack vector, enabling multiple security risks such as:
 
@@ -293,8 +298,6 @@ CI/CD environment targetting: Build scripts are powerful enough to be able to pr
 
 Malicious build.rs code can be obfuscated and try advanced detection evasion such as conditional execution, and executing other payloads at runtime if specific conditions are met.
 
-\subsection{Community Discussions and Proposed Mitigations}\label{sect:build-script-security-mitigations}
-
 The Rust community has discussed build.rs security multiple times, especially after the previously supply chain attacks.
 
 Sandboxing was one of the proposed solutions, by restricting network and filesystem access, requiring explicit permissions and implementing user prompts.
@@ -302,8 +305,6 @@ Sandboxing was one of the proposed solutions, by restricting network and filesys
 However as of the time of writing this thesis in 2026, there is no sandboxing present, in part due to the complexity of such a system and the backwards compability concerns.
 
 A recommendation is to minimize build.rs pollution, by avoiding using it when it's not necessary, and proper review of changes to build.rs scripts. 
-
-\subsection{Heuristic Detection of Suspicious Build Scripts}\label{sect:build-script-security-heuristic}
 
 Given the lack of sandboxing or other mitigations, heuristic detection can be considered a practical approach to identify malicious build scripts, we can look for patterns such as:
 
@@ -346,6 +347,34 @@ LLMs also have the tendency of hallucinating, which can lead to reporting false 
 
 Prompt engineering can help with accuracy however it isn't a complete and perfect solution, and there is no real way of finding the best prompt, longer prompts also occupy more of the context window.
 
+\begin{table}[h]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{2.5cm}|p{2.5cm}|p{3cm}|p{4cm}|p{4cm}|}
+\hline
+\textbf{Study} & \textbf{Model(s)} & \textbf{Benchmark} & \textbf{Key Result} & \textbf{Key Limitation} \\
+\hline
+Li et al.~\cite{li2023chatgpt} (2023) 
+& GPT-3.5/4 
+& Big-Vul (190K C/C++ funcs) 
+& F1: \textasciitilde10\% (3.5), \textasciitilde29\% (4) 
+& Trails specialized models; struggles with uncommon vulnerability types \\
+\hline
+Gong et al.~\cite{gong2024securityeval} (2024) 
+& GPT-3.5/4, Claude, CodeLlama 
+& SecurityEval (121 tasks, 69 CWEs) 
+& Vulnerable code in $>75\%$ of outputs 
+& Better at detection than secure generation \\
+\hline
+\end{tabular}
+}
+\caption{Limitations of LLMs in vulnerability detection and secure code generation.}
+\label{tab:llm_limitations}
+\end{table}
+
+Given these limitations, we decided to leave the LLM module optional, using a conservative threshold and intending it to be used as a tool alongside human review rather than automatically flagging packages as malware or benign.
+
 \subsection{Local vs. API-Based LLM Deployment}\label{sect:local-vs-api-based-llm-deployment}
 
 For an ecosystem scale analysis, deployment architecture is key.
@@ -385,15 +414,57 @@ Developers may accidentaly include configurations files, environment files, debu
 
 \subsection{Rust-Specific Security Tools}\label{sect:rust-specific-security-tools}
 
-Cargo audit is the official RustSec vulnerability scanning tool it requires just the Project's Cargo files and lists all the known vulnerabilities of all of the depdendencies. It is well maintained and accurate.
+The Rust ecosystem has several overlapping but destinct tools. The table below compares them across scope, automation level, model and limitations.
 
-Cargo deny is a plugin that enforces dependency policies, such as license checking, advisory checking (similar to cargo audit), bans on specific crates or versions, duplicate detection and source verification.
+\begin{table}[h]
+\centering
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{2.8cm}|p{3.2cm}|p{3.5cm}|p{4cm}|p{4cm}|}
+\hline
+\textbf{Tool} & \textbf{Primary Scope} & \textbf{Automation in CI/CD} & \textbf{Ecosystem Scale \& Sharing} & \textbf{Key Limitations} \\
+\hline
+\texttt{cargo audit} 
+& Known vulnerabilities (RustSec DB) 
+& High - CLI, JSON output, non-zero exit codes 
+& Any crate; no notion of organizational trust 
+& Only known CVEs; no malware or behavior analysis \\
+\hline
+\texttt{cargo deny} 
+& License, advisory, and dependency bans 
+& High - \texttt{deny.toml} policy checks 
+& Project-local configuration; no community-wide sharing 
+& Requires up-front policy design; not aimed at malware \\
+\hline
+\texttt{cargo crev} 
+& Distributed code-review trust web 
+& Partial - reviews are manual; verification can run in CI 
+& Scales socially via Web of Trust (e.g., \texttt{web.crev.dev}) 
+& Review effort does not scale well to large ecosystems; niche adoption \\
+\hline
+\texttt{cargo vet} 
+& Organization-centric audit registry 
+& Designed for CI enforcement (e.g., \texttt{mozilla-central}) 
+& Scales via sharing audit records across organizations 
+& Focused on ``safe to run/deploy,'' not detecting unknown malware \\
+\hline
+\end{tabular}
+}
+\caption{Comparison of Rust ecosystem security and auditing tools.}
+\label{tab:rust_security_tools}
+\end{table}
 
-Cargo crev is a code review system based on web of trust, maintainers publish signed reviews of crate versions and users are able to configure manually trust settings for reviewers, however it has a low adaptation, relying on a small community of volunteers to manually review packages.
+Our frameworks focuses on automated, ecosystem-wide analysis, rather than per-project analysis.
 
-Cargo vet is Mozilla's supply chain security tool, where organizations publish audits to prove a crate's safety. It focuses on organizational trust compared to our need of automated analysis.
+% Cargo audit is the official RustSec vulnerability scanning tool it requires just the Project's Cargo files and lists all the known vulnerabilities of all of the depdendencies. It is well maintained and accurate.
 
-Cargo tree let's us visualize the dependency tree of a project, showing direct and transitive dependencies, however it lacks security analysis features.
+% Cargo deny is a plugin that enforces dependency policies, such as license checking, advisory checking (similar to cargo audit), bans on specific crates or versions, duplicate detection and source verification.
+
+% Cargo crev is a code review system based on web of trust, maintainers publish signed reviews of crate versions and users are able to configure manually trust settings for reviewers, however it has a low adaptation, relying on a small community of volunteers to manually review packages.
+
+% Cargo vet is Mozilla's supply chain security tool, where organizations publish audits to prove a crate's safety. It focuses on organizational trust compared to our need of automated analysis.
+
+% Cargo tree let's us visualize the dependency tree of a project, showing direct and transitive dependencies, however it lacks security analysis features.
 
 \subsection{General-Purpose Security Tools}\label{sect:general-purpose-security-tools}
 
@@ -403,11 +474,14 @@ Semgrep is a fast open source static analysis tool, supporting manu languages in
 
 Dependabot has automated dependency updates and can create pull requests for vulnerable dependencies, and can be integrated with Github and GitLab, however it is not a malware detection tool.
 
-\subsection{Commercial Supply Chain Security Platforms}\label{sect:commercial-supply-chain-security-platforms}
+\subsection{Commercial and Community Supply Chain Security Platforms}\label{sect:commercial-community-supply-chain-security-platforms}
 
 Socket.dev provides supply chain attack detection of npm and PyPi packages, metadata anomaly detection and network call analysis, however it lacks Rust support as of now.
 
 Phylum provides supply chain risk assessment with experimental Rust support, machine larning risk scoring, author reputation analysis and dependency relationship analysis.
+
+Besides commercial platforms, open-source initiatives such as Sigstore~\cite{sigstore2024} also exist, under the Linux Foundation it provides keyless code signing for artifacts.
+Cosign is one of its components, for signing and verifying artifacts. Rekor is a public log with tamper resistence and are already used by some packages, sigstore-rs is an implementation that allows Rust packages to be signed.
 
 \subsection{Academic Research on Ecosystem Security}\label{sect:academic-research-ecosystem-security}
 
