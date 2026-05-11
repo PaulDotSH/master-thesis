@@ -101,14 +101,15 @@ struct AnalysisResult {
 /// Deletes everything except /tmp/crates (where downloaded repos go)
 pub async fn cleanup_cargo_caches() -> Result<(), anyhow::Error> {
     let dirs_to_delete = [
-        "/usr/local/cargo/registry",
-        "/usr/local/cargo/git",
-        "/usr/local/cargo/target",
+        // Note: /usr/local/cargo/registry and /usr/local/cargo/git are intentionally
+        // excluded. They live on tmpfs (already bounded by the 2G mount size) and
+        // deleting them while another worker's `cargo update --workspace` is downloading
+        // to them causes a race condition that makes cargo-audit fail with ENOENT.
         // Note: /usr/local/rustup is intentionally excluded - deleting it destroys
-        // the Rust toolchain and breaks cargo audit for all subsequent crates.
-        // With /usr/local/cargo mounted as tmpfs, registry/git/target cleanup is instant.
+        // the Rust toolchain.
         // Note: /advisory-db is intentionally excluded - deleting it breaks cargo-audit
         // for all subsequent crates (used with --no-fetch --db /advisory-db).
+        "/usr/local/cargo/target",
     ];
 
     let mut total_cleaned = 0u64;

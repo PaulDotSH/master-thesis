@@ -285,6 +285,11 @@ async fn main() {
             const CACHE_CLEANUP_INTERVAL_CRATES: u32 = 100;
             let mut crates_since_cleanup: u32 = 0;
 
+            // Restart worker after processing this many crates to prevent
+            // Docker overlay2 from growing unbounded (accumulated toolchain files)
+            const MAX_CRATES_PER_CONTAINER: u32 = 1000;
+            let mut total_crates_processed: u32 = 0;
+
             // Run initial cache cleanup on startup
             if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
                 warn!("Initial cache cleanup failed: {:?}", e);
@@ -383,6 +388,20 @@ async fn main() {
                         warn!("Cache cleanup failed: {:?}", e);
                     }
                     crates_since_cleanup = 0;
+                }
+
+                // Exit worker after N crates so Docker recreates the container
+                // with a fresh overlay2 filesystem
+                total_crates_processed += 1;
+                if total_crates_processed >= MAX_CRATES_PER_CONTAINER {
+                    info!(
+                        "Worker processed {} crates, exiting to refresh container...",
+                        total_crates_processed
+                    );
+                    if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
+                        warn!("Final cache cleanup failed: {:?}", e);
+                    }
+                    break;
                 }
             }
         }

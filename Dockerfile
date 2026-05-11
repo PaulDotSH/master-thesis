@@ -38,10 +38,15 @@ RUN touch crates_downloader/src/main.rs && cargo build --profile production --ma
 # Install cargo-audit in builder (has nightly rust)
 RUN cargo install cargo-audit
 
-# Pre-fetch the advisory database by running cargo audit once
+# Pre-fetch the advisory database and pre-seed the crates.io registry index.
+# The registry index is copied to /cargo-seed in the runtime image and then
+# copied into the tmpfs-mounted /usr/local/cargo at container startup by the
+# entrypoint script. This avoids each worker downloading the registry from the
+# network on first `cargo update --workspace`.
 RUN cd /tmp && \
     cargo init --lib audit-init && \
     cd audit-init && \
+    cargo fetch && \
     cargo audit 2>/dev/null || true && \
     cd / && rm -rf /tmp/audit-init
 
@@ -56,10 +61,20 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy cargo-audit and its advisory database from builder
-# Put advisory-db in a separate location so we can mount /usr/local/cargo as tmpfs
+# Copy cargo-audit, cargo, rustc, and advisory database from builder
+# All binaries go to /usr/local/bin/ so they survive the tmpfs mount over /usr/local/cargo.
+# cargo + rustc are needed by cargo-audit to run `cargo update --workspace` when a crate
+# has no committed Cargo.lock.
 COPY --from=builder /usr/local/cargo/bin/cargo-audit /usr/local/bin/cargo-audit
+COPY --from=builder /usr/local/cargo/bin/cargo /usr/local/bin/cargo
+COPY --from=builder /usr/local/cargo/bin/rustc /usr/local/bin/rustc
 COPY --from=builder /usr/local/cargo/advisory-db /advisory-db
+
+# Pre-seed the cargo registry so workers don't download the index from the network.
+# At startup the entrypoint copies this into the tmpfs /usr/local/cargo (RAM),
+# so all `cargo update --workspace` calls hit RAM instead of the network.
+# Only registry/ is copied - git/ only exists for git-sourced deps (none here).
+COPY --from=builder /usr/local/cargo/registry /cargo-seed/registry
 
 # Install gitleaks (Go binary, not Rust)
 RUN wget https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz && \
@@ -76,12 +91,22 @@ COPY --from=builder /build/target/production/crates_downloader /app/crates_downl
 # Copy config
 COPY crates_downloader/config.toml /app/config.toml
 
-# Advisory-db is at /advisory-db, worker cleans it periodically via cleanup_cargo_caches()
+# Advisory-db is at /advisory-db, pre-seeded registry at /cargo-seed
+# CARGO_NET_OFFLINE prevents cargo update from doing a git fetch on the index
+# for every analyzed crate - the index is already fully pre-seeded in RAM.
 ENV RUST_LOG=info
+# ENV RUST_LOG=info \
+    # CARGO_NET_OFFLINE=true
 
 # Create temp directory for crate downloads
 RUN mkdir -p /tmp/crates
 
-ENTRYPOINT ["/app/crates_downloader"]
+# Entrypoint script: copy the pre-seeded registry into the tmpfs-mounted
+# /usr/local/cargo before starting the worker. The copy is RAM-to-RAM (overlay2
+# read → tmpfs write) and only happens once per container startup.
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["worker"]
 
