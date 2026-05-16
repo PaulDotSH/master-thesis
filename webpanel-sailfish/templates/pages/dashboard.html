@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — CratesSec</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+  <% include!("../components/sidebar.html"); %>
+
+  <main class="content">
+    <hgroup>
+      <h1>Dashboard</h1>
+      <p>Security analysis overview across all scanned crates</p>
+    </hgroup>
+
+    <section>
+      <h3>Overview</h3>
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-value"><%= total_crates %></div>
+          <small class="stat-label">Total Crates</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= total_scanned %></div>
+          <small class="stat-label">Scanned</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= total_dependencies %></div>
+          <small class="stat-label">Dependencies</small>
+        </article>
+        <article class="stat-card accent">
+          <div class="stat-value"><%= malicious_count %></div>
+          <small class="stat-label">Malicious Deps</small>
+        </article>
+        <article class="stat-card accent">
+          <div class="stat-value"><%= high_risk_count %></div>
+          <small class="stat-label">High Risk</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= vulnerabilities_count %></div>
+          <small class="stat-label">Vulnerabilities</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= secrets_found %></div>
+          <small class="stat-label">Secrets Found</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= typosquat_count %></div>
+          <small class="stat-label">Typosquat Matches</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= avg_duration %></div>
+          <small class="stat-label">Avg Analysis</small>
+        </article>
+        <article class="stat-card">
+          <div class="stat-value"><%= latest_duration %></div>
+          <small class="stat-label">Latest Analysis</small>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h3>Charts</h3>
+      <div class="charts-grid">
+        <div class="bar-chart wide">
+          <div class="bar-chart-title"><strong>Risk Distribution</strong></div>
+          <% for item in risk_bars { %>
+          <div class="bar-row">
+            <span class="bar-label"><strong><%= item.label %></strong></span>
+            <div class="bar-track">
+              <div class="bar-fill <%= item.cls %>" style="width:<%= item.pct %>%;"></div>
+            </div>
+            <span class="bar-count"><strong><%= item.count %></strong></span>
+          </div>
+          <% } %>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart-title"><strong>Build.rs Security Flags</strong></div>
+          <% for item in build_rs_bars { %>
+          <div class="bar-row">
+            <span class="bar-label"><strong><%= item.label %></strong></span>
+            <div class="bar-track">
+              <div class="bar-fill info" style="width:<%= item.pct %>%;"></div>
+            </div>
+            <span class="bar-count"><strong><%= item.count %></strong></span>
+          </div>
+          <% } %>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart-title"><strong>Top Downloaded Crates</strong></div>
+          <% for item in top_crates { %>
+          <div class="bar-row">
+            <span class="bar-label"><strong><%= item.label %></strong></span>
+            <span class="bar-count"><%= item.value %></span>
+          </div>
+          <% } %>
+        </div>
+
+        <div class="bar-chart">
+          <div class="bar-chart-title"><strong>Top Secret Rule IDs</strong></div>
+          <% for item in gitleaks_bars { %>
+          <div class="bar-row">
+            <span class="bar-label"><%= item.label %></span>
+            <div class="bar-track">
+              <div class="bar-fill info" style="width:<%= item.pct %>%;"></div>
+            </div>
+            <span class="bar-count"><strong><%= item.count %></strong></span>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

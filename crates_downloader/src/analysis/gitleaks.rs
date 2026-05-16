@@ -14,7 +14,6 @@ pub struct GitleaksResult {
 pub async fn run_gitleaks(crate_dir: &str) -> Result<Vec<GitleaksResult>, anyhow::Error> {
     info!("Running gitleaks for crate '{}'", crate_dir);
     
-    // Verify the directory exists before running gitleaks
     if !std::path::Path::new(crate_dir).exists() {
         anyhow::bail!("Crate directory '{}' does not exist", crate_dir);
     }
@@ -30,7 +29,6 @@ pub async fn run_gitleaks(crate_dir: &str) -> Result<Vec<GitleaksResult>, anyhow
         .await
         .context(format!("Failed to run gitleaks for crate '{}'", crate_dir))?;
     
-    // Check if gitleaks command succeeded
     // gitleaks returns exit code 1 when leaks are found, which is not an error
     if !output.status.success() && output.status.code() != Some(1) {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -39,7 +37,6 @@ pub async fn run_gitleaks(crate_dir: &str) -> Result<Vec<GitleaksResult>, anyhow
     
     let json_path = format!("{}/tmp.json", crate_dir);
     
-    // Check if the output file exists before trying to read it
     if !std::path::Path::new(&json_path).exists() {
         // No output file means no leaks found
         info!("No gitleaks output file found for '{}' - no leaks detected", crate_dir);
@@ -49,7 +46,6 @@ pub async fn run_gitleaks(crate_dir: &str) -> Result<Vec<GitleaksResult>, anyhow
     let json = std::fs::read_to_string(&json_path)
         .context(format!("Failed to read gitleaks output from '{}'", json_path))?;
     
-    // Clean up the temporary file
     let _ = std::fs::remove_file(&json_path);
     
     let json: sonic_rs::Value = sonic_rs::from_str(&json)

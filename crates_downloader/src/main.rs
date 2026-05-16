@@ -37,11 +37,11 @@ enum Commands {
     QueueStatus,
     /// Recover stale in-progress items (for crashed workers)
     RecoverStale,
-    /// Clear the entire queue (dangerous!)
+    /// Clear the entire queue
     ClearQueue,
     /// Fix dependency cycles that block the queue
     FixCycles,
-    /// Break complex dependency cycles (A→B→C→A) - more aggressive
+    /// Break complex dependency cycles (A→B→C→A)
     BreakCycles,
     /// Manually scan a single crate and all its dependencies with LLM analysis (sequential, single process)
     ScanCrate {
@@ -55,7 +55,7 @@ enum Commands {
         #[arg(short, long)]
         name: String,
     },
-    /// Check if LM Studio is available and responding
+    /// Check if LM Studio is available and properly set up
     CheckLlm,
     /// Scan all crates for potential typosquatting
     Typosquat {
@@ -66,16 +66,14 @@ enum Commands {
         #[arg(short, long)]
         clear: bool,
         /// Only compare against top N crates by downloads (0 = all)
-        #[arg(short, long, default_value = "10000")]
+        #[arg(short, long, default_value = "0")]
         top_crates: i64,
     },
 }
 
-// TODO: Check tomorrow if DB update is working correctly
-
 #[tokio::main]
 async fn main() {
-    // Set up logging to both file and console
+    // Logging to file and console
     let file_appender = RollingFileAppender::new(Rotation::DAILY, "logs", "crates_downloader.log");
     let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
@@ -99,8 +97,7 @@ async fn main() {
             db
         }
         Err(e) => {
-            error!("Failed to create database connection: {}", e);
-            panic!("Failed to create database");
+            panic!("Failed to create database {}", e);
         }
     };
 
@@ -110,24 +107,21 @@ async fn main() {
 
             info!("Downloading the data from crates.io");
             if let Err(e) = downloader::CratesDownloader::prepare_source_data().await {
-                error!("Failed to prepare source data from crates.io: {}", e);
-                panic!("Failed to prepare source data from crates.io");
+                panic!("Failed to prepare source data from crates.io: {}", e);
             }
             info!("Successfully downloaded and prepared source data");
 
             let crate_count = match repositories::crates::count_crates(&database).await {
                 Ok(count) => count,
                 Err(e) => {
-                    error!("Failed to count crates: {}", e);
-                    panic!("Failed to count crates");
+                    panic!("Failed to count crates: {}", e);
                 }
             };
 
             if crate_count == 0 {
                 info!("Database is empty. Starting initial population");
                 if let Err(e) = data_import::populate_db(&database, &config).await {
-                    error!("Failed to populate database: {}", e);
-                    panic!("Failed to populate database");
+                    panic!("Failed to populate database: {}", e);
                 }
                 info!("Database population completed successfully");
             } else {
@@ -136,8 +130,7 @@ async fn main() {
                     crate_count
                 );
                 if let Err(e) = data_import::update_db(&database, &config).await {
-                    error!("Failed to update database: {}", e);
-                    panic!("Failed to update database");
+                    panic!("Failed to update database: {}", e);
                 }
                 info!("Database update completed successfully");
             }
@@ -145,7 +138,7 @@ async fn main() {
         Commands::RunAnalysis => {
             info!("Starting analysis process - building dependency graph in Redis");
             
-            // Get root crates (either top X by downloads or all crates)
+            // Get root crates (top X by downloads or all crates)
             let root_crates = if config.use_only_first_x_crates > 0 {
                 repositories::crates::get_top_download_crates(&database, config.use_only_first_x_crates as i64)
                     .await
@@ -176,7 +169,6 @@ async fn main() {
             
             info!("Total crates to analyze (including transitive deps): {}", all_crate_ids.len());
             
-            // Check which of these crates actually need analysis
             let all_crates_list = repositories::crates::get_crates_by_ids(&database, &all_crate_ids.iter().copied().collect::<Vec<_>>())
                 .await
                 .expect("Failed to get crate details");
@@ -197,7 +189,6 @@ async fn main() {
                 return;
             }
             
-            // Filter dependencies to only include crates that need analysis
             let filtered_dependencies: std::collections::HashMap<i64, Vec<i64>> = dependencies
                 .into_iter()
                 .filter(|(crate_id, _)| crate_ids_needing_analysis.contains(crate_id))
@@ -222,9 +213,7 @@ async fn main() {
                 .expect("Failed to initialize dependency graph");
             
             let stats = queue.get_stats().await.expect("Failed to get stats");
-            info!("✓ Dependency graph initialized: {}", stats);
-            info!("Start workers with: cargo run --release -- worker");
-            info!("Or scale with Docker: docker-compose up -d --scale worker=10");
+            info!("Dependency graph initialized: {}", stats);
         }
         Commands::Worker => {
             info!("Starting worker process - consuming from Redis dependency graph");
@@ -285,11 +274,6 @@ async fn main() {
             const CACHE_CLEANUP_INTERVAL_CRATES: u32 = 100;
             let mut crates_since_cleanup: u32 = 0;
 
-            // Restart worker after processing this many crates to prevent
-            // Docker overlay2 from growing unbounded (accumulated toolchain files)
-            const MAX_CRATES_PER_CONTAINER: u32 = 1000;
-            let mut total_crates_processed: u32 = 0;
-
             // Run initial cache cleanup on startup
             if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
                 warn!("Initial cache cleanup failed: {:?}", e);
@@ -307,11 +291,6 @@ async fn main() {
                             error!("Failed to requeue crate {}: {:?}", crate_id, e);
                         }
                     }
-                    
-                    // Note: We no longer clean up temp directories on shutdown as
-                    // other workers may still be running. Directory cleanup happens
-                    // after each individual crate analysis.
-                    
                     info!("Worker shutdown complete");
                     break;
                 }
@@ -329,7 +308,7 @@ async fn main() {
                         let stats = queue.get_stats().await.expect("Failed to get stats");
                         
                         if queue.is_done().await.unwrap_or(false) {
-                            info!("All work completed! Final stats: {}", stats);
+                            info!("All work completed; Final stats: {}", stats);
                             break;
                         }
                         
@@ -350,7 +329,7 @@ async fn main() {
                 
                 info!("Worker picked up crate ID: {}", crate_id);
 
-                // Isn't unused, is used for shutdown
+                // Isn't unused, is used for shutdown to reinsert the current crate to in progress
                 current_crate_id = Some(crate_id);
                 
                 let analysis_result = analysis::analysis::analyze_crate_by_id(crate_id, &database, &config).await;
@@ -372,12 +351,10 @@ async fn main() {
                     }
                 }
                 
-                // Log progress periodically
                 if let Ok(stats) = queue.get_stats().await && (stats.completed % 10 == 0 || stats.ready < 10) {
                         info!("{}", stats);
                 }
 
-                // Cleanup caches every N crates to prevent disk exhaustion
                 crates_since_cleanup += 1;
                 if crates_since_cleanup >= CACHE_CLEANUP_INTERVAL_CRATES {
                     info!("Running cache cleanup after {} crates...", crates_since_cleanup);
@@ -385,20 +362,6 @@ async fn main() {
                         warn!("Cache cleanup failed: {:?}", e);
                     }
                     crates_since_cleanup = 0;
-                }
-
-                // Exit worker after N crates so Docker recreates the container
-                // with a fresh overlay2 filesystem
-                total_crates_processed += 1;
-                if total_crates_processed >= MAX_CRATES_PER_CONTAINER {
-                    info!(
-                        "Worker processed {} crates, exiting to refresh container...",
-                        total_crates_processed
-                    );
-                    if let Err(e) = analysis::analysis::cleanup_cargo_caches().await {
-                        warn!("Final cache cleanup failed: {:?}", e);
-                    }
-                    break;
                 }
             }
         }
@@ -427,7 +390,7 @@ async fn main() {
                 .await
                 .expect("Failed to compute has_malicious_dependencies");
             
-            info!("✓ Successfully computed has_malicious_dependencies for all crates");
+            info!("Successfully computed has_malicious_dependencies for all crates");
         }
         Commands::QueueStatus => {
             info!("Checking queue status...");
@@ -437,13 +400,13 @@ async fn main() {
                 .expect("Failed to connect to Redis");
             
             let stats = queue.get_stats().await.expect("Failed to get stats");
-            println!("\n=== Queue Status ===");
+            println!("___Queue Status___");
             println!("{}", stats);
             
             if queue.is_done().await.unwrap_or(false) {
-                println!("\n✓ All work is complete!");
+                println!("All work is complete");
             } else if stats.ready == 0 && stats.in_progress == 0 && stats.completed < stats.total {
-                println!("\n⚠ No work ready but not all complete - check for cycles or missing dependencies");
+                println!("No work ready but not all complete (cycles?)");
             }
         }
         Commands::RecoverStale => {
@@ -458,7 +421,7 @@ async fn main() {
                 .expect("Failed to recover stale items");
             
             if recovered > 0 {
-                println!("✓ Recovered {} stale items back to ready queue", recovered);
+                println!("Recovered {} stale items back to ready queue", recovered);
             } else {
                 println!("No stale items found");
             }
@@ -467,7 +430,7 @@ async fn main() {
             println!("Current status: {}", stats);
         }
         Commands::ClearQueue => {
-            println!("⚠ WARNING: This will clear ALL queue state!");
+            println!("This will clear ALL queue state!");
             println!("Press Ctrl+C within 5 seconds to cancel...");
             tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
             
@@ -479,7 +442,7 @@ async fn main() {
                 .await
                 .expect("Failed to clear queue");
             
-            println!("✓ Queue cleared");
+            println!("Queue cleared");
         }
         Commands::FixCycles => {
             info!("Detecting and fixing dependency cycles...");
@@ -499,7 +462,7 @@ async fn main() {
             println!("After:  {}", stats_after);
             
             if fixed > 0 {
-                println!("✓ Fixed {} crates that were blocked by cycles", fixed);
+                println!("Fixed {} crates that were blocked by cycles", fixed);
             } else {
                 println!("No cycle issues found");
             }
@@ -526,18 +489,18 @@ async fn main() {
             let stats_after = queue.get_stats().await.expect("Failed to get stats");
             println!("After:  {}", stats_after);
             
-            println!("✓ Broke {} cycle edges, {} crates newly ready", broken, fixed);
+            println!("Broke {} cycle edges, {} crates newly ready", broken, fixed);
         }
         Commands::ScanCrate { name } => {
             info!("Starting manual scan for crate '{}' and its dependencies", name);
             
-            // Check if LM Studio is available first (only if LLM is enabled)
+            // Check if LM Studio is available first if LLM is enabled
             if config.llm_enabled {
                 if !analysis::llm::check_lm_studio_connection(&config).await.unwrap_or(false) {
                     error!("LM Studio is not available at {}. Please start LM Studio or configure a different URL.", config.lm_studio_url);
                     panic!("LM Studio not available");
                 }
-                info!("✓ LM Studio connection verified at {}", config.lm_studio_url);
+                info!("LM Studio connection verified at {}", config.lm_studio_url);
             } else {
                 info!("LLM analysis is disabled in config");
             }
@@ -546,7 +509,6 @@ async fn main() {
             let target_crate = repositories::crates::get_crate_by_name(&database, &name)
                 .await
                 .unwrap_or_else(|_| panic!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
-                // .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
             
             info!("Found crate '{}' (id: {})", target_crate.name, target_crate.id);
             
@@ -565,13 +527,13 @@ async fn main() {
                 &all_crate_ids.iter().copied().collect::<Vec<_>>()
             ).await.expect("Failed to get crate details");
             
-            // Analyze dependencies first (excluding the target crate)
+            // Analyze dependencies first
             let mut dependency_crates: Vec<_> = all_crates.values()
                 .filter(|c| c.id != target_crate.id)
                 .cloned()
                 .collect();
             
-            // Sort by downloads (analyze most popular first for better coverage)
+            // Sort by downloads (analyze most popular first
             dependency_crates.sort_by_key(|b| std::cmp::Reverse(b.crate_downloads));
             
             let total_deps = dependency_crates.len();
@@ -587,7 +549,7 @@ async fn main() {
                 }
             }
             
-            info!("✓ Finished analyzing {} dependencies", total_deps);
+            info!("Finished analyzing {} dependencies", total_deps);
             
             // Now analyze the target crate itself
             info!("Analyzing target crate: {} (id: {})", target_crate.name, target_crate.id);
@@ -597,7 +559,7 @@ async fn main() {
                 panic!("Failed to analyze target crate");
             }
             
-            info!("✓ Successfully completed scan for crate '{}' and all its dependencies!", name);
+            info!("Successfully completed scan for crate '{}' and all its dependencies!", name);
         }
         Commands::QueueCrate { name } => {
             info!("Queuing crate '{}' and its dependencies for distributed analysis", name);
@@ -606,7 +568,6 @@ async fn main() {
             let target_crate = repositories::crates::get_crate_by_name(&database, &name)
                 .await
                 .unwrap_or_else(|_| panic!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
-                // .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
             
             info!("Found crate '{}' (id: {})", target_crate.name, target_crate.id);
             
@@ -636,7 +597,7 @@ async fn main() {
             info!("Found {} crates needing analysis (out of {} total)", crate_ids.len(), all_crate_ids.len());
             
             if crate_ids.is_empty() {
-                info!("✓ No crates need analysis. All done!");
+                info!("No crates need analysis. All done!");
                 return;
             }
             
@@ -665,13 +626,9 @@ async fn main() {
                 .expect("Failed to initialize dependency graph");
             
             let stats = queue.get_stats().await.expect("Failed to get stats");
-            info!("✓ Dependency graph initialized: {}", stats);
+            info!("Dependency graph initialized: {}", stats);
             println!("\n=== Crate '{}' queued for distributed analysis ===", name);
             println!("{}", stats);
-            println!("\nStart workers with:");
-            println!("  cargo run --release -- worker");
-            println!("\nOr scale with Docker:");
-            println!("  ./start-workers.sh");
         }
         Commands::CheckLlm => {
             info!("Checking LM Studio connection...");
@@ -685,16 +642,16 @@ async fn main() {
             
             match analysis::llm::check_lm_studio_connection(&config).await {
                 Ok(true) => {
-                    println!("✓ LM Studio is available at {}", config.lm_studio_url);
-                    println!("  Model: {}", config.lm_studio_model);
-                    println!("  Max context: {} chars", config.llm_max_context_chars);
+                    println!("LM Studio is available at {}", config.lm_studio_url);
+                    println!("Model: {}", config.lm_studio_model);
+                    println!("Max context: {} chars", config.llm_max_context_chars);
                 }
                 Ok(false) => {
-                    println!("✗ LM Studio is not responding at {}", config.lm_studio_url);
-                    println!("  Make sure LM Studio is running and a model is loaded.");
+                    println!("LM Studio is not responding at {}", config.lm_studio_url);
+                    println!("Make sure LM Studio is running and a model is loaded.");
                 }
                 Err(e) => {
-                    println!("✗ Error checking LM Studio: {:?}", e);
+                    println!("Error checking LM Studio: {:?}", e);
                 }
             }
         }
@@ -705,7 +662,6 @@ async fn main() {
             println!("Minimum score: {}", min_score);
             println!("Top crates to compare: {}", if top_crates > 0 { top_crates.to_string() } else { "all".to_string() });
 
-            // Optionally clear existing results
             if clear {
                 info!("Clearing existing typosquat results...");
                 let cleared = repositories::typosquat::clear_typosquat_results(&database)
@@ -714,7 +670,6 @@ async fn main() {
                 println!("Cleared {} existing results", cleared);
             }
 
-            // Get target crates (popular crates that might be typosquatted)
             let target_crates = if top_crates > 0 {
                 repositories::crates::get_top_download_crates(&database, top_crates)
                     .await
@@ -725,7 +680,6 @@ async fn main() {
                     .expect("Failed to get all crates")
             };
 
-            // Get all crates to compare
             let all_crates = repositories::crates::get_all_crates(&database)
                 .await
                 .expect("Failed to get all crates");
@@ -746,7 +700,6 @@ async fn main() {
             let total_found_atomic = AtomicUsize::new(0);
             let total_comparisons = all_crates.len();
 
-            // Process in parallel and collect all results
             let all_results: Vec<models::NewTyposquatResult> = all_crates
                 .par_iter()
                 .flat_map(|crate_a| {
@@ -761,7 +714,6 @@ async fn main() {
 
                     // Only check if this crate might be typosquatting a target
                     for target in &target_crates {
-                        // Skip self-comparison
                         if crate_a.id == target.id {
                             continue;
                         }
@@ -798,7 +750,6 @@ async fn main() {
             let total_found = all_results.len();
             println!("Processing complete. Inserting {} results...", total_found);
 
-            // Insert results in batches
             for batch in all_results.chunks(BATCH_SIZE) {
                 let inserted = repositories::typosquat::insert_typosquat_results(&database, batch)
                     .await
@@ -806,11 +757,9 @@ async fn main() {
                 info!("Inserted {} typosquat results", inserted);
             }
 
-            // Print summary
             println!("\n=== Typosquat Detection Complete ===");
             println!("Total potential typosquats found: {}", total_found);
 
-            // Show some high-risk examples
             let high_risk = repositories::typosquat::get_high_risk_typosquats(&database, 80)
                 .await
                 .expect("Failed to get high risk typosquats");
@@ -819,7 +768,6 @@ async fn main() {
                 println!("\nHigh-risk typosquats (score >= 80):");
                 println!("{:<20} {:<20} {:>5} {:>5} {:>5} {:>5} {:>5} {:>8}",
                          "Suspect", "Target", "Lev", "Dam", "JW", "Key", "Pfx", "Combined");
-                println!("{}", "-".repeat(90));
 
                 // Get crate names for display
                 let crate_ids: Vec<i64> = high_risk.iter()
@@ -854,6 +802,4 @@ async fn main() {
             }
         }
     }
-
-    info!("Application completed successfully");
 }

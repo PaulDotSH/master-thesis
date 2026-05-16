@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+<title>Typosquat — CratesSec</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+  <% include!("../components/sidebar.html"); %>
+
+  <main class="content">
+    <h1>Typosquat Detection</h1>
+
+    <form class="filter-bar" method="get">
+      <div class="filter-row">
+        <input type="text" name="crate_name" placeholder="Crate name…" value="<%= crate_name %>" class="filter-input">
+        <input type="number" name="min_combined_score" placeholder="Min score" value="<%= min_combined_score %>" class="filter-input filter-num">
+        <button type="submit" class="btn">Apply</button>
+        <a href="/typosquat" class="btn btn-outline">Reset</a>
+        <input type="hidden" name="per_page" value="<%= per_page %>">
+      </div>
+    </form>
+
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=crate_name<% if sort_by == "crate_name" && !sort_desc { %>&sort_desc=1<% } %>">Suspicious Crate<% if sort_by == "crate_name" && !sort_desc { %> ▲<% } else if sort_by == "crate_name" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=similar_crate_name<% if sort_by == "similar_crate_name" && !sort_desc { %>&sort_desc=1<% } %>">Similar To<% if sort_by == "similar_crate_name" && !sort_desc { %> ▲<% } else if sort_by == "similar_crate_name" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=combined_score<% if sort_by == "combined_score" && !sort_desc { %>&sort_desc=1<% } %>">Combined<% if sort_by == "combined_score" && !sort_desc { %> ▲<% } else if sort_by == "combined_score" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=levenshtein<% if sort_by == "levenshtein" && !sort_desc { %>&sort_desc=1<% } %>">Levenshtein<% if sort_by == "levenshtein" && !sort_desc { %> ▲<% } else if sort_by == "levenshtein" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=jaro_winkler<% if sort_by == "jaro_winkler" && !sort_desc { %>&sort_desc=1<% } %>">Jaro-Winkler<% if sort_by == "jaro_winkler" && !sort_desc { %> ▲<% } else if sort_by == "jaro_winkler" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=keyboard<% if sort_by == "keyboard" && !sort_desc { %>&sort_desc=1<% } %>">Keyboard<% if sort_by == "keyboard" && !sort_desc { %> ▲<% } else if sort_by == "keyboard" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=prefix<% if sort_by == "prefix" && !sort_desc { %>&sort_desc=1<% } %>">Prefix<% if sort_by == "prefix" && !sort_desc { %> ▲<% } else if sort_by == "prefix" && sort_desc { %> ▼<% } %></a></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for row in rows.iter() { %>
+        <tr>
+          <td><a href="https://crates.io/crates/<%= row.crate_name %>" target="_blank" rel="noopener"><%= row.crate_name %></a></td>
+          <td><a href="https://crates.io/crates/<%= row.similar_name %>" target="_blank" rel="noopener"><%= row.similar_name %></a></td>
+          <td><%- row.combined_bar %></td>
+          <td><%= row.levenshtein %></td>
+          <td><%= row.jaro_winkler %></td>
+          <td><%= row.keyboard %></td>
+          <td><%= row.prefix %></td>
+        </tr>
+        <% } %>
+        <% if rows.is_empty() { %>
+        <tr><td colspan="7" class="empty">No typosquat matches found.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+
+    <%- pagination %>
+  </main>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<div class="bar-chart">
+  <div class="bar-chart-title"><%= title %></div>
+  <% for item in items { %>
+  <div class="bar-row">
+    <span class="bar-label"><%= item.label %></span>
+    <div class="bar-track">
+      <div class="bar-fill <%= item.cls %>" style="width:<%= item.pct %>%;"></div>
+    </div>
+    <span class="bar-count"><%= item.count %></span>
+  </div>
+  <% } %>
+</div>

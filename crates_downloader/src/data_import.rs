@@ -11,9 +11,6 @@ use std::collections::HashMap;
 use tracing::{debug, error, info, warn};
 
 pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::Error> {
-    info!("Starting database population");
-
-    // Read and insert crates
     info!("Reading crates from CSV");
     let crate_records = read_crates_csv("db-dump/crates.csv")?;
     info!("Number of crates to be inserted: {}", crate_records.len());
@@ -24,16 +21,13 @@ pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::E
     let count = crates_repo::count_crates(db).await?;
     info!("Total crates in database: {}", count);
 
-    // Insert crate downloads
     info!("Inserting crates_downloads");
     let crates_downloads = read_crates_downloads_csv("db-dump/crate_downloads.csv")?;
     crates_repo::insert_crates_downloads(db, &crates_downloads, config).await?;
 
-    // Read versions and create mapping
     info!("Reading versions.csv to create version->crate mapping");
     let versions = read_versions_csv("db-dump/versions.csv")?;
     
-    // Get only the latest version ID for each crate
     info!("Computing latest version IDs for each crate");
     let latest_version_ids = get_latest_version_ids(&versions);
     info!("Found {} crates with latest versions", latest_version_ids.len());
@@ -42,19 +36,17 @@ pub async fn populate_db(db: &Database, config: &Config) -> Result<(), anyhow::E
         versions.into_iter().map(|v| (v.id, v.crate_id)).collect();
     info!("Created mapping for {} versions", version_to_crate.len());
 
-    // Build set of existing crate IDs
     info!("Building set of existing crate IDs");
     let existing_crate_ids: std::collections::HashSet<i32> =
         crate_records.iter().map(|c| c.id).collect();
     info!("Found {} crate IDs in crates.csv", existing_crate_ids.len());
 
-    // Insert dependencies (only from latest versions, only normal deps)
     info!("Inserting dependencies (latest version only, runtime deps only)");
     let dependencies = read_dependencies_csv("db-dump/dependencies.csv", &latest_version_ids)?;
     info!("Total dependencies to insert: {}", dependencies.len());
 
     // Disable constraints and triggers for faster insertion
-    // This is safe because we are only inserting dependencies that already exist in the database, checked with existing_crate_ids
+    // Safe, we are only inserting dependencies that already exist in the database, checked with existing_crate_ids
     debug!("Disabling dependency triggers");
     deps_repo::disable_dependency_triggers(db).await?;
 
@@ -83,9 +75,8 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
     let db_crates_map: HashMap<i64, crate::models::Crate> =
         all_db_crates.into_iter().map(|c| (c.id, c)).collect();
     info!(
-        "Loaded {} crates into memory (~{}MB)",
-        db_crates_map.len(),
-        (db_crates_map.len() * 200) / 1_000_000 // Rough estimate
+        "Loaded {} crates into memory",
+        db_crates_map.len()
     );
 
     info!("Reading CSV files");
@@ -101,7 +92,6 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
     info!("Reading versions.csv to create version->crate mapping");
     let versions = read_versions_csv("db-dump/versions.csv")?;
     
-    // Get only the latest version ID for each crate
     info!("Computing latest version IDs for each crate");
     let latest_version_ids = get_latest_version_ids(&versions);
     info!("Found {} crates with latest versions", latest_version_ids.len());
@@ -129,7 +119,6 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         crate_dependencies.len()
     );
 
-    // Compare and build batches in memory
     info!("Comparing CSV data with database and building update batches");
     let mut updates_batch = Vec::new();
     let mut inserts_batch = Vec::new();
@@ -141,7 +130,6 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
     for record in &crate_records {
         let crate_id = record.id as i64;
 
-        // Parse timestamps from CSV
         let csv_updated_at_clean = match record.updated_at.split('+').next() {
             Some(s) => s,
             None => {
@@ -222,7 +210,6 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
                 skipped_count += 1;
             }
         } else {
-            // Crate doesn't exist, add to insert batch
             inserts_batch.push((*record).clone());
 
             if let Some(deps) = crate_dependencies.get(&record.id) {
@@ -245,9 +232,8 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         info!("  Parse errors: {}", error_count);
     }
 
-    // Execute batch updates
     if !updates_batch.is_empty() {
-        info!("Executing batch updates in chunks of 5000");
+        info!("Executing batch updates in chunks");
         for (i, chunk) in updates_batch.chunks(5000).enumerate() {
             debug!(
                 "  Updating chunk {}/{} ({} crates)",

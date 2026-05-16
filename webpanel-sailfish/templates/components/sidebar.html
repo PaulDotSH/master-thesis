@@ -1,0 +1,13 @@
+<aside class="sidebar">
+  <div class="logo">CratesSec</div>
+  <nav>
+    <a href="/" class="nav-item <% if current_route == "/" { %>active<% } %>">Dashboard</a>
+    <a href="/crates" class="nav-item <% if current_route == "/crates" { %>active<% } %>">Crates</a>
+    <a href="/dependencies" class="nav-item <% if current_route == "/dependencies" { %>active<% } %>">Dependencies</a>
+    <a href="/vulnerabilities" class="nav-item <% if current_route == "/vulnerabilities" { %>active<% } %>">Vulnerabilities</a>
+    <a href="/secrets" class="nav-item <% if current_route == "/secrets" { %>active<% } %>">Secrets</a>
+    <a href="/typosquat" class="nav-item <% if current_route == "/typosquat" { %>active<% } %>">Typosquat</a>
+    <a href="/scan-results" class="nav-item <% if current_route == "/scan-results" { %>active<% } %>">Scan Results</a>
+    <a href="/metrics" class="nav-item <% if current_route == "/metrics" { %>active<% } %>">Metrics</a>
+  </nav>
+</aside>

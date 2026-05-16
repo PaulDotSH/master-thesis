@@ -679,14 +679,6 @@ impl WorkQueue {
         
         Ok(())
     }
-
-    // pub async fn ready_count(&mut self) -> Result<usize, anyhow::Error> {
-    //     let len: usize = self.client
-    //         .llen(READY_QUEUE)
-    //         .await
-    //         .context("Failed to get ready queue length")?;
-    //     Ok(len)
-    // }
 }
 
 #[derive(Debug, Clone)]

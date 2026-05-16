@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "crates_downloader", "webpanel",
+  "crates_downloader", "webpanel", "webpanel-sailfish",
 ]
 
 resolver = "3"

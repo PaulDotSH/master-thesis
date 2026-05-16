@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+<title>Dependencies — CratesSec</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+  <% include!("../components/sidebar.html"); %>
+
+  <main class="content">
+    <h1>Dependencies</h1>
+
+    <form class="filter-bar" method="get">
+      <div class="filter-row">
+        <input type="text" name="crate_name" placeholder="Crate name…" value="<%= crate_name %>" class="filter-input">
+        <input type="number" name="crate_id" placeholder="Crate ID" value="<%= crate_id %>" class="filter-input filter-num">
+        <input type="number" name="dependency_id" placeholder="Dep ID" value="<%= dependency_id %>" class="filter-input filter-num">
+        <button type="submit" class="btn">Apply</button>
+        <a href="/dependencies" class="btn btn-outline">Reset</a>
+        <input type="hidden" name="per_page" value="<%= per_page %>">
+      </div>
+    </form>
+
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=crate_id<% if sort_by == "crate_id" && !sort_desc { %>&sort_desc=1<% } %>">Crate ID<% if sort_by == "crate_id" && !sort_desc { %> ▲<% } else if sort_by == "crate_id" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=crate_name<% if sort_by == "crate_name" && !sort_desc { %>&sort_desc=1<% } %>">Crate Name<% if sort_by == "crate_name" && !sort_desc { %> ▲<% } else if sort_by == "crate_name" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=dependency_id<% if sort_by == "dependency_id" && !sort_desc { %>&sort_desc=1<% } %>">Dep ID<% if sort_by == "dependency_id" && !sort_desc { %> ▲<% } else if sort_by == "dependency_id" && sort_desc { %> ▼<% } %></a></th>
+          <th><a href="?<%= base_query_no_sort %>&sort_by=dependency_name<% if sort_by == "dependency_name" && !sort_desc { %>&sort_desc=1<% } %>">Depends On<% if sort_by == "dependency_name" && !sort_desc { %> ▲<% } else if sort_by == "dependency_name" && sort_desc { %> ▼<% } %></a></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for row in rows.iter() { %>
+        <tr>
+          <td><%= row.crate_id %></td>
+          <td><a href="https://crates.io/crates/<%= row.crate_name %>" target="_blank" rel="noopener"><%= row.crate_name %></a></td>
+          <td><%= row.dependency_id %></td>
+          <td><a href="https://crates.io/crates/<%= row.dependency_name %>" target="_blank" rel="noopener"><%= row.dependency_name %></a></td>
+        </tr>
+        <% } %>
+        <% if rows.is_empty() { %>
+        <tr><td colspan="4" class="empty">No dependencies found.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+
+    <%- pagination %>
+  </main>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

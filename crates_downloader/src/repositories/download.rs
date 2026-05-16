@@ -19,9 +19,8 @@ impl std::fmt::Display for DownloadError {
 impl std::error::Error for DownloadError {}
 
 /// Sanitizes a repository URL to make it suitable for git clone
-/// Handles common issues like:
-/// - GitHub /tree/master/ paths (web URLs, not git URLs)
-/// - GitHub /blob/ paths
+/// - GitHub /tree/master/
+/// - GitHub /blob/
 /// - Trailing slashes
 fn sanitize_git_url(url: &str) -> String {
     let mut sanitized = url.trim().to_string();
@@ -31,8 +30,6 @@ fn sanitize_git_url(url: &str) -> String {
         sanitized.pop();
     }
     
-    // Handle GitHub web URLs with /tree/ or /blob/ paths
-    // Example: https://github.com/user/repo/tree/master/subdir -> https://github.com/user/repo
     if let Some(tree_pos) = sanitized.find("/tree/") {
         sanitized.truncate(tree_pos);
     }
@@ -43,7 +40,6 @@ fn sanitize_git_url(url: &str) -> String {
     sanitized
 }
 
-/// Checks if git error indicates a private or non-existent repository
 fn is_private_or_not_found_error(stderr: &str) -> bool {
     let stderr_lower = stderr.to_lowercase();
     stderr_lower.contains("repository not found")
@@ -59,7 +55,6 @@ pub async fn download_repo(url: &str, target_dir: &str) -> Result<(), anyhow::Er
         return Err(anyhow::anyhow!("Repository URL is empty"));
     }
     
-    // Sanitize the URL to handle common issues
     let sanitized_url = sanitize_git_url(url);
     
     let output = Command::new("git")
@@ -78,7 +73,6 @@ pub async fn download_repo(url: &str, target_dir: &str) -> Result<(), anyhow::Er
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         
-        // Check if it's a private/not found repository
         if is_private_or_not_found_error(&stderr) {
             warn!("Skipping private/inaccessible repository: {}", sanitized_url);
             return Err(DownloadError::PrivateOrNotFound(

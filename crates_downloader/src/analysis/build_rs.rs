@@ -1,13 +1,3 @@
-//! Build.rs Analysis Module
-//!
-//! Analyzes build.rs files for potentially suspicious patterns including:
-//! - Network calls using common Rust libraries
-//! - Link directives (#[link], cargo:rustc-link-*)
-//! - High entropy (potential obfuscation)
-//! - Process spawning (Command::new, exec, spawn)
-//! - Raw IP addresses (excluding local/private ranges)
-//! - Free/suspicious TLDs (.tk, .ml, .xyz, etc.)
-
 use anyhow::Context;
 use regex::Regex;
 use std::collections::HashMap;
@@ -59,11 +49,9 @@ const NETWORK_LIBRARIES: &[&str] = &[
     "https::",
 ];
 
-/// Analyzes build.rs file in the given crate directory
 pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, anyhow::Error> {
     let build_rs_path = Path::new(crate_dir).join("build.rs");
     
-    // Check if build.rs exists
     if !build_rs_path.exists() {
         debug!("No build.rs found in {}", crate_dir);
         return Ok(BuildRsAnalysisResult::default());
@@ -75,7 +63,6 @@ pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, 
         .await
         .context(format!("Failed to read build.rs from {:?}", build_rs_path))?;
     
-    // Run all checks
     let has_network_calls = check_network_calls(&content);
     let has_link_directive = check_link_directive(&content)?;
     let entropy_score = calculate_shannon_entropy(&content);
@@ -105,7 +92,6 @@ pub async fn analyze_build_rs(crate_dir: &str) -> Result<BuildRsAnalysisResult, 
     Ok(result)
 }
 
-/// Check for network library usage in build.rs
 fn check_network_calls(content: &str) -> bool {
     for lib in NETWORK_LIBRARIES {
         if content.contains(lib) {
@@ -116,16 +102,12 @@ fn check_network_calls(content: &str) -> bool {
     false
 }
 
-/// Check for link directives using regex
-/// Pattern: #[link] | cargo:rustc-link-lib | cargo:rustc-link-search
 fn check_link_directive(content: &str) -> Result<bool, anyhow::Error> {
     let pattern = r#"#\[link\]|cargo:rustc-link-lib|cargo:rustc-link-search"#;
     let re = Regex::new(pattern).context("Failed to compile link directive regex")?;
     Ok(re.is_match(content))
 }
 
-/// Calculate Shannon entropy of the content
-/// Returns a value between 0.0 (completely uniform) and 8.0 (maximum entropy for bytes)
 fn calculate_shannon_entropy(content: &str) -> f32 {
     if content.is_empty() {
         return 0.0;
@@ -134,13 +116,11 @@ fn calculate_shannon_entropy(content: &str) -> f32 {
     let bytes = content.as_bytes();
     let len = bytes.len() as f32;
     
-    // Count byte frequencies
     let mut freq: HashMap<u8, usize> = HashMap::new();
     for &byte in bytes {
         *freq.entry(byte).or_insert(0) += 1;
     }
     
-    // Calculate entropy
     let entropy: f32 = freq
         .values()
         .map(|&count| {
@@ -156,18 +136,13 @@ fn calculate_shannon_entropy(content: &str) -> f32 {
     entropy
 }
 
-/// Check for process spawning patterns
-/// Pattern: Command::new | process::Command | std::process | exec | spawn
 fn check_process_spawning(content: &str) -> Result<bool, anyhow::Error> {
     let pattern = r#"Command::new|process::Command|std::process::|\.exec\(|\.spawn\("#;
     let re = Regex::new(pattern).context("Failed to compile process spawning regex")?;
     Ok(re.is_match(content))
 }
 
-/// Check for raw IP addresses (excluding local/private ranges)
-/// Excludes: 127.x.x.x, 10.x.x.x, 172.16-31.x.x, 192.168.x.x, 0.0.0.0
 fn check_raw_ip_addresses(content: &str) -> Result<bool, anyhow::Error> {
-    // First, find all IP address patterns
     let ip_pattern = r#"\b(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\b"#;
     let re = Regex::new(ip_pattern).context("Failed to compile IP address regex")?;
     
@@ -225,7 +200,7 @@ fn is_local_ip(octets: &[u8]) -> bool {
         return true;
     }
     
-    // 0.0.0.0 (unspecified)
+    // 0.0.0.0
     if a == 0 && b == 0 {
         return true;
     }
@@ -238,8 +213,6 @@ fn is_local_ip(octets: &[u8]) -> bool {
     false
 }
 
-/// Check for free/suspicious TLDs that are commonly used in malicious domains
-/// Pattern: .(tk|ml|ga|cf|gq|xyz|top|work|click|link|host)
 fn check_free_tlds(content: &str) -> Result<bool, anyhow::Error> {
     let pattern = r#"\.(tk|ml|ga|cf|gq|xyz|top|work|click|link|host)\b"#;
     let re = Regex::new(pattern).context("Failed to compile free TLDs regex")?;

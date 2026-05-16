@@ -22,7 +22,6 @@ use crate::{
     },
 };
 
-/// Represents scan result data ready to be inserted into the database
 #[derive(Debug, Clone)]
 struct ScanResultData {
     crate_id: i64,
@@ -32,7 +31,6 @@ struct ScanResultData {
     has_executable_files: bool,
     cargo_audit_max_dep_score: i16,
     cargo_audit_vulns_count: i16,
-    // Build.rs analysis fields
     build_rs_network_calls: bool,
     build_rs_has_link_directive: bool,
     build_rs_entropy_score: f32,
@@ -41,7 +39,6 @@ struct ScanResultData {
     build_rs_has_free_tlds: bool,
 }
 
-/// Per-crate timing metrics stored in analysis_metrics
 #[derive(Debug, Clone)]
 struct AnalysisTiming {
     total_duration_ms: i64,
@@ -87,7 +84,6 @@ where
     (output, start.elapsed().as_millis() as i64)
 }
 
-/// Represents complete analysis results including both scan results and audit details
 #[derive(Debug, Clone)]
 struct AnalysisResult {
     scan_result: ScanResultData,
@@ -96,17 +92,14 @@ struct AnalysisResult {
     timing: AnalysisTiming,
 }
 
-/// Clean up all caches to prevent disk space exhaustion
-/// Deletes everything except /tmp/crates (where downloaded repos go)
 pub async fn cleanup_cargo_caches() -> Result<(), anyhow::Error> {
     let dirs_to_delete = [
         // Note: /usr/local/cargo/registry and /usr/local/cargo/git are intentionally
-        // excluded. They live on tmpfs (already bounded by the 2G mount size) and
-        // deleting them while another worker's `cargo update --workspace` is downloading
-        // to them causes a race condition that makes cargo-audit fail with ENOENT.
-        // Note: /usr/local/rustup is intentionally excluded - deleting it destroys
-        // the Rust toolchain.
-        // Note: /advisory-db is intentionally excluded - deleting it breaks cargo-audit
+        // excluded. They live on tmpfs and deleting them while another worker's
+        // `cargo update --workspace` is downloading to them causes a
+        // race condition that makes cargo-audit fail with ENOENT.
+        // /usr/local/rustup is intentionally excluded - deleting it destroys the Rust toolchain.
+        // /advisory-db is intentionally excluded - deleting it breaks cargo-audit
         // for all subsequent crates (used with --no-fetch --db /advisory-db).
         "/usr/local/cargo/target",
     ];
@@ -136,7 +129,6 @@ pub async fn cleanup_cargo_caches() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Calculate directory size recursively
 async fn dir_size(path: &std::path::Path) -> u64 {
     let mut size = 0u64;
 
@@ -156,7 +148,6 @@ async fn dir_size(path: &std::path::Path) -> u64 {
 
 /// Analyzes a single crate independently (no dependency traversal)
 /// This is designed for distributed worker architecture where each crate is analyzed separately
-/// Dependencies will be analyzed by other workers or in separate queue items
 pub async fn analyze_crate(c: &Crate, database: &Database, config: &Config) -> Result<(), anyhow::Error> {
     // Check if this crate needs analysis
     let needs_analysis = get_crate_ids_needing_analysis(database, std::slice::from_ref(c))
@@ -196,7 +187,7 @@ pub async fn analyze_crate(c: &Crate, database: &Database, config: &Config) -> R
     Ok(())
 }
 
-/// Analyzes a single crate by ID (convenience wrapper for queue workers)
+/// Analyzes a single crate by ID (wrapper for queue workers)
 pub async fn analyze_crate_by_id(crate_id: i64, database: &Database, config: &Config) -> Result<(), anyhow::Error> {
     let crate_data = crate::repositories::crates::get_crate_by_id(database, crate_id)
         .await
@@ -205,13 +196,11 @@ pub async fn analyze_crate_by_id(crate_id: i64, database: &Database, config: &Co
     analyze_crate(&crate_data, database, config).await
 }
 
-/// Analyzes a single crate: downloads, runs analysis tools, and returns results
-/// Returns AnalysisResult instead of inserting directly to enable batch inserts
 async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<AnalysisResult, anyhow::Error> {
     // Skip crates without a valid repository URL
     if crate_data.repository.is_empty() {
         info!("Skipping crate {} (id: {}) - no repository URL", crate_data.name, crate_data.id);
-        // Still create a scan result to mark it as processed
+        // Mark it as processed
         return Ok(AnalysisResult {
             scan_result: create_placeholder_result(crate_data.id),
             audit_results: Vec::new(),
@@ -220,10 +209,9 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
         });
     }
     
-    // Use crate_id in path to ensure uniqueness across workers
+    // Ensure uniqueness across workers
     let dir = format!("/tmp/crates/{}_{}", crate_data.name, crate_data.id);
     
-    // Create parent directory if it doesn't exist
     create_dir_all("/tmp/crates")
         .await
         .context("Failed to create /tmp/crates directory")?;
@@ -238,21 +226,18 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
     let total_start = Instant::now();
     let download_start = Instant::now();
 
-    // Try to download the repository
     match download_repo(&crate_data.repository, &dir).await {
         Ok(_) => {
             let download_duration_ms = download_start.elapsed().as_millis() as i64;
             info!("Successfully downloaded crate '{}' (id: {}) to {}", crate_data.name, crate_data.id, dir);
             
-            // Successfully cloned - perform analysis
             let result_data = perform_analysis(crate_data, &dir, config).await;
             
-            // Always clean up, even if analysis failed
             if let Err(e) = remove_dir_all(&dir).await {
                 warn!("Failed to clean up directory {}: {:?}", dir, e);
             }
             
-            // Now propagate the result
+            // Propagate the result
             let mut result_data = result_data
                 .context(format!("Failed to perform analysis for crate '{}'", crate_data.name))?;
 
@@ -266,13 +251,12 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
         }
         Err(e) => {
             let download_duration_ms = download_start.elapsed().as_millis() as i64;
-            // Clean up any partial download
             let _ = remove_dir_all(&dir).await;
             
             // Check if it's a private/not found repository error
             if e.to_string().contains("private or not found") {
                 info!("Skipping crate {} (id: {}) - repository is private or not found", crate_data.name, crate_data.id);
-                // Still create a scan result to mark it as processed
+                // Mark as processed
                 Ok(AnalysisResult {
                     scan_result: create_placeholder_result(crate_data.id),
                     audit_results: Vec::new(),
@@ -291,14 +275,12 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
                     },
                 })
             } else {
-                // Other errors should be propagated with context
                 Err(e).context(format!("Failed to download repository for crate '{}'", crate_data.name))
             }
         }
     }
 }
 
-/// Creates a placeholder scan result
 fn create_placeholder_result(crate_id: i64) -> ScanResultData {
     ScanResultData {
         crate_id,
@@ -317,9 +299,8 @@ fn create_placeholder_result(crate_id: i64) -> ScanResultData {
     }
 }
 
-/// Creates a placeholder scan result for failed analysis (prevents re-scanning)
 fn create_failed_placeholder_result(crate_id: i64, error_msg: &str) -> ScanResultData {
-    // Truncate error message to avoid overly long notes
+    // Truncate error message
     let truncated_msg = if error_msg.len() > 500 {
         format!("{}...", &error_msg[..500])
     } else {
@@ -350,7 +331,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
 
     info!("Checking executable files for crate {}", crate_id);
 
-    // Use find command to efficiently locate potentially executable files
+    // Locate potentially executable files
     let output = tokio::process::Command::new("find")
         .arg(crate_dir)
         .arg("-path")
@@ -361,7 +342,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
         .arg("f")
         .arg("(")
         .arg("-perm")
-        .arg("/111")  // Files with any execute bit set
+        .arg("/111")  // Any execute bit set
         .arg("-o")
         .arg("-name")
         .arg("*.exe")
@@ -400,7 +381,6 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
         let path_str = String::from_utf8_lossy(path_bytes);
         let path = std::path::Path::new(path_str.as_ref());
 
-        // Skip if path doesn't exist or isn't a file
         if !path.is_file() {
             continue;
         }
@@ -417,7 +397,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
                     return Ok(true);
                 }
 
-                // Mach-O signatures (universal, 32-bit, 64-bit)
+                // Mach-O signatures
                 if header.starts_with(&[0xCA, 0xFE, 0xBA, 0xBE])  // Universal binary
                     || header.starts_with(&[0xFE, 0xED, 0xFA, 0xCE])  // Mach-O 32-bit
                     || header.starts_with(&[0xFE, 0xED, 0xFA, 0xCF])  // Mach-O 64-bit
@@ -428,7 +408,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
                     return Ok(true);
                 }
 
-                // PE (Windows) signature: 'M' 'Z'
+                // PE signature
                 if header.starts_with(&[0x4D, 0x5A]) {
                     info!("Found PE/Windows binary in crate {}: {}", crate_id, path_str);
                     return Ok(true);
@@ -446,7 +426,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
                 // Check if file has execute permission
                 if let Ok(metadata) = fs::metadata(path).await  && metadata.permissions().mode() & 0o111 != 0 {
                         debug!("Found executable script in crate {}: {}", crate_id, path_str);
-                        // Scripts with shebang are less suspicious, only flag actual binaries
+                        // Only flag actual binaries
                 }
             }
         }
@@ -456,8 +436,7 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
     Ok(false)
 }
 
-/// Performs all analysis steps in parallel and aggregates results
-/// Runs all analysis tools concurrently to maximize throughput
+/// Do all analysis steps in parallel and aggregates results
 async fn perform_analysis(
     crate_data: &Crate,
     crate_dir: &str,
@@ -493,7 +472,6 @@ async fn perform_analysis(
         measure_future_ms(llm_future),
     );
     
-    // Aggregate results from all analyses with proper error context
     let audit_results = audit_result
         .context(format!("cargo audit failed for crate '{}'", crate_data.name))?;
     
@@ -548,8 +526,6 @@ async fn perform_analysis(
     })
 }
 
-/// Batch insert scan results and cargo audit results into the database
-/// Uses PostgreSQL's INSERT ... ON CONFLICT for efficient upserts
 async fn batch_insert_results(
     database: &Database,
     results: &[AnalysisResult],
@@ -621,7 +597,7 @@ async fn batch_insert_results(
     }
     
     if !all_audit_results.is_empty() {
-        // Clear old audit results for these crates first
+        // Clear old audit results for these crates
         let crate_ids: Vec<String> = results
             .iter()
             .map(|r| r.scan_result.crate_id.to_string())
@@ -664,7 +640,6 @@ async fn batch_insert_results(
             .context("Failed to insert cargo audit results")?;
     }
     
-    // Third, collect and insert all gitleaks results
     let mut all_gitleaks_results = Vec::new();
     for result in results {
         for gitleaks_result in &result.gitleaks_results {
@@ -679,7 +654,6 @@ async fn batch_insert_results(
     }
     
     if !all_gitleaks_results.is_empty() {
-        // Clear old gitleaks results for these crates first
         let crate_ids: Vec<String> = results
             .iter()
             .map(|r| r.scan_result.crate_id.to_string())
@@ -724,7 +698,7 @@ async fn batch_insert_results(
             .context("Failed to insert gitleaks results")?;
     }
 
-    // Fourth, persist timing metrics for each analyzed crate
+    // Timing metrics for each analyzed crate
     let format_i64_opt = |v: Option<i64>| v.map(|x| x.to_string()).unwrap_or_else(|| "NULL".to_string());
     let format_text_opt = |v: Option<&str>| {
         v.map(|s| format!("'{}'", s.replace("'", "''")))

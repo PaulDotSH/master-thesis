@@ -55,8 +55,7 @@ fn default_llm_enabled() -> bool {
 }
 
 impl Default for Config {
-    // If config file exists, load it, otherwise use default values
-    // Environment variables override config file values
+    // env vars override config file values
     fn default() -> Self {
         let mut config = if let Ok(config) = Config::load() {
             config
@@ -79,7 +78,6 @@ impl Default for Config {
             }
         };
 
-        // Override with environment variables if present
         if let Ok(database_url) = std::env::var("DATABASE_URL") {
             config.connection_string = database_url;
         }

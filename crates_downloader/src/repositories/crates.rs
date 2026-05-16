@@ -26,7 +26,7 @@ pub async fn insert_crates(
                     .unwrap_or("")
                     .to_string();
 
-                // Strip timezone from timestamps (format is "2023-05-01 12:06:24.629411+00")
+                // Strip timezone from timestamps based on format ("2023-05-01 12:06:24.629411+00")
                 let created_at_clean = record.created_at.split('+').next()?;
                 let updated_at_clean = record.updated_at.split('+').next()?;
 
@@ -64,7 +64,6 @@ pub async fn insert_crates_downloads(
     for chunk in crates_downloads.chunks(config.insert_crates_in_chunks) {
         let mut conn = db.get_connection().await?;
 
-        // Build bulk UPDATE using PostgreSQL's UPDATE FROM VALUES
         let values: Vec<String> = chunk
             .iter()
             .map(|record| format!("({}, {})", record.crate_id, record.downloads))
@@ -92,7 +91,7 @@ pub async fn count_crates(db: &Database) -> Result<i64, anyhow::Error> {
 }
 
 /// Batch fetch multiple crates by their IDs in a single query.
-/// Returns a HashMap mapping crate_id -> Crate for efficient lookup.
+/// Returns crate_id -> Crate
 pub async fn get_crates_by_ids(db: &Database, crate_ids: &[i64]) -> Result<std::collections::HashMap<i64, Crate>, anyhow::Error> {
     use std::collections::HashMap;
     
@@ -167,7 +166,6 @@ pub async fn batch_update_crates(
     let mut conn = db.get_connection().await?;
     let now = chrono::Utc::now().naive_utc();
 
-    // Helper function to escape single quotes in strings for SQL
     fn escape_sql_string(s: &str) -> String {
         s.replace("'", "''")
     }

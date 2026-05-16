@@ -8,7 +8,7 @@ use walkdir::WalkDir;
 use crate::config::Config;
 use crate::models::Crate;
 
-/// System prompt for the LLM to analyze code for malicious behavior
+/// System prompt for the LLM
 const SYSTEM_PROMPT: &str = r#"You are an expert cyber security analyst. Analyze the provided code to find possible malicious behavior.
 
 Specifically look for:
@@ -41,7 +41,6 @@ FINDINGS:
 SCORE: [number]
 SUMMARY: [brief summary]"#;
 
-/// Request structure for LM Studio API (OpenAI-compatible)
 #[derive(Debug, Serialize)]
 struct ChatCompletionRequest {
     model: String,
@@ -57,7 +56,6 @@ struct ChatMessage {
     content: String,
 }
 
-/// Response structure from LM Studio API
 #[derive(Debug, Deserialize)]
 struct ChatCompletionResponse {
     choices: Vec<ChatChoice>,
@@ -68,7 +66,6 @@ struct ChatChoice {
     message: ChatMessage,
 }
 
-/// Result of LLM analysis
 #[derive(Debug, Clone)]
 pub struct LlmAnalysisResult {
     pub malicious_score: i16,
@@ -82,8 +79,8 @@ const SOURCE_EXTENSIONS: &[&str] = &[
     "toml", "yaml", "yml", "json", "xml", "Makefile", "Dockerfile",
 ];
 
-/// Maximum file size to analyze (256KB)
-const MAX_FILE_SIZE: u64 = 256 * 1024;
+/// Maximum file size to analyze (8MB)
+const MAX_FILE_SIZE: u64 = 1024 * 1024 * 8;
 
 /// Collects all source files from a directory
 async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, anyhow::Error> {
@@ -93,7 +90,7 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
     for entry in WalkDir::new(crate_dir)
         .into_iter()
         .filter_entry(|e| {
-            // Skip hidden directories, target/, and .git/
+            // Skip hidden directories
             let name = e.file_name().to_string_lossy();
             !name.starts_with('.') && name != "target" && name != "node_modules"
         })
@@ -101,12 +98,10 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
     {
         let path = entry.path();
         
-        // Skip directories
         if path.is_dir() {
             continue;
         }
         
-        // Check if it's a source file we want to analyze
         let extension = path.extension()
             .and_then(|e| e.to_str())
             .unwrap_or("");
@@ -124,7 +119,6 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
             continue;
         }
         
-        // Check file size
         let metadata = match fs::metadata(&path).await {
             Ok(m) => m,
             Err(_) => continue,
@@ -135,7 +129,6 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
             continue;
         }
         
-        // Read file content
         let content = match fs::read_to_string(&path).await {
             Ok(c) => c,
             Err(e) => {
@@ -144,7 +137,7 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
             }
         };
         
-        // Get relative path for better context
+        // Relative path for better context
         let relative_path = path.strip_prefix(crate_path)
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| path.to_string_lossy().to_string());
@@ -156,7 +149,7 @@ async fn collect_source_files(crate_dir: &str) -> Result<Vec<(String, String)>, 
 }
 
 /// Formats files for LLM analysis with crate context
-/// Returns a vector of batches, each fitting within max_content size
+/// Returns a vector of batches to fit within max_content size
 fn create_analysis_batches(crate_info: &Crate, files: &[(String, String)], max_content: usize) -> Vec<String> {
     let crate_context = format!(
         "=== CRATE CONTEXT ===\n\
@@ -191,13 +184,11 @@ fn create_analysis_batches(crate_info: &Crate, files: &[(String, String)], max_c
         
         // If this single file is larger than max_content, split it into chunks
         if file_section.len() > max_content - base_size {
-            // First, save current batch if it has content beyond context
             if current_batch.len() > base_size {
                 batches.push(current_batch);
                 current_batch = crate_context.clone();
             }
             
-            // Split the large file into chunks
             let chunk_size = max_content - base_size - 200; // Leave room for headers
             let content_chars: Vec<char> = file_content.chars().collect();
             let total_chunks = content_chars.len().div_ceil(chunk_size);
@@ -221,17 +212,16 @@ fn create_analysis_batches(crate_info: &Crate, files: &[(String, String)], max_c
             current_batch = crate_context.clone();
             current_batch.push_str(&file_section);
         } else {
-            // Add to current batch
             current_batch.push_str(&file_section);
         }
     }
     
-    // Don't forget the last batch
+    // Last batch
     if current_batch.len() > base_size {
         batches.push(current_batch);
     }
     
-    // If no batches were created (empty crate), create one with just the context
+    // If no batches were created, create one with just the context
     if batches.is_empty() {
         batches.push(crate_context);
     }
@@ -252,7 +242,7 @@ fn parse_llm_response(response: &str) -> (i16, String) {
         })
         .unwrap_or(0);
     
-    // Clamp score to valid range
+    // Clamp score
     let score = score.clamp(0, 100);
     
     // Extract summary if present, otherwise use full response
@@ -342,8 +332,6 @@ async fn analyze_single_batch(
     Ok(parse_llm_response(&assistant_response))
 }
 
-/// Runs LLM analysis on a crate directory using LM Studio API
-/// Splits large codebases into multiple batches and aggregates results
 pub async fn run_llm_analysis(
     crate_dir: &str,
     crate_info: &Crate,
@@ -351,7 +339,6 @@ pub async fn run_llm_analysis(
 ) -> Result<LlmAnalysisResult, anyhow::Error> {
     info!("Running LLM analysis for crate '{}' (id: {})", crate_info.name, crate_info.id);
     
-    // Collect source files
     let files = collect_source_files(crate_dir)
         .await
         .context("Failed to collect source files")?;
@@ -366,19 +353,16 @@ pub async fn run_llm_analysis(
     
     info!("Found {} source files in crate '{}'", files.len(), crate_info.name);
     
-    // Create batches that fit within context limits
     let batches = create_analysis_batches(crate_info, &files, config.llm_max_context_chars);
     let total_batches = batches.len();
     
     info!("Split crate '{}' into {} batch(es) for LLM analysis", crate_info.name, total_batches);
     
-    // Create HTTP client with timeout
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(300)) // 5 minute timeout per request
         .build()
         .context("Failed to create HTTP client")?;
     
-    // Process each batch and aggregate results
     let mut max_score: i16 = 0;
     let mut all_notes = Vec::new();
     
@@ -391,12 +375,10 @@ pub async fn run_llm_analysis(
             Ok((score, notes)) => {
                 info!("Batch {}/{} for '{}': score={}", batch_num, total_batches, crate_info.name, score);
                 
-                // Take the maximum score across all batches
                 if score > max_score {
                     max_score = score;
                 }
                 
-                // Collect notes from batches that found something
                 if score > 0 && !notes.is_empty() {
                     if total_batches > 1 {
                         all_notes.push(format!("[Batch {}/{}] {}", batch_num, total_batches, notes));
@@ -429,7 +411,6 @@ pub async fn run_llm_analysis(
     })
 }
 
-/// Checks if LM Studio is available
 pub async fn check_lm_studio_connection(config: &Config) -> Result<bool, anyhow::Error> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(5))

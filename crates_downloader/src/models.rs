@@ -3,7 +3,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Deserialize;
 
-// CSV Record structs (for reading from CSV files)
+// CSV Record struct
 #[derive(Debug, Deserialize, Clone)]
 #[allow(dead_code)]
 pub struct CrateRecord {
@@ -40,7 +40,6 @@ pub struct VersionRecord {
     pub crate_id: i32,
 }
 
-// Database Insertable structs (for inserting into database)
 #[derive(Debug, Insertable)]
 #[diesel(table_name = crates)]
 pub struct NewCrate {
@@ -61,7 +60,6 @@ pub struct NewDependency {
     pub db_updated_at: NaiveDateTime,
 }
 
-// Database Queryable structs (for reading from database)
 #[derive(Debug, Clone, Queryable, Selectable)]
 #[diesel(table_name = crates)]
 #[allow(dead_code)]

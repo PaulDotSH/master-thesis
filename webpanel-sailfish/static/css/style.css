@@ -1,0 +1,182 @@
+/* Layout — sidebar */
+.app { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px; background: var(--pico-card-background-color);
+  border-right: 1px solid var(--pico-card-border-color);
+  padding: 1.5rem 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+.logo {
+  padding: 0 1.2rem 1.5rem; font-weight: 700; font-size: 1.15rem;
+  color: var(--pico-primary); letter-spacing: .5px;
+}
+.nav-item {
+  display: block; padding: .65rem 1.2rem; margin-bottom: .15rem; color: var(--pico-muted-color);
+  font-size: .875rem; border-left: 3px solid transparent; transition: all .15s; text-decoration: none;
+}
+.nav-item:hover { color: var(--pico-color); background: var(--pico-dropdown-background-color); text-decoration: none; }
+.nav-item.active { color: var(--pico-primary); border-left-color: var(--pico-primary); background: var(--pico-dropdown-background-color); }
+
+.content { flex: 1; padding: 2rem 2.5rem; overflow-x: auto; }
+
+/* Section headings */
+.content h1 { margin-bottom: 1.5rem; }
+.content h3 { margin-top: 2rem; margin-bottom: 1rem; }
+.content section { margin-bottom: 2rem; }
+.content hgroup { margin-bottom: 2rem; }
+
+/* Stats grid */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem; margin-bottom: 2rem;
+}
+.stat-card { padding: 1.25rem 1.5rem !important; margin: 0 !important; }
+.stat-card.accent { border-color: var(--pico-primary); }
+.stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+.stat-label { display: block; margin-top: .35rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--pico-muted-color); }
+
+/* Charts */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.bar-chart.wide { grid-column: 1 / -1; }
+.bar-chart {
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color); border-radius: var(--pico-border-radius);
+  padding: 1.25rem 1.5rem; margin-bottom: 0;
+}
+.bar-chart-title { margin-bottom: .75rem; font-size: 1rem; }
+.bar-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .45rem; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-label {
+  font-size: .875rem; color: var(--pico-color); width: 200px; flex-shrink: 0;
+  text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;
+}
+.bar-track { flex: 1; height: 18px; background: var(--pico-code-background-color); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .3s; }
+.bar-fill.low { background: #22c55e; }
+.bar-fill.medium { background: #eab308; }
+.bar-fill.high { background: #f97316; }
+.bar-fill.critical { background: #ef4444; }
+.bar-fill.info { background: var(--pico-primary); }
+.bar-count {
+  font-size: .875rem; color: var(--pico-color); width: 60px; flex-shrink: 0; text-align: left; font-weight: 600;
+}
+
+/* Filter bar */
+.filter-bar { margin-bottom: 1.5rem; }
+.filter-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.filter-input, .filter-select {
+  background: var(--pico-form-element-background-color);
+  border: 1px solid var(--pico-form-element-border-color);
+  border-radius: var(--pico-border-radius);
+  color: var(--pico-color); padding: .4rem .6rem; font-size: .8125rem; outline: none;
+}
+.filter-input:focus, .filter-select:focus { border-color: var(--pico-primary); box-shadow: 0 0 0 2px var(--pico-primary-focus); }
+.filter-num { width: 110px; }
+.filter-select { cursor: pointer; }
+
+/* Buttons (PicoCSS handles base, just override what we need) */
+.btn-outline {
+  background: transparent !important; border-color: var(--pico-form-element-border-color) !important;
+  color: var(--pico-muted-color) !important; text-decoration: none;
+}
+.btn-outline:hover { border-color: var(--pico-primary) !important; color: var(--pico-color) !important; }
+
+/* Table */
+.table-wrap {
+  border: 1px solid var(--pico-table-border-color); border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color); overflow-x: auto; margin-bottom: .5rem;
+}
+.table-wrap table { margin-bottom: 0; }
+.empty { text-align: center; padding: 2rem !important; color: var(--pico-muted-color); }
+
+/* Badges */
+.badge {
+  display: inline-block; padding: .1em .5em; border-radius: 3px;
+  font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+}
+.badge-yes { background: rgba(34,197,94,.15); color: #22c55e; }
+.badge-no { background: rgba(156,163,175,.12); color: var(--pico-muted-color); }
+.badge-low { background: rgba(34,197,94,.15); color: #22c55e; }
+.badge-medium { background: rgba(234,179,8,.15); color: #eab308; }
+.badge-high { background: rgba(249,115,22,.15); color: #f97316; }
+.badge-critical { background: rgba(239,68,68,.15); color: #ef4444; }
+
+/* Score bar */
+.score-bar { display: flex; align-items: center; gap: .4rem; min-width: 100px; }
+.score-bar .score-fill { height: 8px; border-radius: 3px; }
+.score-bar span { font-size: .75rem; font-weight: 600; }
+.score-fill.low { background: #22c55e; }
+.score-fill.medium { background: #eab308; }
+.score-fill.high { background: #f97316; }
+.score-fill.critical { background: #ef4444; }
+
+/* Pagination */
+.pag { display: flex; align-items: center; gap: .5rem; margin-top: 1.25rem; font-size: .8125rem; flex-wrap: wrap; }
+.pag-info { color: var(--pico-muted-color); margin-right: 1rem; }
+.pag-btn {
+  padding: .25rem .6rem; border-radius: 4px; min-width: 2rem; text-align: center;
+  background: var(--pico-dropdown-background-color); color: var(--pico-muted-color);
+  border: 1px solid var(--pico-card-border-color); text-decoration: none;
+}
+.pag-btn:hover { border-color: var(--pico-primary); color: var(--pico-color); text-decoration: none; }
+.pag-cur { padding: .25rem .6rem; min-width: 2rem; text-align: center; border-radius: 4px; background: var(--pico-primary); color: var(--pico-primary-inverse); font-weight: 700; }
+.pag-ell { color: var(--pico-muted-color); padding: 0 .25rem; }
+.pag-pp {
+  margin-left: auto; background: var(--pico-form-element-background-color);
+  border: 1px solid var(--pico-form-element-border-color); color: var(--pico-color);
+  border-radius: var(--pico-border-radius); padding: .2rem .35rem; font-size: .8125rem; cursor: pointer;
+}
+
+/* Utility */
+.truncate { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mono { font-family: var(--pico-font-family-monospace); font-size: .75rem; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex;
+  align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-dialog {
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color); border-radius: 8px;
+  max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--pico-card-border-color);
+}
+.modal-header h2 { font-size: 1.1rem; margin: 0; }
+.modal-close {
+  background: none; border: none; color: var(--pico-muted-color);
+  font-size: 1.5rem; cursor: pointer; padding: 0 .25rem; line-height: 1;
+}
+.modal-close:hover { color: var(--pico-color); }
+.modal-body { padding: 1.25rem; }
+.modal-body .kv {
+  display: flex; padding: .35rem 0; border-bottom: 1px solid var(--pico-card-border-color); font-size: .8125rem;
+}
+.modal-body .kv:last-child { border-bottom: none; }
+.modal-body .kv-label { color: var(--pico-muted-color); width: 180px; flex-shrink: 0; font-weight: 600; }
+.modal-body .kv-value { color: var(--pico-color); word-break: break-all; }
+
+/* Spinner */
+.spinner {
+  width: 32px; height: 32px; border: 3px solid var(--pico-card-border-color);
+  border-top-color: var(--pico-primary); border-radius: 50%;
+  animation: spin .6s linear infinite; margin: 2rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .sidebar { width: 180px; }
+  .content { padding: 1rem; }
+}
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .bar-label { width: 80px; }
+  .modal-dialog { width: 95%; }
+}

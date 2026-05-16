@@ -41,9 +41,7 @@ pub fn read_dependencies_csv(file_path: &str, latest_version_ids: &HashSet<i32>)
 
     for result in rdr.deserialize() {
         let record: DependencyRecord = result?;
-        // Only include normal runtime dependencies (kind=0)
-        // Skip dev dependencies (kind=1) and build dependencies (kind=2)
-        // Also only include dependencies from the latest version of each crate
+        // Only include normal runtime dependencies (kind=0) from latest crate version
         if record.kind == 0 && latest_version_ids.contains(&record.version_id) {
             records.push(record);
         }
@@ -66,7 +64,6 @@ pub fn read_versions_csv(file_path: &str) -> Result<Vec<VersionRecord>, anyhow::
     Ok(records)
 }
 
-/// Get the latest version ID for each crate.
 /// Uses the highest version_id as the "latest" since version IDs are sequential.
 pub fn get_latest_version_ids(versions: &[VersionRecord]) -> HashSet<i32> {
     // Map crate_id -> max version_id

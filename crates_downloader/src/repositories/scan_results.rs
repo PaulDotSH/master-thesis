@@ -7,7 +7,6 @@ use std::collections::HashSet;
 
 /// Batch check which crates need analyzing.
 /// Returns a HashSet of crate IDs that need analysis.
-/// This is much more efficient than checking each crate individually.
 pub async fn get_crate_ids_needing_analysis(database: &Database, all_crates: &[Crate]) -> Result<HashSet<i64>, anyhow::Error> {
     let mut conn = database.get_connection().await?;
     
@@ -20,11 +19,10 @@ pub async fn get_crate_ids_needing_analysis(database: &Database, all_crates: &[C
         .load(&mut conn)
         .await?;
     
-    // Build a map of crate_id -> scan_created_at
+    // crate_id -> scan_created_at
     let scan_map: std::collections::HashMap<i64, chrono::NaiveDateTime> = 
         scan_results_data.into_iter().collect();
     
-    // Determine which crates need analyzing
     let mut needs_analysis = HashSet::new();
     for crate_data in all_crates {
         match scan_map.get(&crate_data.id) {
@@ -32,7 +30,7 @@ pub async fn get_crate_ids_needing_analysis(database: &Database, all_crates: &[C
             None => {
                 needs_analysis.insert(crate_data.id);
             },
-            // Scan results exist - check if they're older than the crate update
+            // check if they're older than the crate update
             Some(&scan_created_at) => {
                 if scan_created_at < crate_data.crate_updated_at {
                     needs_analysis.insert(crate_data.id);

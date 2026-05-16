@@ -1,11 +1,5 @@
-//! Typosquatting detection algorithms
-//!
-//! This module implements various string similarity algorithms to detect
-//! potential typosquatting attempts among crate names.
-
 use std::collections::HashMap;
 
-/// Result of typosquat analysis between two crate names
 #[derive(Debug, Clone)]
 pub struct TyposquatScore {
     pub levenshtein: u8,
@@ -17,7 +11,6 @@ pub struct TyposquatScore {
 }
 
 impl TyposquatScore {
-    /// Calculate combined score with weighted average
     pub fn calculate_combined(
         levenshtein: u8,
         damerau_levenshtein: u8,
@@ -42,8 +35,7 @@ impl TyposquatScore {
     }
 }
 
-/// Calculate the Levenshtein distance between two strings
-/// Returns the minimum number of single-character edits (insertions, deletions, substitutions)
+/// Minimum number of single-character edits
 pub fn levenshtein_distance(s1: &str, s2: &str) -> usize {
     let s1_chars: Vec<char> = s1.chars().collect();
     let s2_chars: Vec<char> = s2.chars().collect();
@@ -57,7 +49,7 @@ pub fn levenshtein_distance(s1: &str, s2: &str) -> usize {
         return m;
     }
 
-    // Create two rows for the dynamic programming approach
+    // DP
     let mut prev_row: Vec<usize> = (0..=n).collect();
     let mut curr_row: Vec<usize> = vec![0; n + 1];
 
@@ -71,9 +63,9 @@ pub fn levenshtein_distance(s1: &str, s2: &str) -> usize {
                 1
             };
 
-            curr_row[j] = (prev_row[j] + 1) // deletion
-                .min(curr_row[j - 1] + 1) // insertion
-                .min(prev_row[j - 1] + cost); // substitution
+            curr_row[j] = (prev_row[j] + 1) // del
+                .min(curr_row[j - 1] + 1) // ins
+                .min(prev_row[j - 1] + cost); // sub
         }
 
         std::mem::swap(&mut prev_row, &mut curr_row);
@@ -83,7 +75,6 @@ pub fn levenshtein_distance(s1: &str, s2: &str) -> usize {
 }
 
 /// Convert Levenshtein distance to a similarity score (0-100)
-/// Higher score means more similar
 pub fn levenshtein_similarity(s1: &str, s2: &str) -> u8 {
     let distance = levenshtein_distance(s1, s2);
     let max_len = s1.len().max(s2.len());
@@ -97,7 +88,7 @@ pub fn levenshtein_similarity(s1: &str, s2: &str) -> u8 {
 }
 
 /// Calculate the Damerau-Levenshtein distance between two strings
-/// Extends Levenshtein by also allowing transpositions of adjacent characters
+/// Also allow transpositions of adjacent chars
 pub fn damerau_levenshtein_distance(s1: &str, s2: &str) -> usize {
     let s1_chars: Vec<char> = s1.chars().collect();
     let s2_chars: Vec<char> = s2.chars().collect();
@@ -111,7 +102,7 @@ pub fn damerau_levenshtein_distance(s1: &str, s2: &str) -> usize {
         return m;
     }
 
-    // Create a matrix for dynamic programming
+    // DP
     let mut d: Vec<Vec<usize>> = vec![vec![0; n + 1]; m + 1];
 
     for i in 0..=m {
@@ -129,9 +120,9 @@ pub fn damerau_levenshtein_distance(s1: &str, s2: &str) -> usize {
                 1
             };
 
-            d[i][j] = (d[i - 1][j] + 1) // deletion
-                .min(d[i][j - 1] + 1) // insertion
-                .min(d[i - 1][j - 1] + cost); // substitution
+            d[i][j] = (d[i - 1][j] + 1)
+                .min(d[i][j - 1] + 1)
+                .min(d[i - 1][j - 1] + cost);
 
             // Transposition
             if i > 1
@@ -147,7 +138,6 @@ pub fn damerau_levenshtein_distance(s1: &str, s2: &str) -> usize {
     d[m][n]
 }
 
-/// Convert Damerau-Levenshtein distance to a similarity score (0-100)
 pub fn damerau_levenshtein_similarity(s1: &str, s2: &str) -> u8 {
     let distance = damerau_levenshtein_distance(s1, s2);
     let max_len = s1.len().max(s2.len());
@@ -160,7 +150,6 @@ pub fn damerau_levenshtein_similarity(s1: &str, s2: &str) -> u8 {
     (similarity * 100.0).round() as u8
 }
 
-/// Calculate the Jaro similarity between two strings
 fn jaro_similarity(s1: &str, s2: &str) -> f64 {
     let s1_chars: Vec<char> = s1.chars().collect();
     let s2_chars: Vec<char> = s2.chars().collect();
@@ -181,7 +170,6 @@ fn jaro_similarity(s1: &str, s2: &str) -> f64 {
     let mut matches = 0;
     let mut transpositions = 0;
 
-    // Find matches
     for i in 0..m {
         let start = i.saturating_sub(match_distance);
         let end = (i + match_distance + 1).min(n);
@@ -223,11 +211,10 @@ fn jaro_similarity(s1: &str, s2: &str) -> f64 {
 }
 
 /// Calculate the Jaro-Winkler similarity between two strings
-/// Gives more favorable ratings to strings that match from the beginning
 pub fn jaro_winkler_similarity(s1: &str, s2: &str) -> u8 {
     let jaro = jaro_similarity(s1, s2);
 
-    // Calculate common prefix length (up to 4 characters)
+    // Common prefix length (up to 4 characters)
     let s1_chars: Vec<char> = s1.chars().collect();
     let s2_chars: Vec<char> = s2.chars().collect();
     let prefix_len = s1_chars
@@ -253,19 +240,16 @@ fn get_keyboard_layout() -> HashMap<char, (f64, f64)> {
         layout.insert(*c, (i as f64, 0.0));
     }
 
-    // Row 1
     let row1 = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
     for (i, c) in row1.iter().enumerate() {
         layout.insert(*c, (i as f64 + 0.25, 1.0));
     }
 
-    // Row 2
     let row2 = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'];
     for (i, c) in row2.iter().enumerate() {
         layout.insert(*c, (i as f64 + 0.5, 2.0));
     }
 
-    // Row 3
     let row3 = ['z', 'x', 'c', 'v', 'b', 'n', 'm'];
     for (i, c) in row3.iter().enumerate() {
         layout.insert(*c, (i as f64 + 0.75, 3.0));
@@ -284,12 +268,10 @@ fn char_keyboard_distance(c1: char, c2: char, layout: &HashMap<char, (f64, f64)>
 
     match (layout.get(&c1_lower), layout.get(&c2_lower)) {
         (Some((x1, y1)), Some((x2, y2))) => ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt(),
-        _ => 5.0, // Default distance for unknown characters
+        _ => 5.0, // Default distance for unknown chars
     }
 }
 
-/// Calculate keyboard-based similarity score
-/// Considers that typos often involve adjacent keys on the keyboard
 pub fn keyboard_distance_similarity(s1: &str, s2: &str) -> u8 {
     let layout = get_keyboard_layout();
     let s1_chars: Vec<char> = s1.chars().collect();
@@ -346,8 +328,6 @@ pub fn keyboard_distance_similarity(s1: &str, s2: &str) -> u8 {
     (final_similarity * 100.0).round().min(100.0) as u8
 }
 
-/// Calculate prefix similarity
-/// Important for detecting typosquats that share the same prefix
 pub fn prefix_similarity(s1: &str, s2: &str) -> u8 {
     let s1_chars: Vec<char> = s1.chars().collect();
     let s2_chars: Vec<char> = s2.chars().collect();
@@ -372,7 +352,6 @@ pub fn prefix_similarity(s1: &str, s2: &str) -> u8 {
     ((prefix_ratio + bonus) * 100.0).round().min(100.0) as u8
 }
 
-/// Calculate all similarity scores between two crate names
 pub fn calculate_all_scores(name1: &str, name2: &str) -> TyposquatScore {
     let levenshtein = levenshtein_similarity(name1, name2);
     let damerau_levenshtein = damerau_levenshtein_similarity(name1, name2);
@@ -399,18 +378,17 @@ pub fn calculate_all_scores(name1: &str, name2: &str) -> TyposquatScore {
 }
 
 /// Check if two names might be typosquats of each other
-/// Returns Some(score) if they're similar enough, None otherwise
+/// returns Some(score) if they're similar, None otherwise
 pub fn check_typosquat(name1: &str, name2: &str, min_combined_score: u8) -> Option<TyposquatScore> {
-    // Quick length check - if length difference is too great, skip expensive calculations
+    // if len difference is too great, skip expensive calculations
     let len_diff = (name1.len() as i32 - name2.len() as i32).abs();
     let max_len = name1.len().max(name2.len());
 
-    // If length difference is more than 30% of max length, probably not a typosquat
+    // If len difference is more than 30% of max len, probably not a typosquat
     if max_len > 0 && len_diff as f64 / max_len as f64 > 0.3 {
         return None;
     }
 
-    // Skip if names are identical
     if name1 == name2 {
         return None;
     }

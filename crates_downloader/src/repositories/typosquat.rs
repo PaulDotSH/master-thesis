@@ -6,7 +6,6 @@ use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use tracing::info;
 
-/// Insert a batch of typosquat results into the database
 pub async fn insert_typosquat_results(
     database: &Database,
     results: &[NewTyposquatResult],
@@ -26,7 +25,6 @@ pub async fn insert_typosquat_results(
     Ok(inserted)
 }
 
-/// Get all typosquat results with a combined score above a threshold
 pub async fn get_high_risk_typosquats(
     database: &Database,
     min_score: i16,
@@ -42,18 +40,6 @@ pub async fn get_high_risk_typosquats(
     Ok(results)
 }
 
-// pub async fn count_typosquat_results(database: &Database) -> Result<i64> {
-//     let mut conn = database.get_connection().await?;
-
-//     let count: i64 = typosquat_results::table
-//         .count()
-//         .get_result(&mut conn)
-//         .await?;
-
-//     Ok(count)
-// }
-
-/// Clear all typosquat results (useful for re-running analysis)
 pub async fn clear_typosquat_results(database: &Database) -> Result<usize> {
     let mut conn = database.get_connection().await?;
 

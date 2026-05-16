@@ -4,7 +4,6 @@ use tokio::process::Command;
 use tracing::{debug, info, warn};
 
 pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(String, u8)>, anyhow::Error> {
-    // Verify the directory exists before running cargo audit
     if !std::path::Path::new(crate_dir).exists() {
         anyhow::bail!("Crate directory '{}' does not exist", crate_dir);
     }
@@ -12,7 +11,7 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
     debug!("Running cargo audit for crate_dir: {}", crate_dir);
     
     // Run cargo-audit directly (not via `cargo audit`) because /usr/local/cargo is mounted
-    // as tmpfs in Docker, which hides the `cargo` binary. cargo-audit lives at /usr/local/bin.
+    // as tmpfs in Docker, which hides the `cargo` binary.
     // Use explicit --db path - advisory-db is at /advisory-db (outside cargo home to survive tmpfs)
     let output = Command::new("cargo-audit")
         .arg("audit")
@@ -39,11 +38,10 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
                      exit_code, stderr, stdout);
     }
 
-    // Using sonic_rs for speed
+    // Using sonic_rs for speed, cargo audit is already a bottleneck
     let stdout = String::from_utf8(output.stdout)
         .context(format!("Failed to parse cargo audit output as UTF-8 for '{}'", crate_dir))?;
     
-    // Trim whitespace and check if output is empty/whitespace-only
     let stdout = stdout.trim();
     if stdout.is_empty() {
         warn!("cargo audit returned empty or whitespace-only stdout for crate_dir: {}", crate_dir);
@@ -65,7 +63,6 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
         while !list[i].is_null() {
             let vuln = &list[i];
             
-            // Get the advisory ID
             if vuln["advisory"]["id"].is_str() {
                 let id = vuln["advisory"]["id"].as_str().unwrap();
                 // Remove "RUSTSEC-" prefix
@@ -92,8 +89,6 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
 
 /// Parse CVSS base score from a CVSS vector string
 fn parse_cvss_base_score(cvss_str: &str) -> u8 {
-    // TODO: Change to cvssrust
-    
     let metrics: std::collections::HashMap<&str, &str> = cvss_str
         .split('/')
         .skip(1) // Skip the "CVSS:3.1" part
@@ -106,19 +101,19 @@ fn parse_cvss_base_score(cvss_str: &str) -> u8 {
     let confidentiality = match metrics.get("C") {
         Some(&"H") => 0.56,
         Some(&"L") => 0.22,
-        _ => 0.0, // None
+        _ => 0.0,
     };
     
     let integrity = match metrics.get("I") {
         Some(&"H") => 0.56,
         Some(&"L") => 0.22,
-        _ => 0.0, // None
+        _ => 0.0,
     };
     
     let availability = match metrics.get("A") {
         Some(&"H") => 0.56,
         Some(&"L") => 0.22,
-        _ => 0.0, // None
+        _ => 0.0,
     };
     
     let scope_changed = matches!(metrics.get("S"), Some(&"C"));

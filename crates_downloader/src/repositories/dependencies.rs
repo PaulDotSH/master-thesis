@@ -39,7 +39,6 @@ pub async fn insert_dependencies(
                     return None;
                 }
 
-                // Check that the dependency crate exists
                 if !existing_crate_ids.contains(&record.crate_id) {
                     skipped_missing_dependency += 1;
                     return None;
@@ -120,8 +119,8 @@ pub async fn get_dependencies_for_crate(db: &Database, crate_id: i64) -> Result<
     Ok(dependencies)
 }
 
-/// Batch fetch dependencies for multiple crates at once
-/// Returns a HashMap mapping crate_id -> Vec<dependency_id>
+/// Batch dependencies for multiple crates
+/// crate_id -> Vec<dependency_id>
 pub async fn get_dependencies_for_crates(db: &Database, crate_ids: &[i64]) -> Result<std::collections::HashMap<i64, Vec<i64>>, anyhow::Error> {
     use std::collections::HashMap;
     
@@ -173,7 +172,6 @@ pub async fn insert_dependencies_for_crate(
         return Ok(());
     }
 
-    // Insert in chunks to avoid "error encoding message to server" for crates with many dependencies
     const CHUNK_SIZE: usize = 1000;
     
     for chunk in dependency_ids.chunks(CHUNK_SIZE) {
@@ -199,7 +197,6 @@ pub async fn insert_dependencies_for_crate(
     Ok(())
 }
 
-/// Collect all transitive dependencies starting from a set of root crates.
 /// This recursively finds all dependencies of dependencies until no new crates are found.
 /// Returns all crate IDs that need to be processed (roots + all transitive deps).
 pub async fn collect_transitive_dependencies(
@@ -218,7 +215,6 @@ pub async fn collect_transitive_dependencies(
         info!("Collecting transitive dependencies - iteration {}, exploring {} crates, total so far: {}", 
               iteration, to_explore.len(), all_crate_ids.len());
         
-        // Fetch dependencies for all crates we're exploring
         let deps = get_dependencies_for_crates(db, &to_explore).await?;
         
         // Find new crates we haven't seen yet
@@ -227,13 +223,12 @@ pub async fn collect_transitive_dependencies(
             all_dependencies.insert(crate_id, dep_ids.clone());
             for dep_id in dep_ids {
                 if all_crate_ids.insert(dep_id) {
-                    // This is a new crate we haven't seen
                     new_crates.push(dep_id);
                 }
             }
         }
         
-        // Next iteration, explore the newly discovered crates
+        // Next iteration
         to_explore = new_crates;
     }
     
