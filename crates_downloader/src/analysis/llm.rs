@@ -200,7 +200,7 @@ fn create_analysis_batches(crate_info: &Crate, files: &[(String, String)], max_c
             // Split the large file into chunks
             let chunk_size = max_content - base_size - 200; // Leave room for headers
             let content_chars: Vec<char> = file_content.chars().collect();
-            let total_chunks = (content_chars.len() + chunk_size - 1) / chunk_size;
+            let total_chunks = content_chars.len().div_ceil(chunk_size);
             
             for (chunk_idx, chunk) in content_chars.chunks(chunk_size).enumerate() {
                 let chunk_content: String = chunk.iter().collect();

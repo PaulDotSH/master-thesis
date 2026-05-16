@@ -18,6 +18,7 @@ SELECT
     STRING_AGG(DISTINCT gl.rule_id, ', ' ORDER BY gl.rule_id) AS secret_types
 FROM crates c
 INNER JOIN gitleaks_results gl ON c.id = gl.crate
+WHERE gl.loc !~* '(example|test)'
 GROUP BY c.id, c.name, c.crate_downloads
 ORDER BY secrets_count DESC
 LIMIT 30;
@@ -30,9 +31,9 @@ SELECT
     ROUND(AVG(gl.entropy)::numeric, 2) AS avg_entropy,
     ROUND((COUNT(*)::numeric / SUM(COUNT(*)) OVER ()) * 100, 1) AS pct_of_all_secrets
 FROM gitleaks_results gl
+WHERE gl.loc !~* '(example|test)'
 GROUP BY gl.rule_id
-ORDER BY occurrence_count DESC
-LIMIT 30;
+ORDER BY occurrence_count DESC;
 
 -- PART C: Overall gitleaks summary statistics
 SELECT 
@@ -43,7 +44,8 @@ SELECT
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY entropy) AS median_entropy,
     PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY entropy) AS p95_entropy,
     MAX(entropy) AS max_entropy
-FROM gitleaks_results;
+FROM gitleaks_results
+WHERE loc !~* '(example|test)';
 
 -- PART D: Crates with BOTH secrets leaked AND cargo-audit vulnerabilities
 SELECT 
@@ -57,6 +59,7 @@ SELECT
 FROM crates c
 INNER JOIN gitleaks_results gl ON c.id = gl.crate
 INNER JOIN cargo_audit_results car ON c.id = car.crate
+WHERE gl.loc !~* '(example|test)'
 GROUP BY c.id, c.name, c.crate_downloads
 ORDER BY secrets_count DESC, vuln_count DESC
 LIMIT 30;

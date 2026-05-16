@@ -9,7 +9,7 @@ use std::collections::{HashMap, HashSet};
 
 pub async fn insert_dependencies(
     db: &Database,
-    dependencies: &Vec<DependencyRecord>,
+    dependencies: &[DependencyRecord],
     version_to_crate: &HashMap<i32, i32>,
     existing_crate_ids: &HashSet<i32>,
     config: &Config,
@@ -140,7 +140,7 @@ pub async fn get_dependencies_for_crates(db: &Database, crate_ids: &[i64]) -> Re
     let mut deps_map: HashMap<i64, Vec<i64>> = HashMap::new();
     for dep in dependencies_list {
         deps_map.entry(dep.crate_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(dep.dependency_id);
     }
     
@@ -167,7 +167,7 @@ pub async fn bulk_delete_dependencies_for_crates(
 pub async fn insert_dependencies_for_crate(
     db: &Database,
     crate_id: i64,
-    dependency_ids: &Vec<i64>,
+    dependency_ids: &[i64],
 ) -> Result<(), anyhow::Error> {
     if dependency_ids.is_empty() {
         return Ok(());

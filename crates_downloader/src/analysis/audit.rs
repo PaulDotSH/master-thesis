@@ -54,7 +54,7 @@ pub async fn run_cargo_audit(crate_dir: &str, _crate_id: i64) -> Result<Vec<(Str
         return Ok(Vec::new());
     }
 
-    let json: sonic_rs::Value = sonic_rs::from_str(&stdout)
+    let json: sonic_rs::Value = sonic_rs::from_str(stdout)
         .context(format!("Failed to parse cargo audit JSON output for '{}'", crate_dir))?;
     
     let mut vulnerabilities = Vec::new();

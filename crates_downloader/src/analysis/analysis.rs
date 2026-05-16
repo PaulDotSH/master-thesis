@@ -4,7 +4,7 @@ use chrono::Utc;
 use std::time::Instant;
 use tokio::fs::{create_dir_all, remove_dir_all};
 use tokio::io::AsyncReadExt;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 use crate::{
     analysis::{
@@ -17,7 +17,6 @@ use crate::{
     database::Database,
     models::Crate,
     repositories::{
-        crates::{get_all_crates, get_top_download_crates},
         download::download_repo,
         scan_results::get_crate_ids_needing_analysis,
     },
@@ -155,99 +154,12 @@ async fn dir_size(path: &std::path::Path) -> u64 {
     size
 }
 
-/// Clean up stale temp directories from previous runs/crashes
-///
-/// This removes any leftover directories in /tmp/crates that may have been
-/// abandoned due to worker crashes or unexpected termination.
-pub async fn cleanup_temp_directories() -> Result<(), anyhow::Error> {
-    let temp_dir = std::path::Path::new("/tmp/crates");
-    
-    if !temp_dir.exists() {
-        return Ok(());
-    }
-    
-    let mut cleaned = 0;
-    let entries = match std::fs::read_dir(temp_dir) {
-        Ok(entries) => entries,
-        Err(e) => {
-            warn!("Failed to read /tmp/crates directory: {:?}", e);
-            return Ok(());
-        }
-    };
-    
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            if let Err(e) = remove_dir_all(&path).await {
-                warn!("Failed to remove stale temp directory {:?}: {:?}", path, e);
-            } else {
-                cleaned += 1;
-            }
-        }
-    }
-    
-    if cleaned > 0 {
-        info!("Cleaned up {} stale temp directories from /tmp/crates", cleaned);
-    }
-    
-    Ok(())
-}
-
-/// OLD: Direct analysis without queue (single-process)
-/// This is kept for backwards compatibility but the Redis queue architecture is recommended
-#[allow(dead_code)]
-pub async fn analyze_crates(database: &Database, config: &Config) -> Result<(), anyhow::Error> {
-    info!("Analyzing crates (OLD: direct mode, consider using Redis queue)");
-    let all_crates = if config.use_only_first_x_crates > 0 {
-        get_top_download_crates(database, config.use_only_first_x_crates as i64)
-            .await
-            .context("Failed to get top download crates")?
-    } else {
-        get_all_crates(database)
-            .await
-            .context("Failed to get all crates")?
-    };
-    
-    info!("Checking which crates need analyzing...");
-    // Batch check which crates need analyzing (single query instead of N queries!)
-    let crate_ids_needing_analysis = get_crate_ids_needing_analysis(database, &all_crates)
-        .await
-        .context("Failed to get crate IDs needing analysis")?;
-    
-    let crates_to_analyze: Vec<Crate> = all_crates
-        .into_iter()
-        .filter(|c| crate_ids_needing_analysis.contains(&c.id))
-        .collect();
-    
-    let total_crates = crates_to_analyze.len();
-    info!("Found {} crates to analyze", total_crates);
-
-    for (index, c) in crates_to_analyze.iter().enumerate() {
-        if let Err(e) = analyze_crate(c, database, config).await {
-            error!("Failed to analyze crate '{}' (id: {}): {:?}", c.name, c.id, e);
-            // Continue with next crate instead of failing entire analysis
-        }
-        
-        // Print progress every 100 crates
-        let processed = index + 1;
-        if processed % 100 == 0 || processed == total_crates {
-            let remaining = total_crates - processed;
-            let percentage = (processed as f64 / total_crates as f64) * 100.0;
-            info!("Progress: {}/{} crates analyzed ({:.1}% complete, {} remaining)", 
-                  processed, total_crates, percentage, remaining);
-        }
-    }
-
-    info!("✓ Completed analysis of all {} crates!", total_crates);
-    Ok(())
-}
-
 /// Analyzes a single crate independently (no dependency traversal)
 /// This is designed for distributed worker architecture where each crate is analyzed separately
 /// Dependencies will be analyzed by other workers or in separate queue items
 pub async fn analyze_crate(c: &Crate, database: &Database, config: &Config) -> Result<(), anyhow::Error> {
     // Check if this crate needs analysis
-    let needs_analysis = get_crate_ids_needing_analysis(database, &[c.clone()])
+    let needs_analysis = get_crate_ids_needing_analysis(database, std::slice::from_ref(c))
         .await
         .context(format!("Failed to check if crate '{}' needs analysis", c.name))?;
     
@@ -532,11 +444,9 @@ async fn check_executable_files(crate_dir: &str, crate_id: i64) -> Result<bool, 
             // Also check for shebang scripts that might be executable
             if bytes_read >= 2 && header.starts_with(&[0x23, 0x21]) {
                 // Check if file has execute permission
-                if let Ok(metadata) = fs::metadata(path).await {
-                    if metadata.permissions().mode() & 0o111 != 0 {
+                if let Ok(metadata) = fs::metadata(path).await  && metadata.permissions().mode() & 0o111 != 0 {
                         debug!("Found executable script in crate {}: {}", crate_id, path_str);
                         // Scripts with shebang are less suspicious, only flag actual binaries
-                    }
                 }
             }
         }

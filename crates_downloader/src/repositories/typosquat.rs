@@ -26,22 +26,6 @@ pub async fn insert_typosquat_results(
     Ok(inserted)
 }
 
-/// Get all typosquat results for a specific crate
-pub async fn get_typosquats_for_crate(
-    database: &Database,
-    crate_id: i64,
-) -> Result<Vec<TyposquatResult>> {
-    let mut conn = database.get_connection().await?;
-
-    let results = typosquat_results::table
-        .filter(typosquat_results::crate_id.eq(crate_id))
-        .order(typosquat_results::combined_score.desc())
-        .load::<TyposquatResult>(&mut conn)
-        .await?;
-
-    Ok(results)
-}
-
 /// Get all typosquat results with a combined score above a threshold
 pub async fn get_high_risk_typosquats(
     database: &Database,
@@ -58,17 +42,16 @@ pub async fn get_high_risk_typosquats(
     Ok(results)
 }
 
-/// Count total typosquat results in database
-pub async fn count_typosquat_results(database: &Database) -> Result<i64> {
-    let mut conn = database.get_connection().await?;
+// pub async fn count_typosquat_results(database: &Database) -> Result<i64> {
+//     let mut conn = database.get_connection().await?;
 
-    let count: i64 = typosquat_results::table
-        .count()
-        .get_result(&mut conn)
-        .await?;
+//     let count: i64 = typosquat_results::table
+//         .count()
+//         .get_result(&mut conn)
+//         .await?;
 
-    Ok(count)
-}
+//     Ok(count)
+// }
 
 /// Clear all typosquat results (useful for re-running analysis)
 pub async fn clear_typosquat_results(database: &Database) -> Result<usize> {

@@ -167,7 +167,7 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
 ================================================================================
 
 [SQL] Running 04_secrets_leaked.sql ...
-       -> 91 rows returned
+       -> 118 rows returned
 
 
 ================================================================================
@@ -176,114 +176,141 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
        avg_entropy     crate_downloads          crate_name         max_entropy        secret_types       secrets_count
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
               3.78                5384              xoofff           3.9387944     generic-api-key              187640
-              3.73               38406             kitoken              4.5625     generic-api-key               49536
-              4.73              150325  aurora-engine-transact           5.5841837     generic-api-key               35815
-              4.73              149240  aurora-engine-precompi           5.5841837     generic-api-key               35815
-              4.73             5779091  aurora-engine-modexp           5.5841837     generic-api-key               35815
-              4.73              157050  aurora-engine-types           5.5841837     generic-api-key               35815
-              4.73              153613   aurora-engine-sdk           5.5841837     generic-api-key               35815
-              3.82              436192  fuel-core-services            3.977217  coinbase-access-token,               29434
-              3.82              115741      fuel-core-sync            3.977217  coinbase-access-token,               29434
-              3.82               88186    fuel-core-keygen            3.977217  coinbase-access-token,               29434
-              3.82              264767  fuel-core-producer            3.977217  coinbase-access-token,               29434
-              3.82              263780  fuel-core-importer            3.977217  coinbase-access-token,               29434
-              3.82              509680    fuel-core-client            3.977217  coinbase-access-token,               29434
-              3.82              681290     fuel-core-types            3.977217  coinbase-access-token,               29434
-              3.82              118981  fuel-block-producer            3.977217  coinbase-access-token,               29434
-              3.82              206322       fuel-core-bft            3.977217  coinbase-access-token,               29434
-              3.82              429291       fuel-core-poa            3.977217  coinbase-access-token,               29434
-              3.82              149994         fuel-txpool            3.977217  coinbase-access-token,               29434
-              3.82              118612           fuel-sync            3.977217  coinbase-access-token,               29434
-              3.82               48808        fuel-relayer            3.977217  coinbase-access-token,               29434
-              3.82              118856  fuel-block-executor            3.977217  coinbase-access-token,               29434
-              3.82              118639  fuel-block-importer            3.977217  coinbase-access-token,               29434
-              3.82              549172  fuel-core-chain-config            3.977217  coinbase-access-token,               29434
-              3.82               91501   fuel-chain-config            3.977217  coinbase-access-token,               29434
-              3.82               92163  fuel-poa-coordinator            3.977217  coinbase-access-token,               29434
-              3.82               77053        fuel-metrics            3.977217  coinbase-access-token,               29434
-              3.82              416121           fuel-core            3.977217  coinbase-access-token,               29434
-              3.82              208039     fuel-gql-client            3.977217  coinbase-access-token,               29434
-              3.82              264412  fuel-core-executor            3.977217  coinbase-access-token,               29434
-              3.82              171471  fuel-core-interfaces            3.977217  coinbase-access-token,               29434
+              3.90                9658  beacon-metrics-gazer            4.028269     generic-api-key               20487
+              3.88                 153   tnt-core-fixtures            4.189238     generic-api-key                8936
+              3.88                4316   tnt-core-bindings            4.189238     generic-api-key                8936
+              4.77               13460          mpl-trifle           4.7715983     generic-api-key                5541
+              3.59                8465      thesaurus-moby            4.087463     generic-api-key                4609
+              3.59               10059   thesaurus-wordnet            4.087463     generic-api-key                4609
+              3.59               25163           thesaurus            4.087463     generic-api-key                4609
+              3.80                2594             scytale            3.973729     generic-api-key                4105
+              3.82               52569            tari_mmr           3.9510517     generic-api-key                2889
+              3.82               22291    tari_key_manager           3.9510517     generic-api-key                2889
+              3.82               22359        tari_storage           3.9510517     generic-api-key                2889
+              3.82               18312           tari_core           3.9510517     generic-api-key                2889
+              3.82                4713      tari_base_node           3.9510517     generic-api-key                2889
+              3.82                4273         tari_mining           3.9510517     generic-api-key                2889
+              3.82                3886  tari_protobuf_build           3.9510517     generic-api-key                2889
+              3.82               17153  tari_service_framework           3.9510517     generic-api-key                2889
+              3.82                1643  tari_comms_middleware           3.9510517     generic-api-key                2889
+              3.82                3011   tari_transactions           3.9510517     generic-api-key                2889
+              3.82                7297  tari_comms_rpc_macros           3.9510517     generic-api-key                2889
+              3.82               29784     tari_test_utils           3.9510517     generic-api-key                2889
+              3.82               21901          tari_comms           3.9510517     generic-api-key                2889
+              3.82               21104       tari_shutdown           3.9510517     generic-api-key                2889
+              3.82               11626   tari_infra_derive           3.9510517     generic-api-key                2889
+              3.82              337534         tari_crypto           3.9510517     generic-api-key                2889
+              3.82               27942         tari_common           3.9510517     generic-api-key                2889
+              3.82                9184   tari_common_types           3.9510517     generic-api-key                2889
+              3.82                1921  merklemountainrange           3.9510517     generic-api-key                2889
+              3.82               15681            tari_p2p           3.9510517     generic-api-key                2889
+              3.82              377390      tari_utilities           3.9510517     generic-api-key                2889
 
 ================================================================================
   04 Secrets Leaked  [Part 2/4]
 ================================================================================
    affected_crates         avg_entropy    occurrence_count  pct_of_all_secrets         secret_type
 ------------------  ------------------  ------------------  ------------------  ------------------
-             19509                3.93             3290236                98.5     generic-api-key
-              4067                4.20               19864                 0.6         private-key
-              2191                3.34               12445                 0.4    curl-auth-header
-              1081                5.37                2893                 0.1                 jwt
-               469                3.81                2877                 0.1    aws-access-token
-               560                3.31                2203                 0.1      curl-auth-user
-               626                5.01                1917                 0.1          github-pat
-               764                4.20                1613                 0.0  stripe-access-token
-               441                4.79                1303                 0.0         gcp-api-key
-                51                5.22                 839                 0.0     grafana-api-key
-               142                4.44                 432                 0.0   slack-webhook-url
-               129                3.94                 283                 0.0  kubernetes-secret-yaml
-                41                3.12                 240                 0.0          jwt-base64
-                40                4.71                 239                 0.0      age-secret-key
-                31                3.42                 225                 0.0  square-access-token
-                91                4.82                 165                 0.0  vault-service-token
-                26                3.21                 155                 0.0   discord-client-id
-                50                3.54                 139                 0.0     algolia-api-key
-                78                4.18                 131                 0.0          gitlab-pat
-                57                0.36                 106                 0.0  coinbase-access-token
-                84                5.47                  84                 0.0  github-fine-grained-pa
-                37                4.96                  64                 0.0    github-app-token
-                43                4.79                  60                 0.0        github-oauth
-                14                3.89                  58                 0.0  facebook-page-access-t
+             16387                3.87              845625                95.8     generic-api-key
+              3646                4.18               18168                 2.1         private-key
+              1849                3.34                9631                 1.1    curl-auth-header
+               917                5.32                1885                 0.2                 jwt
+               561                5.02                1512                 0.2          github-pat
+               468                3.64                1385                 0.2      curl-auth-user
+               412                4.80                1136                 0.1         gcp-api-key
+               438                3.80                1094                 0.1    aws-access-token
+               511                4.46                 923                 0.1  stripe-access-token
+               111                3.90                 261                 0.0  kubernetes-secret-yaml
+                23                3.21                 134                 0.0   discord-client-id
+                19                3.68                 133                 0.0  square-access-token
+                28                4.83                 120                 0.0      age-secret-key
+                65                4.18                 112                 0.0          gitlab-pat
+                79                4.37                  86                 0.0  vault-service-token
+                66                3.52                  81                 0.0   slack-webhook-url
+                33                4.98                  56                 0.0    github-app-token
                 55                3.20                  55                 0.0      twilio-api-key
-                37                4.84                  55                 0.0     slack-bot-token
-                52                3.57                  52                 0.0  datadog-access-token
-                48                5.32                  52                 0.0   pypi-upload-token
-                19                4.19                  38                 0.0  twitter-access-secret
+                51                3.57                  51                 0.0  datadog-access-token
+                48                5.32                  51                 0.0   pypi-upload-token
+                48                3.55                  49                 0.0     algolia-api-key
+                35                4.99                  44                 0.0        github-oauth
+                29                4.83                  42                 0.0     slack-bot-token
                 19                3.49                  38                 0.0  atlassian-api-token
+                19                4.19                  38                 0.0  twitter-access-secret
+                 6                3.88                  37                 0.0  facebook-page-access-t
+                25                4.87                  31                 0.0    npm-access-token
+                17                5.02                  17                 0.0  github-refresh-token
+                16                5.30                  16                 0.0  github-fine-grained-pa
+                16                3.78                  16                 0.0    pulumi-api-token
+                 1                4.42                  15                 0.0  gitlab-runner-authenti
+                 1                2.71                  15                 0.0     asana-client-id
+                 7                3.89                  11                 0.0   discord-api-token
+                11                3.98                  11                 0.0  cloudflare-api-key
+                 6                5.16                  11                 0.0  sendgrid-api-token
+                 6                3.78                   7                 0.0  coinbase-access-token
+                 2                3.10                   6                 0.0          jwt-base64
+                 6                3.15                   6                 0.0  linkedin-client-id
+                 5                5.23                   5                 0.0  easypost-api-token
+                 4                4.98                   4                 0.0  openshift-user-token
+                 2                1.50                   4                 0.0  substrate-seed-phrase
+                 1                4.48                   3                 0.0  huggingface-access-tok
+                 3                3.67                   3                 0.0  flickr-access-token
+                 1                0.00                   2                 0.0      docs-allowlist
+                 2                3.77                   2                 0.0   dropbox-api-token
+                 2                3.16                   2                 0.0  linkedin-client-secret
+                 2                4.95                   2                 0.0  azure-ad-client-secret
+                 1                5.27                   2                 0.0      openai-api-key
+                 1                4.32                   1                 0.0          gitlab-rrt
+                 1                5.24                   1                 0.0     grafana-api-key
+                 1                4.32                   1                 0.0    cohere-api-token
+                 1                4.02                   1                 0.0  gitlab-oauth-app-secre
+                 1                3.58                   1                 0.0      heroku-api-key
+                 1                3.35                   1                 0.0     slack-app-token
+                 1                3.93                   1                 0.0  nytimes-access-token
+                 1                2.92                   1                 0.0  hashicorp-tf-password
+                 1                4.42                   1                 0.0  alibaba-access-key-id
 
 ================================================================================
   04 Secrets Leaked  [Part 3/4]
 ================================================================================
        avg_entropy  crates_with_secret         max_entropy      median_entropy         p95_entropy  total_secrets_foun  unique_secret_type
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-              3.93               22165           5.9137626           3.8360364           4.8342094             3339139                  66
+              3.87               18567           5.9137626           3.8078642           4.8342094              882947                  57
 
 ================================================================================
   04 Secrets Leaked  [Part 4/4]
 ================================================================================
    crate_downloads          crate_name   max_vuln_severity        secret_types       secrets_count     vuln_advisories          vuln_count
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-           5779091  aurora-engine-modexp                   0     generic-api-key               35815  RUSTSEC-2026-0009, RUS                   3
-            149240  aurora-engine-precompi                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
-            153613   aurora-engine-sdk                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
-            150325  aurora-engine-transact                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
-            157050  aurora-engine-types                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
-            206322       fuel-core-bft                   0  coinbase-access-token,               29434  RUSTSEC-2026-0114, RUS                   2
               9658  beacon-metrics-gazer                   0     generic-api-key               20487  RUSTSEC-2023-0034, RUS                  11
-                58     libcrux-ml-tkem                  59     generic-api-key               12759  RUSTSEC-2023-0071, RUS                  10
-             27226      libcrux-ml-dsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            495571        libcrux-p256                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-              3916         libcrux-psq                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            128639     libcrux-ed25519                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-           1125128     libcrux-secrets                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            528979         core-models                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            212839      libcrux-aesgcm                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            442127        libcrux-hkdf                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-             45913             libcrux                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            381258         libcrux-kem                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-              3177      libcrux-blake2                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-           1384433  libcrux-intrinsics                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            425169        libcrux-ecdh                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-           1231011      libcrux-ml-kem                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-           1141073      libcrux-traits                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            408927  libcrux-curve25519                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-           1399426        libcrux-sha3                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            604697        libcrux-sha2                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            477403        libcrux-hmac                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-            415228  libcrux-chacha20poly13                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-              4034       libcrux-ecdsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
-              3524         libcrux-rsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+             13460          mpl-trifle                  75     generic-api-key                5541  RUSTSEC-2020-0071, RUS                  19
+              1536            cometbls                  75  generic-api-key, jwt                1243  RUSTSEC-2023-0071, RUS                  14
+              1608           unionlabs                  75  generic-api-key, jwt                1243  RUSTSEC-2023-0071, RUS                  14
+             25587           safe-memo                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+             28245  safe-associated-token-                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+             15261     safe-token-2022                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+              2759     safe-token-swap                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+              1588  safe-feature-proposal                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+             33501          safe-token                  75     generic-api-key                1079  RUSTSEC-2020-0071, RUS                  32
+              1615             gitconf                  62     generic-api-key                1078  RUSTSEC-2020-0071, RUS                   3
+              6268  solarti-concurrent-mer                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              6292        solarti-math                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              2608  solarti-stake-pool-cli                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              3275  solarti-token-upgrade                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              6554  solarti-merkle-tree-re                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              1583  solarti-managed-token                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              6111  solarti-feature-propos                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+             47077  solarti-associated-tok                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              2693  solarti-name-service                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              1532  solarti-binary-oracle-                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              7781  solarti-feature-propos                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+             53430        solarti-memo                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              2732      solarti-record                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+             51157       solarti-token                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              3128  solarti-stake-pool                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+             52590  solarti-token-2022                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              9227  solarti-token-client                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              1423  solarti-token-upgrade-                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
+              2618  solarti-token-swap                   0     generic-api-key                 961  RUSTSEC-2022-0093, RUS                  17
 ================================================================================
 
 [SQL] Running 05_build_rs_suspicious.sql ...
@@ -320,9 +347,9 @@ build_rs_entropy_s  build_rs_has_free_  build_rs_has_link_  build_rs_has_proce  
          5.1933055                   f                   t                   t                   f                   t                  20            flora_v8                   f                   3
          5.1917353                   f                   t                   t                   f                   t               85677            v8-goose                   f                   3
          5.1848555                   f                   t                   t                   f                   t                4961        libtirpc-sys                   f                   3
+         5.1787343                   f                   t                   t                   f                   t            22004086                  v8                   f                   3
          5.1787343                   f                   t                   t                   f                   t              638333            rusty_v8                   f                   3
          5.1787343                   f                   t                   t                   f                   t               12478   rusty_v8_protryon                   f                   3
-         5.1787343                   f                   t                   t                   f                   t            22004086                  v8                   f                   3
          5.1734047                   f                   t                   t                   f                   t                 897      openworkers-v8                   f                   3
           5.156193                   f                   t                   t                   f                   t                3953  libphonenumber-sys                   f                   3
          5.1418653                   f                   t                   t                   f                   t                 211            raysense                   f                   3
@@ -647,9 +674,9 @@ RUSTSEC-2019-0003, RUS           320029170         prost-types                16
 ------------------  ------------------  ------------------  ------------------  ------------------
               3832       Last 6 months               61319                31.0               18991
              53340   6 months - 1 year               24797                29.0                7191
-            127857           1-2 years               38926                27.4               10669
-            611964           2-5 years               83187                25.3               21086
-           4270089            5+ years               56521                26.2               14836
+            127867           1-2 years               38923                27.4               10669
+            611950           2-5 years               83189                25.3               21086
+           4270014            5+ years               56522                26.2               14836
 
 ================================================================================
   09 Temporal Analysis  [Part 3/3]
@@ -658,8 +685,8 @@ avg_vulns_per_crat         crate_count   download_velocity      pct_vulnerable  
 ------------------  ------------------  ------------------  ------------------  ------------------
               1.25                6617  High velocity (>=1k/d)                25.2                1666
               2.54               10970  Medium velocity (100-1                31.3                3437
-              2.29               49759  Low velocity (10-100/d                32.1               15987
-              1.69              197404  Very low velocity (<10                26.2               51683
+              2.29               49757  Low velocity (10-100/d                32.1               15986
+              1.69              197406  Very low velocity (<10                26.2               51684
 ================================================================================
 
 [SQL] Running 10_ecosystem_overview.sql ...
@@ -784,8 +811,11 @@ build_rs_has_free_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c  
 [PLOT] 11_crate_age_vs_vulns.png
 [PLOT] 12_executables_by_downloads.png
 [PLOT] 13_analysis_timing.png
-[PLOT] 14_compound_risk_bubble.png
+[PLOT] 19_secrets_vs_vulns_overlap.png
 [PLOT] 15_download_velocity.png
+[PLOT] 16_dependency_distribution.png
+[PLOT] 17_build_rs_entropy.png
+[PLOT] 18_vulns_by_download_bracket.png
 
 ================================================================================
   ANALYSIS COMPLETE

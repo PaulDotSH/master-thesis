@@ -349,12 +349,11 @@ async fn main() {
                 };
                 
                 info!("Worker picked up crate ID: {}", crate_id);
+
+                // Isn't unused, is used for shutdown
                 current_crate_id = Some(crate_id);
                 
-                // Analyze the crate
                 let analysis_result = analysis::analysis::analyze_crate_by_id(crate_id, &database, &config).await;
-                
-                // Clear current crate tracking - analysis is complete
                 current_crate_id = None;
                 
                 match analysis_result {
@@ -374,10 +373,8 @@ async fn main() {
                 }
                 
                 // Log progress periodically
-                if let Ok(stats) = queue.get_stats().await {
-                    if stats.completed % 10 == 0 || stats.ready < 10 {
+                if let Ok(stats) = queue.get_stats().await && (stats.completed % 10 == 0 || stats.ready < 10) {
                         info!("{}", stats);
-                    }
                 }
 
                 // Cleanup caches every N crates to prevent disk exhaustion
@@ -548,7 +545,8 @@ async fn main() {
             // Get the crate from database by name
             let target_crate = repositories::crates::get_crate_by_name(&database, &name)
                 .await
-                .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
+                .unwrap_or_else(|_| panic!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
+                // .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
             
             info!("Found crate '{}' (id: {})", target_crate.name, target_crate.id);
             
@@ -574,7 +572,7 @@ async fn main() {
                 .collect();
             
             // Sort by downloads (analyze most popular first for better coverage)
-            dependency_crates.sort_by(|a, b| b.crate_downloads.cmp(&a.crate_downloads));
+            dependency_crates.sort_by_key(|b| std::cmp::Reverse(b.crate_downloads));
             
             let total_deps = dependency_crates.len();
             info!("Analyzing {} dependencies first...", total_deps);
@@ -607,7 +605,8 @@ async fn main() {
             // Get the crate from database by name
             let target_crate = repositories::crates::get_crate_by_name(&database, &name)
                 .await
-                .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
+                .unwrap_or_else(|_| panic!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
+                // .expect(&format!("Failed to find crate '{}' in database. Make sure to run update-database first.", name));
             
             info!("Found crate '{}' (id: {})", target_crate.name, target_crate.id);
             
@@ -752,7 +751,7 @@ async fn main() {
                 .par_iter()
                 .flat_map(|crate_a| {
                     let current = processed.fetch_add(1, Ordering::Relaxed) + 1;
-                    if current % 10000 == 0 {
+                    if current.is_multiple_of(10000) {
                         let found_so_far = AtomicUsize::load(&total_found_atomic, Ordering::Relaxed);
                         println!("Progress: {}/{} crates processed, ~{} typosquats found", 
                                  current, total_comparisons, found_so_far);
@@ -801,7 +800,7 @@ async fn main() {
 
             // Insert results in batches
             for batch in all_results.chunks(BATCH_SIZE) {
-                let inserted = repositories::typosquat::insert_typosquat_results(&database, &batch.to_vec())
+                let inserted = repositories::typosquat::insert_typosquat_results(&database, batch)
                     .await
                     .expect("Failed to insert typosquat results");
                 info!("Inserted {} typosquat results", inserted);

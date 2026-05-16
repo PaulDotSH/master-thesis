@@ -8,7 +8,7 @@ use diesel_async::RunQueryDsl;
 
 pub async fn insert_crates(
     db: &Database,
-    crates: &Vec<CrateRecord>,
+    crates: &[CrateRecord],
     config: &Config,
 ) -> Result<(), anyhow::Error> {
     for chunk in crates.chunks(config.insert_crates_in_chunks) {
@@ -58,7 +58,7 @@ pub async fn insert_crates(
 
 pub async fn insert_crates_downloads(
     db: &Database,
-    crates_downloads: &Vec<CrateDownloadRecord>,
+    crates_downloads: &[CrateDownloadRecord],
     config: &Config,
 ) -> Result<(), anyhow::Error> {
     for chunk in crates_downloads.chunks(config.insert_crates_in_chunks) {

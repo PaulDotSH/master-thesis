@@ -317,10 +317,7 @@ pub fn keyboard_distance_similarity(s1: &str, s2: &str) -> u8 {
         let max_possible_distance = max_len as f64 * 5.0;
         let char_similarity = 1.0 - (total_distance / max_possible_distance);
 
-        return ((char_similarity * 0.7 + len_similarity * 0.3) * 100.0)
-            .round()
-            .max(0.0)
-            .min(100.0) as u8;
+        return ((char_similarity * 0.7 + len_similarity * 0.3) * 100.0).round().clamp(0.0, 100.0) as u8;
     }
 
     // Same length - compare character by character

@@ -119,7 +119,7 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
         if let Some(&crate_id) = version_to_crate.get(&dep.version_id) {
             crate_dependencies
                 .entry(crate_id)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(dep.crate_id);
         }
     }
@@ -252,7 +252,7 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
             debug!(
                 "  Updating chunk {}/{} ({} crates)",
                 i + 1,
-                (updates_batch.len() + 4999) / 5000,
+                updates_batch.len().div_ceil(5000),
                 chunk.len()
             );
             crates_repo::batch_update_crates(db, chunk).await?;
@@ -287,7 +287,7 @@ pub async fn update_db(db: &Database, config: &Config) -> Result<(), anyhow::Err
             debug!(
                 "  Deleting chunk {}/{}",
                 i + 1,
-                (crates_to_update_deps.len() + 9999) / 10000
+                crates_to_update_deps.len().div_ceil(10000)
             );
             deps_repo::bulk_delete_dependencies_for_crates(db, chunk).await?;
         }
