@@ -1,4 +1,5 @@
 TODO Vezi sa nu ai atatea subsections
+2.4.2+2.4.3
 
 - Reference la SLSA (Supply-chain Levels for Software Artifacts)
 - What do you think of SBOM (Software Bill of Materials)?

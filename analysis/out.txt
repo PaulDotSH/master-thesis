@@ -1,0 +1,793 @@
+================================================================================
+  RUST CRATE ECOSYSTEM SECURITY ANALYSIS
+  Database: postgres://postgres:postgres@localhost:5432/crates
+  Output:   /home/admin/repos/master-thesis/analysis/output
+  SQL files: 10
+================================================================================
+
+[SQL] Running 01_most_vulnerable_crates.sql ...
+       -> 30 rows returned
+
+
+================================================================================
+  01 Most Vulnerable Crates
+================================================================================
+        advisories        avg_severity     crate_downloads          crate_name        max_severity          risk_score          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+RUSTSEC-2021-0003, RUS               35.59               38552               sim1h                  98             2429.80                  68
+RUSTSEC-2021-0003, RUS               35.59               69005  holochain_core_types                  98             2429.80                  68
+RUSTSEC-2021-0003, RUS               35.59               34025           in_stream                  98             2429.80                  68
+RUSTSEC-2021-0003, RUS               35.59               70999  holochain_locksmith                  98             2429.80                  68
+RUSTSEC-2020-0008, RUS               41.47                1974               oatie                  98             2414.80                  58
+RUSTSEC-2023-0090, RUS               28.87                2965  financial-primitives                  99             2405.90                  83
+RUSTSEC-2023-0090, RUS               25.88                1906    celer-pay-module                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.88                1833  celer-pay-module-rpc                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.88                1688  runtime-module-conditi                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.88                4682  mock-numeric-condition                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.88                4583  celer-pay-module-rpc-r                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.88                4657  mock-boolean-condition                  99             2105.90                  81
+RUSTSEC-2023-0090, RUS               25.99                4850         pallet-abci                  99             2062.90                  79
+RUSTSEC-2023-0090, RUS               25.99                1648  pallet-cosmos-abci                  99             2062.90                  79
+RUSTSEC-2023-0090, RUS               25.99                2022        abci-storage                  99             2062.90                  79
+RUSTSEC-2023-0090, RUS               24.31                1663         punk-pallet                  99             1905.90                  78
+RUSTSEC-2020-0008, RUS               41.27              155620           cargo-web                  98             1866.80                  45
+RUSTSEC-2021-0093, RUS               30.97                3158  radicle-registry-runti                  98             1805.80                  58
+RUSTSEC-2021-0093, RUS               30.97                1686  radicle-registry-clien                  98             1805.80                  58
+RUSTSEC-2021-0093, RUS               30.97                1820  radicle-registry-node                  98             1805.80                  58
+RUSTSEC-2021-0003, RUS               35.20                5230          embed-wasm                  98             1804.80                  51
+RUSTSEC-2021-0097, RUS               35.20                5255    embed-wasm-build                  98             1804.80                  51
+RUSTSEC-2019-0034, RUS               37.96                1896          howtocards                  98             1793.80                  47
+RUSTSEC-2021-0097, RUS               34.43               38875           torchbear                  98             1765.80                  51
+RUSTSEC-2021-0003, RUS               43.18                1678             webcord                  98             1693.80                  39
+RUSTSEC-2021-0093, RUS               37.89               21312                risq                  98             1676.80                  44
+RUSTSEC-2021-0097, RUS               36.13               12909                elba                  98             1671.80                  46
+RUSTSEC-2020-0007, RUS               45.31               23814      ethcore-bigint                  98             1640.80                  36
+RUSTSEC-2021-0003, RUS               45.31               12312             eip-712                  98             1640.80                  36
+RUSTSEC-2021-0003, RUS               45.31                3119            esvm-rlp                  98             1640.80                  36
+================================================================================
+
+[SQL] Running 02_vuln_per_download_ratio.sql ...
+       -> 30 rows returned
+
+
+================================================================================
+  02 Vuln Per Download Ratio
+================================================================================
+        advisories        avg_severity     crate_downloads          crate_name        max_severity          vuln_count  vuln_per_log_downl
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+RUSTSEC-2020-0008, RUS               41.47                1974               oatie                  98                  58              316.93
+RUSTSEC-2023-0090, RUS               28.87                2965  financial-primitives                  99                  83              299.69
+RUSTSEC-2023-0090, RUS               25.88                1688  runtime-module-conditi                  99                  81              282.03
+RUSTSEC-2023-0090, RUS               25.88                1833  celer-pay-module-rpc                  99                  81              278.94
+RUSTSEC-2023-0090, RUS               25.88                1906    celer-pay-module                  99                  81              277.50
+RUSTSEC-2023-0090, RUS               25.99                1648  pallet-cosmos-abci                  99                  79              277.14
+RUSTSEC-2023-0090, RUS               25.99                2022        abci-storage                  99                  79              269.69
+RUSTSEC-2023-0090, RUS               24.31                1663         punk-pallet                  99                  78              255.63
+RUSTSEC-2023-0090, RUS               25.88                4583  celer-pay-module-rpc-r                  99                  81              248.63
+RUSTSEC-2023-0090, RUS               25.88                4657  mock-boolean-condition                  99                  81              248.15
+RUSTSEC-2023-0090, RUS               25.88                4682  mock-numeric-condition                  99                  81              248.00
+RUSTSEC-2023-0090, RUS               25.99                4850         pallet-abci                  99                  79              241.90
+RUSTSEC-2021-0093, RUS               30.97                1686  radicle-registry-clien                  98                  58              241.70
+RUSTSEC-2021-0093, RUS               30.97                1820  radicle-registry-node                  98                  58              239.24
+RUSTSEC-2019-0034, RUS               37.96                1896          howtocards                  98                  47              236.35
+RUSTSEC-2021-0003, RUS               35.59               34025           in_stream                  98                  68              231.91
+RUSTSEC-2021-0003, RUS               35.59               38552               sim1h                  98                  68              229.17
+RUSTSEC-2021-0003, RUS               43.18                1678             webcord                  98                  39              226.77
+RUSTSEC-2021-0093, RUS               30.97                3158  radicle-registry-runti                  98                  58              222.88
+RUSTSEC-2021-0003, RUS               35.59               69005  holochain_core_types                  98                  68              217.20
+RUSTSEC-2021-0003, RUS               35.59               70999  holochain_locksmith                  98                  68              216.64
+RUSTSEC-2021-0003, RUS               35.20                5230          embed-wasm                  98                  51              209.64
+RUSTSEC-2021-0097, RUS               35.20                5255    embed-wasm-build                  98                  51              209.52
+RUSTSEC-2020-0123, RUS               33.78                1877  substrate-keybase-keys                  98                  46              206.16
+RUSTSEC-2021-0003, RUS               45.31                3119            esvm-rlp                  98                  36              202.72
+RUSTSEC-2019-0012, RUS               45.06                2105            youkebox                  98                  34              200.19
+RUSTSEC-2023-0090, RUS               20.04                1572  tetcore-fabric-rpc-sup                  99                  73              198.76
+RUSTSEC-2023-0090, RUS               20.04                1578  tetcore-test-runtime-t                  99                  73              198.65
+RUSTSEC-2023-0090, RUS               20.04                1587  tetcore-test-utils-tes                  99                  73              198.50
+RUSTSEC-2023-0090, RUS               20.04                1618     noble-elections                  99                  73              197.98
+================================================================================
+
+[SQL] Running 03_typosquatting_analysis.sql ...
+       -> 56 rows returned
+
+
+================================================================================
+  03 Typosquatting Analysis  [Part 1/3]
+================================================================================
+    combined_score     crate_downloads          crate_name  damerau_levenshtei  high_download_asym  jaro_winkler_score  keyboard_distance_   levenshtein_score  prefix_similarity_  similar_crate_down  similar_crate_name
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+                98                5454  opentelemetry-appender                  97                 YES                  99                  98                  97                 100             8136406  opentelemetry-appender
+                97               16424  dprint-plugin-jsonc                  95                 YES                  99                  97                  95                 100              576894  dprint-plugin-json
+                97                3649  clap-verbosity-flag2                  95                 YES                  99                  97                  95                 100            13356208  clap-verbosity-flag
+                97               58204  protobuf-codegen-pure3                  95                 YES                  99                  97                  95                 100             6726420  protobuf-codegen-pure
+                97                  69  native-windows-gui2                  95                 YES                  99                  97                  95                 100             1172680  native-windows-gui
+                97               36398  derive_destructure                  95                 YES                  99                  97                  95                 100             3806799  derive_destructure2
+                97              249763  safer_ffi-proc_macro                  95                 YES                  99                  97                  95                 100             2950117  safer_ffi-proc_macros
+                97               17228  tauri-plugin-shellx                  95                 YES                  99                  97                  95                 100             5725088  tauri-plugin-shell
+                97                7492  actix-web-validator5                  95                 YES                  99                  97                  95                 100              653419  actix-web-validator
+                97               75816  perf-event-open-sys2                  95                 YES                  99                  97                  95                 100             7426908  perf-event-open-sys
+                97             1164325  azure_storage_blob                  95                 YES                  99                  97                  95                 100            16724217  azure_storage_blobs
+                97                7655  tauri-plugin-notificat                  96                 YES                  99                  98                  96                 100             2741356  tauri-plugin-notificat
+                97            91067034  proc-macro-error-attr2                  95                  NO                  99                  97                  95                 100           276253278  proc-macro-error-attr
+                97              414184  dioxus-config-macros                  95                  NO                  99                  97                  95                 100             1083420  dioxus-config-macro
+                96              509748     extension-trait                  94                 YES                  99                  96                  94                 100             7796934    extension-traits
+                96                3091    maybe-async-cfg2                  94                 YES                  99                  96                  94                 100              572764     maybe-async-cfg
+                96              126671     protobuf-parse2                  93                 YES                  99                  96                  93                 100            26523522      protobuf-parse
+                96                7503  wasmer-compiler-single                  93                 YES                  99                  96                  93                 100             1833185  wasmer-compiler-single
+                96               16070      serde_bencoded                  93                 YES                  99                  96                  93                 100              575823       serde_bencode
+                96                 810     windows-futures                  93                 YES                  99                  96                  93                 100            42515310      windows-future
+                96                2105     tokio-websocket                  94                 YES                  99                  96                  94                 100             5376015    tokio-websockets
+                96                 684    freedesktop-icon                  94                 YES                  99                  97                  94                 100             3729106   freedesktop-icons
+                96                2420      cargo-licenses                  93                 YES                  99                  96                  93                 100             1628438       cargo-license
+                96                7891    tree-sitter-luau                  94                 YES                  99                  96                  94                 100             1772165     tree-sitter-lua
+                96              350521    libmimalloc-sys2                  94                 YES                  99                  96                  94                 100            34638049     libmimalloc-sys
+                96               50902     bevy_animations                  93                 YES                  99                  96                  93                 100             3596828      bevy_animation
+                96                1640  tikv-jemalloc-sys2                  94                 YES                  99                  97                  94                 100            73467986   tikv-jemalloc-sys
+                96                 148    wayland-protocol                  94                 YES                  99                  97                  94                 100            48455155   wayland-protocols
+                96                5928     tree-sitter-mdn                  93                 YES                  99                  96                  93                 100              620777      tree-sitter-md
+                96                7472      logos-codegen2                  93                 YES                  99                  96                  93                 100            37771973       logos-codegen
+                96                1983     tower-discovery                  93                 YES                  99                  96                  93                 100             2595032      tower-discover
+                96               72618      positioned-io2                  93                 YES                  99                  96                  93                 100             3969500       positioned-io
+                96                2935  tracing-actix-web2                  94                 YES                  99                  97                  94                 100             8720843   tracing-actix-web
+                96               17878       unicode_names                  93                 YES                  99                  96                  93                 100             9519330      unicode_names2
+                96                2603   binary-heap-plus2                  94                 YES                  99                  97                  94                 100             7079110    binary-heap-plus
+                96                1855    rustc-serialize2                  94                 YES                  99                  96                  94                 100            20550454     rustc-serialize
+                96               18895   protobuf-codegen3                  94                 YES                  99                  97                  94                 100            38037734    protobuf-codegen
+                96              216841     assert_matches2                  93                 YES                  99                  96                  93                 100            58124185      assert_matches
+                96                2064       tower-session                  93                 YES                  99                  96                  93                 100             2319791      tower-sessions
+                96                2679    tree-sitter-luap                  94                 YES                  99                  96                  94                 100             1772165     tree-sitter-lua
+                96                1600       binding_macro                  93                 YES                  99                  96                  93                 100             1528403      binding_macros
+                96                6155     embed-resources                  93                 YES                  99                  96                  93                 100            20243951      embed-resource
+                96                2776     alloy-providers                  93                 YES                  99                  96                  93                 100             8827440      alloy-provider
+                96              125222   protobuf-support2                  94                 YES                  99                  97                  94                 100            47959960    protobuf-support
+                96              128757      syntex_syntax2                  93                 YES                  99                  96                  93                 100             3468718       syntex_syntax
+                96                1650      alloy-networks                  93                 YES                  99                  96                  93                 100             9724343       alloy-network
+                96                2697      simple-easing2                  93                 YES                  99                  96                  93                 100              835061       simple-easing
+                96                2525    async-recursion2                  94                 YES                  99                  96                  94                 100           103911412     async-recursion
+                96                1617    postgres-derives                  94                 YES                  99                  96                  94                 100             8987910     postgres-derive
+                96                1779     garando_syntax2                  93                 YES                  99                  96                  93                 100              913697      garando_syntax
+
+================================================================================
+  03 Typosquatting Analysis  [Part 2/3]
+================================================================================
+bucket_lower_bound          pair_count        score_bucket
+------------------  ------------------  ------------------
+                75               24048                  16
+                80               10381                  17
+                85                3175                  18
+                90                 751                  19
+                95                 140                  20
+
+================================================================================
+  03 Typosquatting Analysis  [Part 3/3]
+================================================================================
+avg_combined_score  high_similarity_pa           max_score        median_score           p95_score  total_typosquat_pa  very_high_similari
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+             79.14               14447                  98                  78                  86               38495                 891
+================================================================================
+
+[SQL] Running 04_secrets_leaked.sql ...
+       -> 91 rows returned
+
+
+================================================================================
+  04 Secrets Leaked  [Part 1/4]
+================================================================================
+       avg_entropy     crate_downloads          crate_name         max_entropy        secret_types       secrets_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+              3.78                5384              xoofff           3.9387944     generic-api-key              187640
+              3.73               38406             kitoken              4.5625     generic-api-key               49536
+              4.73              150325  aurora-engine-transact           5.5841837     generic-api-key               35815
+              4.73              149240  aurora-engine-precompi           5.5841837     generic-api-key               35815
+              4.73             5779091  aurora-engine-modexp           5.5841837     generic-api-key               35815
+              4.73              157050  aurora-engine-types           5.5841837     generic-api-key               35815
+              4.73              153613   aurora-engine-sdk           5.5841837     generic-api-key               35815
+              3.82              436192  fuel-core-services            3.977217  coinbase-access-token,               29434
+              3.82              115741      fuel-core-sync            3.977217  coinbase-access-token,               29434
+              3.82               88186    fuel-core-keygen            3.977217  coinbase-access-token,               29434
+              3.82              264767  fuel-core-producer            3.977217  coinbase-access-token,               29434
+              3.82              263780  fuel-core-importer            3.977217  coinbase-access-token,               29434
+              3.82              509680    fuel-core-client            3.977217  coinbase-access-token,               29434
+              3.82              681290     fuel-core-types            3.977217  coinbase-access-token,               29434
+              3.82              118981  fuel-block-producer            3.977217  coinbase-access-token,               29434
+              3.82              206322       fuel-core-bft            3.977217  coinbase-access-token,               29434
+              3.82              429291       fuel-core-poa            3.977217  coinbase-access-token,               29434
+              3.82              149994         fuel-txpool            3.977217  coinbase-access-token,               29434
+              3.82              118612           fuel-sync            3.977217  coinbase-access-token,               29434
+              3.82               48808        fuel-relayer            3.977217  coinbase-access-token,               29434
+              3.82              118856  fuel-block-executor            3.977217  coinbase-access-token,               29434
+              3.82              118639  fuel-block-importer            3.977217  coinbase-access-token,               29434
+              3.82              549172  fuel-core-chain-config            3.977217  coinbase-access-token,               29434
+              3.82               91501   fuel-chain-config            3.977217  coinbase-access-token,               29434
+              3.82               92163  fuel-poa-coordinator            3.977217  coinbase-access-token,               29434
+              3.82               77053        fuel-metrics            3.977217  coinbase-access-token,               29434
+              3.82              416121           fuel-core            3.977217  coinbase-access-token,               29434
+              3.82              208039     fuel-gql-client            3.977217  coinbase-access-token,               29434
+              3.82              264412  fuel-core-executor            3.977217  coinbase-access-token,               29434
+              3.82              171471  fuel-core-interfaces            3.977217  coinbase-access-token,               29434
+
+================================================================================
+  04 Secrets Leaked  [Part 2/4]
+================================================================================
+   affected_crates         avg_entropy    occurrence_count  pct_of_all_secrets         secret_type
+------------------  ------------------  ------------------  ------------------  ------------------
+             19509                3.93             3290236                98.5     generic-api-key
+              4067                4.20               19864                 0.6         private-key
+              2191                3.34               12445                 0.4    curl-auth-header
+              1081                5.37                2893                 0.1                 jwt
+               469                3.81                2877                 0.1    aws-access-token
+               560                3.31                2203                 0.1      curl-auth-user
+               626                5.01                1917                 0.1          github-pat
+               764                4.20                1613                 0.0  stripe-access-token
+               441                4.79                1303                 0.0         gcp-api-key
+                51                5.22                 839                 0.0     grafana-api-key
+               142                4.44                 432                 0.0   slack-webhook-url
+               129                3.94                 283                 0.0  kubernetes-secret-yaml
+                41                3.12                 240                 0.0          jwt-base64
+                40                4.71                 239                 0.0      age-secret-key
+                31                3.42                 225                 0.0  square-access-token
+                91                4.82                 165                 0.0  vault-service-token
+                26                3.21                 155                 0.0   discord-client-id
+                50                3.54                 139                 0.0     algolia-api-key
+                78                4.18                 131                 0.0          gitlab-pat
+                57                0.36                 106                 0.0  coinbase-access-token
+                84                5.47                  84                 0.0  github-fine-grained-pa
+                37                4.96                  64                 0.0    github-app-token
+                43                4.79                  60                 0.0        github-oauth
+                14                3.89                  58                 0.0  facebook-page-access-t
+                55                3.20                  55                 0.0      twilio-api-key
+                37                4.84                  55                 0.0     slack-bot-token
+                52                3.57                  52                 0.0  datadog-access-token
+                48                5.32                  52                 0.0   pypi-upload-token
+                19                4.19                  38                 0.0  twitter-access-secret
+                19                3.49                  38                 0.0  atlassian-api-token
+
+================================================================================
+  04 Secrets Leaked  [Part 3/4]
+================================================================================
+       avg_entropy  crates_with_secret         max_entropy      median_entropy         p95_entropy  total_secrets_foun  unique_secret_type
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+              3.93               22165           5.9137626           3.8360364           4.8342094             3339139                  66
+
+================================================================================
+  04 Secrets Leaked  [Part 4/4]
+================================================================================
+   crate_downloads          crate_name   max_vuln_severity        secret_types       secrets_count     vuln_advisories          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+           5779091  aurora-engine-modexp                   0     generic-api-key               35815  RUSTSEC-2026-0009, RUS                   3
+            149240  aurora-engine-precompi                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
+            153613   aurora-engine-sdk                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
+            150325  aurora-engine-transact                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
+            157050  aurora-engine-types                   0     generic-api-key               35815   RUSTSEC-2026-0009                   1
+            206322       fuel-core-bft                   0  coinbase-access-token,               29434  RUSTSEC-2026-0114, RUS                   2
+              9658  beacon-metrics-gazer                   0     generic-api-key               20487  RUSTSEC-2023-0034, RUS                  11
+                58     libcrux-ml-tkem                  59     generic-api-key               12759  RUSTSEC-2023-0071, RUS                  10
+             27226      libcrux-ml-dsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            495571        libcrux-p256                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+              3916         libcrux-psq                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            128639     libcrux-ed25519                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+           1125128     libcrux-secrets                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            528979         core-models                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            212839      libcrux-aesgcm                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            442127        libcrux-hkdf                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+             45913             libcrux                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            381258         libcrux-kem                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+              3177      libcrux-blake2                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+           1384433  libcrux-intrinsics                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            425169        libcrux-ecdh                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+           1231011      libcrux-ml-kem                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+           1141073      libcrux-traits                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            408927  libcrux-curve25519                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+           1399426        libcrux-sha3                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            604697        libcrux-sha2                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            477403        libcrux-hmac                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+            415228  libcrux-chacha20poly13                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+              4034       libcrux-ecdsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+              3524         libcrux-rsa                  59     generic-api-key               11415   RUSTSEC-2023-0071                   1
+================================================================================
+
+[SQL] Running 05_build_rs_suspicious.sql ...
+       -> 86 rows returned
+
+
+================================================================================
+  05 Build Rs Suspicious  [Part 1/4]
+================================================================================
+       crate_count             pattern      pct_of_scanned
+------------------  ------------------  ------------------
+              3195    Process Spawning                1.22
+              2403     Link Directives                0.92
+              1006       Network Calls                0.39
+                36           Free TLDs                0.01
+                13    Raw IP Addresses                0.00
+
+================================================================================
+  05 Build Rs Suspicious  [Part 2/4]
+================================================================================
+build_rs_entropy_s  build_rs_has_free_  build_rs_has_link_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c     crate_downloads          crate_name  has_executable_fil  suspicious_flag_co
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+         5.0218234                   f                   t                   t                   t                   t                5731               wx-rs                   f                   4
+          5.758877                   f                   t                   t                   f                   t                2881    shiguredo_webrtc                   f                   3
+         5.5232263                   f                   t                   t                   f                   t                 356              cadrum                   f                   3
+          5.523224                   f                   t                   t                   f                   t                 336              chijin                   f                   3
+         5.3135834                   f                   t                   t                   f                   t                4550            isla-lib                   f                   3
+          5.313583                   f                   t                   t                   f                   t                3174                isla                   f                   3
+         5.3135824                   f                   t                   t                   f                   t                4554            isla-cat                   f                   3
+          5.313582                   f                   t                   t                   f                   t                3918      isla-axiomatic                   f                   3
+          5.245913                   f                   t                   t                   f                   t                5188   pico-tflmicro-sys                   f                   3
+          5.228297                   f                   t                   t                   f                   t                1163       libntirpc-sys                   f                   3
+         5.1989417                   f                   t                   t                   f                   t               18313          hidapi-sys                   f                   3
+         5.1933055                   f                   t                   t                   f                   t                  20            flora_v8                   f                   3
+         5.1917353                   f                   t                   t                   f                   t               85677            v8-goose                   f                   3
+         5.1848555                   f                   t                   t                   f                   t                4961        libtirpc-sys                   f                   3
+         5.1787343                   f                   t                   t                   f                   t              638333            rusty_v8                   f                   3
+         5.1787343                   f                   t                   t                   f                   t               12478   rusty_v8_protryon                   f                   3
+         5.1787343                   f                   t                   t                   f                   t            22004086                  v8                   f                   3
+         5.1734047                   f                   t                   t                   f                   t                 897      openworkers-v8                   f                   3
+          5.156193                   f                   t                   t                   f                   t                3953  libphonenumber-sys                   f                   3
+         5.1418653                   f                   t                   t                   f                   t                 211            raysense                   f                   3
+         5.1231503                   f                   t                   t                   f                   t                 160       opus-head-sys                   f                   3
+          5.073802                   f                   t                   t                   f                   t               15669        git-cinnabar                   f                   3
+         5.0667872                   f                   t                   t                   f                   t                6252               prust                   f                   3
+          5.062338                   f                   t                   t                   f                   t                  70             mullama                   t                   3
+         5.0454173                   f                   t                   t                   f                   t               12345            cudd-sys                   f                   3
+         5.0423226                   f                   t                   t                   f                   t                4961          opus-codec                   f                   3
+         5.0344777                   f                   t                   t                   f                   t                4380            miniseed                   f                   3
+          5.034466                   t                   t                   t                   f                   f                3270               caffe                   f                   3
+         5.0210547                   f                   t                   t                   f                   t                6102           bwapi-sys                   f                   3
+          5.019033                   f                   t                   t                   f                   t              354040  mach-dxcompiler-rs                   f                   3
+          5.013751                   f                   f                   t                   t                   t                3183      payload_dumper                   f                   3
+          5.009821                   f                   t                   t                   f                   t                  27           iperf3-rs                   f                   3
+          5.009438                   f                   t                   t                   f                   t                3080          rportaudio                   f                   3
+         5.0038004                   f                   t                   t                   f                   t                9688        flakebi-ring                   f                   3
+         5.0031343                   f                   t                   t                   f                   t                9145     ring-fork-dtool                   f                   3
+         4.9945784                   f                   t                   t                   f                   t                8738       ms_speech_sys                   f                   3
+         4.9872456                   f                   t                   t                   f                   t               32973        lexactivator                   f                   3
+          4.984716                   f                   t                   t                   f                   t                 309             niblits                   f                   3
+         4.9798384                   f                   t                   t                   f                   t                 260  bitcoin-core-miniscrip                   f                   3
+         4.9700365                   f                   t                   t                   f                   t               16586     maplibre_native                   f                   3
+
+================================================================================
+  05 Build Rs Suspicious  [Part 3/4]
+================================================================================
+build_rs_entropy_s     crate_downloads          crate_name   max_vuln_severity  suspicious_flag_co          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+         5.0218234                5731               wx-rs                   0                   4                  12
+         4.9667773                8392  mavlink-camera-manager                  86                   3                  17
+         4.8757997               15573            vmaf-sys                  91                   3                  10
+          4.928511                1576            rsmaxsat                   0                   3                   9
+         5.0210547                6102           bwapi-sys                  91                   3                   9
+         4.8304596                1122      yubikey-signer                  59                   3                   8
+         4.7848606                1620        libpostal-rs                   0                   3                   8
+           4.95685               11889    libscap-bindings                   0                   3                   6
+         4.7995925               61100                zbox                  75                   3                   6
+          5.245913                5188   pico-tflmicro-sys                   0                   3                   6
+          5.523224                 336              chijin                   0                   3                   5
+          5.062338                  70             mullama                   0                   3                   5
+         4.8907933               35765          netscanner                   0                   3                   5
+         5.5232263                 356              cadrum                   0                   3                   5
+          4.496238                4317           glpk-rust                   0                   3                   4
+         5.0344777                4380            miniseed                  86                   3                   3
+         4.7387843               16120         vzense-rust                   0                   3                   3
+         4.8873672                6381         picotcp-sys                  75                   3                   3
+          4.813798               16399            libcwtch                  62                   3                   3
+          4.844399                1607  tangram-vision-sdk                  75                   3                   3
+          4.910997               44062            luis_sys                   0                   3                   2
+          4.960296               37000  cognitive-services-spe                   0                   3                   2
+         4.8914633               52486       libsodium-ffi                  62                   3                   2
+          5.013751                3183      payload_dumper                   0                   3                   2
+         5.1917353               85677            v8-goose                   0                   3                   1
+         5.1933055                  20            flora_v8                   0                   3                   1
+          4.719925                3422             tfmicro                   0                   3                   1
+          4.963306                 925           chdb-rust                   0                   3                   1
+         5.0031343                9145     ring-fork-dtool                   0                   3                   1
+         5.1787343               12478   rusty_v8_protryon                   0                   3                   1
+
+================================================================================
+  05 Build Rs Suspicious  [Part 4/4]
+================================================================================
+      bucket_lower         crate_count      entropy_bucket
+------------------  ------------------  ------------------
+               0.0              249008                   1
+               2.4                   1                   7
+               2.8                   4                   8
+               3.2                  57                   9
+               3.6                  42                  10
+               4.0                 805                  11
+               4.4                4871                  12
+               4.8                5639                  13
+               5.2                 462                  14
+               5.6                  22                  15
+               6.0                   1                  16
+================================================================================
+
+[SQL] Running 06_llm_score_correlation.sql ...
+       -> 5 rows returned
+
+
+================================================================================
+  06 Llm Score Correlation  [Part 1/3]
+================================================================================
+      bucket_lower         crate_count  crates_with_secret   crates_with_vulns        score_bucket
+------------------  ------------------  ------------------  ------------------  ------------------
+                -5               34366                   0                   0                   0
+                 0              226546               22165               72773                   1
+
+================================================================================
+  06 Llm Score Correlation  [Part 2/3]
+================================================================================
+       crate_count        llm_category         vuln_status
+------------------  ------------------  ------------------
+             72773   LLM: Benign (<25)  Has cargo-audit vulns
+            188139   LLM: Benign (<25)  No cargo-audit vulns
+
+================================================================================
+  06 Llm Score Correlation  [Part 3/3]
+================================================================================
+avg_llm_score_with  avg_llm_score_with      flagged_by_llm  overall_avg_llm_sc       total_scanned
+------------------  ------------------  ------------------  ------------------  ------------------
+              0.00               -0.18                   0               -0.13              260912
+================================================================================
+
+[SQL] Running 07_executable_files_analysis.sql ...
+       -> 38 rows returned
+
+
+================================================================================
+  07 Executable Files Analysis  [Part 1/3]
+================================================================================
+     avg_llm_score         crate_count  crates_with_secret  crates_with_suspic   crates_with_vulns  has_executable_fil        pct_of_total
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+             -0.14              252926               18320                3321               67364                   f                96.9
+              0.00                7986                3845                 488                5409                   t                 3.1
+
+================================================================================
+  07 Executable Files Analysis  [Part 2/3]
+================================================================================
+build_rs_has_free_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c     crate_downloads          crate_name  llm_malicious_scor   max_vuln_severity          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+                 f                   f                   f                   f                1501       immutable_env                   0                  75                  62
+                 f                   f                   f                   f                3980     pink-kv-session                   0                  75                  62
+                 f                   f                   f                   f                2646  phala-rocket-middlewar                   0                  75                  62
+                 f                   f                   f                   f               15111          this-crate                   0                  75                  62
+                 f                   f                   f                   f               13030             kubelet                   0                  99                  57
+                 f                   f                   f                   f                 141            pop-fork                   0                  75                  49
+                 f                   f                   f                   f                9545       pop-telemetry                   0                  75                  49
+                 f                   f                   f                   f                8325          pop-common                   0                  75                  49
+                 f                   f                   f                   f                1559  near-internal-balances                   0                  99                  48
+                 f                   f                   f                   f                4633        near-account                   0                  99                  48
+                 f                   f                   f                   f               47452          wascc-host                   0                  99                  48
+                 f                   f                   f                   f               20166  substrate-test-utils-d                   0                  75                  48
+                 f                   f                   f                   f              366943       sp-serializer                   0                  75                  48
+                 f                   f                   f                   f                1931  pallet-evm-precompile-                   0                  75                  48
+                 f                   f                   f                   f               18656    pallet-elections                   0                  75                  48
+                 f                   f                   f                   f              367688          sc-peerset                   0                  75                  48
+                 f                   f                   f                   f              529207       pallet-mixnet                   0                  75                  48
+                 f                   f                   f                   f                1859  pallet-evm-precompile-                   0                  75                  48
+                 f                   f                   f                   f              311427            sc-light                   0                  75                  48
+                 f                   f                   f                   f                1906  pallet-evm-precompile-                   0                  75                  48
+                 f                   f                   f                   f                1204  pallet-name-service                   0                  75                  48
+                 f                   f                   f                   f               18501  pallet-generic-asset                   0                  75                  48
+                 f                   f                   f                   f                1886  pallet-evm-precompile-                   0                  75                  48
+                 f                   f                   f                   f              218064  sp-finality-tracker                   0                  75                  48
+                 f                   f                   f                   f                9739  sp-phragmen-compact                   0                  75                  48
+                 f                   f                   f                   f                3169              sr-std                   0                  75                  48
+                 f                   f                   f                   f              238110    sp-consensus-vrf                   0                  75                  48
+                 f                   f                   f                   f               19239  substrate-test-utils                   0                  75                  48
+                 f                   f                   f                   f              355099  sc-finality-grandpa                   0                  75                  48
+                 f                   f                   f                   f              217148  pallet-finality-tracke                   0                  75                  48
+
+================================================================================
+  07 Executable Files Analysis  [Part 3/3]
+================================================================================
+crates_with_execut    download_bracket  pct_with_executabl        total_crates
+------------------  ------------------  ------------------  ------------------
+               443     >= 1M downloads                 5.7                7705
+               894           100K - 1M                 8.4               10653
+              1544          10K - 100K                 3.4               45757
+              2291            1K - 10K                 1.9              123301
+              1602            100 - 1K                 4.2               38421
+              1212     < 100 downloads                 3.5               35075
+================================================================================
+
+[SQL] Running 08_dependency_network.sql ...
+       -> 98 rows returned
+
+
+================================================================================
+  08 Dependency Network  [Part 1/4]
+================================================================================
+   crate_downloads     dependency_name    dependents_count  has_vulnerabilitie   max_vuln_severity          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+         982838969               serde               89672                  NO                   0                   0
+         884623485          serde_json               63881                  NO                   0                   0
+         967862516           thiserror               49325                  NO                   0                   0
+         657774077               tokio               45351                  NO                   0                   0
+         813309148                clap               36323                 YES                   0                   6
+         667366521              anyhow               34609                  NO                   0                   0
+         583997635             tracing               29502                 YES                   0                   1
+         871276210                 log               27591                  NO                   0                   0
+         568908397              chrono               27517                  NO                   0                   0
+         469036657             reqwest               21787                 YES                   0                   2
+        1124387556                rand               21349                  NO                   0                   0
+         547207769             futures               19571                 YES                   0                   1
+         819381138               regex               18051                  NO                   0                   0
+         463399854         async-trait               16771                  NO                   0                   0
+        1645246595                 syn               15166                  NO                   0                   0
+        1123227396               quote               14938                  NO                   0                   0
+         549087850                uuid               14387                  NO                   0                   0
+        1137085431         proc-macro2               13049                  NO                   0                   0
+         612556176                toml               12388                  NO                   0                   0
+         705946584               bytes               12268                  NO                   0                   0
+         614278796                 url               11933                  NO                   0                   0
+        1127959534              base64               11736                  NO                   0                   0
+        1136111937                libc               10832                  NO                   0                   0
+         406214964  tracing-subscriber               10712                 YES                   0                   1
+         600625259                sha2               10241                  NO                   0                   0
+         724764554         lazy_static               10044                  NO                   0                   0
+         450508680                 hex                8959                  NO                   0                   0
+         221501408                dirs                8088                  NO                   0                   0
+         376812580               rayon                8066                  NO                   0                   0
+         870672040           once_cell                7524                  NO                   0                   0
+
+================================================================================
+  08 Dependency Network  [Part 2/4]
+================================================================================
+        advisories     crate_downloads     dependency_name    dependents_count  ecosystem_risk_sco        max_severity          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+RUSTSEC-2023-0071, RUS             5674033          sp-runtime                 567             1743525                  75                  41
+RUSTSEC-2023-0022, RUS            95127381                sqlx                2411             1706988                  59                  12
+RUSTSEC-2023-0071, RUS             7563115             sp-core                 473             1454475                  75                  41
+RUSTSEC-2023-0071, RUS             1801044       frame-support                 432             1328400                  75                  41
+RUSTSEC-2026-0007, RUS           530809253        tokio-rustls                1310             1179000                  75                  12
+RUSTSEC-2023-0071, RUS             1708090        frame-system                 360             1107000                  75                  41
+RUSTSEC-2024-0336, RUS            66824157           actix-web                1434              967950                  75                   9
+RUSTSEC-2023-0071, RUS             5005709              sp-std                 310              953250                  75                  41
+RUSTSEC-2020-0071, RUS               48724          tp-runtime                 122              881694                  99                  73
+RUSTSEC-2023-0071, RUS             5712790               sp-io                 259              796425                  75                  41
+RUSTSEC-2020-0071, RUS               51702            tet-core                  92              664884                  99                  73
+RUSTSEC-2020-0071, RUS               54568         tetcore-std                  90              650430                  99                  73
+RUSTSEC-2023-0071, RUS             1643499  frame-benchmarking                 199              611925                  75                  41
+RUSTSEC-2023-0071, RUS             3403193              sp-api                 193              593475                  75                  41
+RUSTSEC-2019-0003, RUS           400220669               prost                3699              554850                  75                   2
+RUSTSEC-2025-0055, RUS            80391215             metrics                 810              546750                  75                   9
+RUSTSEC-2026-0009, RUS            68271927               redis                1038              467100                  75                   6
+RUSTSEC-2023-0071, RUS            26635201             ratatui                3736              440848                  59                   2
+RUSTSEC-2020-0071, RUS               30133      fabric-support                  57              411939                  99                  73
+RUSTSEC-2020-0071, RUS               30998       fabric-system                  56              404712                  99                  73
+ RUSTSEC-2019-0014           346964310        wasm-bindgen                4101              401898                  98                   1
+RUSTSEC-2023-0071, RUS             1103557         staging-xcm                 111              341325                  75                  41
+RUSTSEC-2020-0071, RUS               43622              tp-api                  44              317988                  99                  73
+RUSTSEC-2020-0071, RUS               49563              tet-io                  43              310761                  99                  73
+RUSTSEC-2023-0071, RUS             1497313     pallet-balances                 101              310575                  75                  41
+RUSTSEC-2023-0071, RUS             2210385        sp-inherents                  87              267525                  75                  41
+RUSTSEC-2023-0071, RUS             1448604  polkadot-primitives                  86              264450                  75                  41
+RUSTSEC-2020-0071, RUS               23351       tp-blockchain                  36              260172                  99                  73
+RUSTSEC-2023-0071, RUS             1457024    pallet-timestamp                  83              255225                  75                  41
+RUSTSEC-2019-0003, RUS           320029170         prost-types                1697              254550                  75                   2
+
+================================================================================
+  08 Dependency Network  [Part 3/4]
+================================================================================
+       crate_count   dep_count_bracket        pct_of_total
+------------------  ------------------  ------------------
+             43729      0 dependencies                16.5
+             96868                 1-4                36.6
+             64836                 5-9                24.5
+             43762               10-19                16.5
+             14597               20-49                 5.5
+               907               50-99                 0.3
+                47             100-199                 0.0
+                 4   200+ dependencies                 0.0
+
+================================================================================
+  08 Dependency Network  [Part 4/4]
+================================================================================
+   crate_downloads          crate_name    dependency_count        direct_vulns   max_vuln_severity
+------------------  ------------------  ------------------  ------------------  ------------------
+               182         pezkuwi-sdk                 394                   0                   0
+           1609591        polkadot-sdk                 389                   0                   0
+              9008   zigbee2mqtt-types                 254                   0                   0
+            105186              gnostr                 218                   0                   0
+             41973     forest-filecoin                 177                   2                   0
+            569662       apollo-router                 150                   2                  59
+             17742  uhg-custom-appollo-roo                 143                   2                  59
+           1137551         solana-core                 141                   3                   0
+             47034             zero4rs                 140                   0                   0
+           3271160      solana-runtime                 136                   3                   0
+            627242                deno                 135                   7                  59
+                 8       stalwart-lite                 134                  11                  59
+              5051        servo-script                 133                   2                  64
+              1084          strykelang                 131                   1                  59
+              1496  kodegen_candle_agent                 131                   0                   0
+             11477     gnostr-asyncgit                 131                   0                   0
+               544       atlas-runtime                 130                   0                   0
+            241819                 qsv                 122                   0                   0
+              4332      auth-framework                 121                   9                  59
+             81256           coreutils                 121                   0                   0
+             48144  asset-hub-westend-runt                 121                   0                   0
+             17000                bund                 119                   0                   0
+              1614           espeak-ng                 119                   0                   0
+            277717          dioxus-cli                 118                   9                  73
+            431718                mise                 118                   0                   0
+               569            kodegend                 117                   0                   0
+             58194            arborium                 116                   0                   0
+             29248                zawk                 116                  13                   0
+             69786                pmat                 113                   0                   0
+              3277           tina-core                 110                   0                   0
+================================================================================
+
+[SQL] Running 09_temporal_analysis.sql ...
+       -> 22 rows returned
+
+
+================================================================================
+  09 Temporal Analysis  [Part 1/3]
+================================================================================
+    crates_created   crates_with_vulns       creation_year      pct_with_vulns
+------------------  ------------------  ------------------  ------------------
+               598                  96                2014                16.1
+              2592                 508                2015                19.6
+              3594                 911                2016                25.3
+              5480                1371                2017                25.0
+              7706                1883                2018                24.4
+             11412                3013                2019                26.4
+             17120                4955                2020                28.9
+             19884                5196                2021                26.1
+             25529                6032                2022                23.6
+             32533                8303                2023                25.5
+             36050                9665                2024                26.8
+             50443               14709                2025                29.2
+             51809               16131                2026                31.1
+
+================================================================================
+  09 Temporal Analysis  [Part 2/3]
+================================================================================
+     avg_downloads           crate_age         crate_count      pct_vulnerable    vulnerable_count
+------------------  ------------------  ------------------  ------------------  ------------------
+              3832       Last 6 months               61319                31.0               18991
+             53340   6 months - 1 year               24797                29.0                7191
+            127857           1-2 years               38926                27.4               10669
+            611964           2-5 years               83187                25.3               21086
+           4270089            5+ years               56521                26.2               14836
+
+================================================================================
+  09 Temporal Analysis  [Part 3/3]
+================================================================================
+avg_vulns_per_crat         crate_count   download_velocity      pct_vulnerable    vulnerable_count
+------------------  ------------------  ------------------  ------------------  ------------------
+              1.25                6617  High velocity (>=1k/d)                25.2                1666
+              2.54               10970  Medium velocity (100-1                31.3                3437
+              2.29               49759  Low velocity (10-100/d                32.1               15987
+              1.69              197404  Very low velocity (<10                26.2               51683
+================================================================================
+
+[SQL] Running 10_ecosystem_overview.sql ...
+       -> 69 rows returned
+
+
+================================================================================
+  10 Ecosystem Overview  [Part 1/5]
+================================================================================
+            metric               value
+------------------  ------------------
+Total typosquat pairs                38495
+Total crates in databa              264750
+Total analysis metrics              254651
+Crates with suspicious                3809
+Crates with executable                7986
+Crates with scan resul              260912
+Crates with high LLM s                   0
+Total cargo-audit find              483025
+Crates with cargo-audi               72773
+Total dependency relat             1711983
+Unique RustSec advisor                 436
+Crates with leaked sec               22165
+Total secrets found (g             3339139
+
+================================================================================
+  10 Ecosystem Overview  [Part 2/5]
+================================================================================
+   affected_crates  avg_severity_in_le       finding_count        pct_of_total      severity_level
+------------------  ------------------  ------------------  ------------------  ------------------
+              4917               95.14                8841                 1.8  Critical (9.0-10.0)
+             18258               75.41               39536                 8.2      High (7.0-8.9)
+             23177               58.75               30717                 6.4    Medium (4.0-6.9)
+              2461               25.28                5148                 1.1       Low (1.0-3.9)
+             67785                0.00              398783                82.6         Info (<1.0)
+
+================================================================================
+  10 Ecosystem Overview  [Part 3/5]
+================================================================================
+          advisory     affected_crates        avg_severity         occurrences
+------------------  ------------------  ------------------  ------------------
+ RUSTSEC-2026-0104               29204                0.00               36720
+ RUSTSEC-2026-0099               27886                0.00               34974
+ RUSTSEC-2026-0098               27886                0.00               34974
+ RUSTSEC-2026-0007               24596                0.00               24596
+ RUSTSEC-2026-0049               18195                0.00               19055
+ RUSTSEC-2024-0421               14121                0.00               16831
+ RUSTSEC-2026-0009               16109                0.00               16109
+ RUSTSEC-2023-0071               12100               59.00               12487
+ RUSTSEC-2025-0009               10563                0.00               11748
+ RUSTSEC-2025-0055                9091                0.00                9773
+ RUSTSEC-2026-0037                9000                0.00                9301
+ RUSTSEC-2020-0071                7112               62.00                7149
+ RUSTSEC-2024-0332                6526                0.00                6879
+ RUSTSEC-2024-0336                5614               75.00                6479
+ RUSTSEC-2024-0019                6234                0.00                6313
+ RUSTSEC-2024-0003                5874                0.00                6197
+ RUSTSEC-2025-0004                6167                0.00                6177
+ RUSTSEC-2026-0119                4882                0.00                5732
+ RUSTSEC-2025-0022                5365                0.00                5365
+ RUSTSEC-2026-0048                5288               74.00                5293
+
+================================================================================
+  10 Ecosystem Overview  [Part 4/5]
+================================================================================
+   avg_build_rs_ms  avg_cargo_audit_ms     avg_download_ms     avg_gitleaks_ms          avg_llm_ms        avg_total_ms       avg_total_sec        max_total_ms     median_total_ms        p95_total_ms      total_analyses
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+                 0               11207                1497                3060                   0               15099                15.1             3126859                1462               86889              254651
+
+================================================================================
+  10 Ecosystem Overview  [Part 5/5]
+================================================================================
+build_rs_has_free_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c     crate_downloads          crate_name  llm_malicious_scor   max_vuln_severity       secrets_count          vuln_count
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+                 f                   t                   f                   f                  34    nexo-driver-loop                   0                  59                 270                 270
+                 f                   t                   f                   f                  28  nexo-dispatch-tools                   0                  59                 270                 270
+                 f                   t                   f                   f                  41  nexo-agent-registry                   0                  59                 270                 270
+                 f                   t                   f                   f                  45  nexo-driver-permission                   0                  59                 270                 270
+                 f                   t                   f                   f                  35  nexo-memory-snapshot                   0                  59                 270                 270
+                 f                   t                   f                   f                 303        nexo-pairing                   0                  59                 270                 270
+                 f                   t                   f                   f                  27       nexo-llm-auth                   0                  59                 270                 270
+                 f                   t                   f                   f                  45            nexo-cdp                   0                  59                 270                 270
+                 f                   t                   f                   f                  13  nexo-ext-installer                   0                  59                 270                 270
+                 f                   t                   f                   f                  47  nexo-driver-claude                   0                  59                 270                 270
+                 f                   t                   f                   f                 150  nexo-webhook-server                   0                  59                 270                 270
+                 f                   t                   f                   f                 150  nexo-microapp-http                   0                  59                 270                 270
+                 f                   t                   f                   f                 273         nexo-tunnel                   0                  59                 270                 270
+                 f                   t                   f                   f                 286     nexo-web-search                   0                  59                 270                 270
+                 f                   t                   f                   f                 205   nexo-microapp-sdk                   0                  59                 270                 270
+                 f                   t                   f                   f                 259          nexo-setup                   0                  59                 270                 270
+                 f                   t                   f                   f                 263  nexo-plugin-google                   0                  59                 270                 270
+                 f                   t                   f                   f                 246  nexo-plugin-telegram                   0                  59                 270                 270
+                 f                   t                   f                   f                 256     nexo-poller-ext                   0                  59                 270                 270
+                 f                   t                   f                   f                 166     nexo-team-store                   0                  59                 270                 270
+                 f                   t                   f                   f                 258   nexo-poller-tools                   0                  59                 270                 270
+                 f                   t                   f                   f                 261         nexo-poller                   0                  59                 270                 270
+                 f                   t                   f                   f                 354         nexo-memory                   0                  59                 270                 270
+                 f                   t                   f                   f                 289           nexo-core                   0                  59                 270                 270
+                 f                   t                   f                   f                 384            nexo-llm                   0                  59                 270                 270
+                 f                   t                   f                   f                 362         nexo-broker                   0                  59                 270                 270
+                 f                   t                   f                   f                 344     nexo-extensions                   0                  59                 270                 270
+                 f                   t                   f                   f                 335            nexo-mcp                   0                  59                 270                 270
+                 f                   t                   f                   f                 290       nexo-taskflow                   0                  59                 270                 270
+                 f                   t                   f                   f                  17           nexo-fork                   0                  59                 270                 270
+================================================================================
+
+
+================================================================================
+  GENERATING PLOTS
+================================================================================
+
+[PLOT] 01_most_vulnerable_crates.png
+[PLOT] 02_vuln_per_download_ratio.png
+[PLOT] 03_typosquat_score_distribution.png
+[PLOT] 04_secret_types.png
+[PLOT] 05_build_rs_suspicious_flags.png
+[PLOT] 06_llm_vs_cargo_audit.png
+[PLOT] 07_severity_distribution.png
+[PLOT] 08_dependency_centrality.png
+[PLOT] 09_ecosystem_risk.png
+[PLOT] 10_temporal_creation_vs_vulns.png
+[PLOT] 11_crate_age_vs_vulns.png
+[PLOT] 12_executables_by_downloads.png
+[PLOT] 13_analysis_timing.png
+[PLOT] 14_compound_risk_bubble.png
+[PLOT] 15_download_velocity.png
+
+================================================================================
+  ANALYSIS COMPLETE
+  Data printed above. Plots saved to: /home/admin/repos/master-thesis/analysis/output/plots/
+================================================================================
