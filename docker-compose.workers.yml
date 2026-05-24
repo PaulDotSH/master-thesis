@@ -2,8 +2,8 @@
 # Usage: sudo docker-compose -f docker-compose.workers.yml up -d --build --scale worker=10
 
 services:
-  # One-shot service that seeds the named cargo-registry volume from the image.
-  # Runs once per `docker-compose up`; workers wait for it via depends_on.
+  # Service that seeds the named cargo-registry volume from the image.
+  # Runs once per `docker-compose up`; workers wait for it since depends_on.
   registry-seeder:
     build:
       context: .
@@ -30,14 +30,13 @@ services:
         condition: service_completed_successfully
     environment:
       - RUST_LOG=info
-      # Connect to host's PostgreSQL and Redis via localhost (using host network)
       - DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/crates
       - REDIS_URL=redis://127.0.0.1:6379
     volumes:
       - ./crates_downloader/config.toml:/app/config.toml
       - /tmp/crates:/tmp/crates  # RAM disk mount - run: sudo mount -t tmpfs -o size=4G tmpfs /tmp/crates
-      - ./logs/docker:/app/logs  # Persist logs to host
-      - cargo-registry:/usr/local/cargo/registry  # Shared registry, seeded once, writable for tarballs
+      - ./logs/docker:/app/logs  # logs to host
+      - cargo-registry:/usr/local/cargo/registry  # Shared registry
     tmpfs:
       - /usr/local/cargo/target:size=1g  # Only build artifacts in tmpfs, not the whole cargo home
       - /usr/local/cargo/git:size=256m

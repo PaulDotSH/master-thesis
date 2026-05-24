@@ -50,41 +50,63 @@ fn is_private_or_not_found_error(stderr: &str) -> bool {
         || stderr_lower.contains("fatal: repository")
 }
 
+async fn try_clone(url: &str, target_dir: &str, filter: bool) -> Result<(), String> {
+    let mut cmd = Command::new("git");
+    cmd.arg("clone")
+        .arg("--depth")
+        .arg("1")
+        .arg("--single-branch")
+        .arg("--no-tags");
+
+    if filter {
+        cmd.arg("--filter=blob:none");
+    }
+
+    cmd.arg(url)
+        .arg(target_dir)
+        .env("GIT_TERMINAL_PROMPT", "0");
+
+    let output = cmd.output().await.map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }
+}
+
 pub async fn download_repo(url: &str, target_dir: &str) -> Result<(), anyhow::Error> {
     if url.is_empty() {
         return Err(anyhow::anyhow!("Repository URL is empty"));
     }
-    
+
     let sanitized_url = sanitize_git_url(url);
-    
-    let output = Command::new("git")
-        .arg("clone")
-        .arg("--depth")
-        .arg("1")
-        .arg("--single-branch")
-        .arg("--no-tags")
-        .arg("--filter=blob:none")
-        .arg(&sanitized_url)
-        .arg(target_dir)
-        .env("GIT_TERMINAL_PROMPT", "0")  // Disable prompts
-        .output()
-        .await?;
-    
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        
-        if is_private_or_not_found_error(&stderr) {
-            warn!("Skipping private/inaccessible repository: {}", sanitized_url);
-            return Err(DownloadError::PrivateOrNotFound(
-                format!("Repository {} is private or not found", sanitized_url)
-            ).into());
+
+    // Try with --filter=blob:none first for efficiency
+    if let Err(_) = try_clone(&sanitized_url, target_dir, true).await {
+        // Fall through to retry without filter
+    } else {
+        return Ok(());
+    }
+
+    // If that failed, retry without --filter=blob:none
+    // Some repositories don't support partial clone
+    let stderr = match try_clone(&sanitized_url, target_dir, false).await {
+        Ok(()) => return Ok(()),
+        Err(e) => {
+            // Use the error from the non-filter attempt since it's more informative
+            e
         }
-        
-        // Other git errors
-        return Err(DownloadError::Other(
-            format!("Failed to clone repository {} (sanitized from {}): {}", sanitized_url, url, stderr)
+    };
+
+    if is_private_or_not_found_error(&stderr) {
+        warn!("Skipping private/inaccessible repository: {}", sanitized_url);
+        return Err(DownloadError::PrivateOrNotFound(
+            format!("Repository {} is private or not found", sanitized_url)
         ).into());
     }
-    
-    Ok(())
+
+    Err(DownloadError::Other(
+        format!("Failed to clone repository {} (sanitized from {}): {}", sanitized_url, url, stderr)
+    ).into())
 }

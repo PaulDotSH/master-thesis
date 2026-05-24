@@ -183,58 +183,137 @@ def plot_most_vulnerable_crates(rows, out_dir):
 
 
 # =============================================================================
-# PLOT 2: Vuln-per-Download Ratio (Scatter)
+# PLOT 2: Ecosystem-Wide Vulnerability & Dependency Statistics
 # =============================================================================
 
 def plot_vuln_per_download(rows, out_dir):
     if not rows:
         return
-    dls = np.array([max(safe_int(r.get("crate_downloads", 0)), 1) for r in rows])
-    vulns = np.array([safe_int(r.get("vuln_count", 0)) for r in rows])
-    ratios = np.array([safe_float(r.get("vuln_per_log_download_ratio", 0)) for r in rows])
 
-    fig = plt.figure(figsize=(12, 10))
-    gs = fig.add_gridspec(3, 3, hspace=0.35, wspace=0.35,
-                          width_ratios=[5, 1, 0.3], height_ratios=[1, 5, 1])
+    stats_rows = [r for r in rows if "total_crates" in r]
+    vuln_dist_rows = [r for r in rows if "vuln_count_bracket" in r]
+    dep_dist_rows = [r for r in rows if "dep_count_bracket" in r]
+    conc_rows = [r for r in rows if "concentration_bucket" in r]
 
-    ax_main = fig.add_subplot(gs[1, 0])
-    ax_top = fig.add_subplot(gs[0, 0], sharex=ax_main)
-    ax_right = fig.add_subplot(gs[1, 1], sharey=ax_main)
-    ax_cbar = fig.add_subplot(gs[1, 2])
+    fig = plt.figure(figsize=(14, 9))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1, 1.2], hspace=0.45, wspace=0.4)
 
-    hb = ax_main.hexbin(np.log10(dls), vulns, gridsize=40, cmap="YlOrRd",
-                         mincnt=1, edgecolors="none")
-    ax_main.set_xlabel("Crate Downloads (log10 scale)")
-    ax_main.set_ylabel("Vulnerability Count")
-    ax_main.set_title("Vulnerability Density: Vulns vs Popularity")
-
-    cbar = fig.colorbar(hb, cax=ax_cbar, label="Crates per bin")
-    cbar.ax.yaxis.set_label_position("left")
-
-    ax_top.hist(np.log10(dls), bins=50, color="#e74c3c", alpha=0.7, edgecolor="#c0392b")
-    ax_top.set_ylabel("Cr.\nCount", fontsize=7)
-    ax_top.tick_params(labelsize=6)
-
-    ax_right.hist(vulns, bins=40, orientation="horizontal", color="#3498db",
-                  alpha=0.7, edgecolor="#2980b9")
-    ax_right.set_xlabel("Cr.\nCount", fontsize=7)
-    ax_right.tick_params(labelsize=6)
-
-    plt.setp(ax_top.get_xticklabels(), visible=False)
-    plt.setp(ax_right.get_yticklabels(), visible=False)
-
-    ax_stats = fig.add_subplot(gs[2, 0])
+    # --- Top-left: Ecosystem summary stats panel ---
+    ax_stats = fig.add_subplot(gs[0, 0])
     ax_stats.axis("off")
-    stats_text = (
-        f"Crates with vulns: {len(dls)}\n"
-        f"Median downloads: {np.median(dls):,.0f}\n"
-        f"Median vulns/crate: {np.median(vulns):.0f}\n"
-        f"Mean vulns/crate: {np.mean(vulns):.1f}\n"
-        f"Max vulns: {np.max(vulns):.0f}\n"
-        f"Mean vuln/log-dl ratio: {np.mean(ratios):.1f}"
-    )
-    ax_stats.text(0.05, 0.95, stats_text, transform=ax_stats.transAxes,
-                  fontsize=7, verticalalignment="top", fontfamily="monospace")
+    if stats_rows:
+        r = stats_rows[0]
+        total = safe_int(r.get("total_crates", 0))
+        scanned = safe_int(r.get("successfully_scanned", 0))
+        failed = safe_int(r.get("failed_scans", 0))
+        in_scan = safe_int(r.get("in_scan_results", 0))
+        never = total - in_scan
+        stats_text = (
+            f"Ecosystem Vulnerability Statistics\n"
+            f"{'─' * 38}\n"
+            f"  Total crates in database:   {total:>8,}\n"
+            f"  In scan_results (attempted):{in_scan:>8,}\n"
+            f"  Successfully scanned:       {scanned:>8,}\n"
+            f"  Failed scans (score = -1):  {failed:>8,}\n"
+            f"  Never attempted:            {never:>8,}\n"
+            f"{'─' * 38}\n"
+            f"  Crates with vulns:          {safe_int(r.get('crates_with_vulns', 0)):>8,}\n"
+            f"  % of scanned vulnerable:    {safe_float(r.get('pct_vuln_crates', 0)):>7}%\n"
+            f"{'─' * 38}\n"
+            f"  Max vulns in a single crate: {safe_int(r.get('max_vulns_in_crate', 0)):>6,}\n"
+            f"  Mean vulns per crate:       {safe_float(r.get('mean_vulns_per_crate', 0)):>8.2f}\n"
+            f"  Median vulns per crate:     {safe_float(r.get('median_vulns_per_crate', 0)):>8.1f}\n"
+            f"{'─' * 38}\n"
+            f"  Mean dependencies per crate:{safe_float(r.get('mean_deps_per_crate', 0)):>8.2f}\n"
+            f"  Median dependencies/crate:  {safe_float(r.get('median_deps_per_crate', 0)):>8.1f}"
+        )
+        ax_stats.text(0.02, 0.98, stats_text, transform=ax_stats.transAxes,
+                      fontsize=7.8, verticalalignment="top", fontfamily="monospace",
+                      bbox=dict(boxstyle="round,pad=0.5", facecolor="#f8f9fa", edgecolor="#dee2e6"))
+    ax_stats.set_title("Ecosystem Overview", fontsize=11, fontweight="bold")
+
+    # --- Top-middle: Donut chart of vuln vs non-vuln (of scanned) ---
+    ax_donut = fig.add_subplot(gs[0, 1])
+    if stats_rows:
+        r = stats_rows[0]
+        vuln_crates = safe_int(r.get("crates_with_vulns", 0))
+        scanned = safe_int(r.get("successfully_scanned", 1))
+        clean_scanned = scanned - vuln_crates
+        sizes = [vuln_crates, clean_scanned]
+        labels = [f"Vulnerable\n({vuln_crates:,})", f"No vulns found\n({clean_scanned:,})"]
+        colors = ["#e74c3c", "#2ecc71"]
+        wedges, texts = ax_donut.pie(
+            sizes, labels=None, startangle=90, colors=colors,
+            wedgeprops={"edgecolor": "white", "linewidth": 1.5, "width": 0.4}
+        )
+        ax_donut.legend(wedges, labels, loc="lower center", fontsize=7,
+                        bbox_to_anchor=(0.5, -0.15), ncol=2)
+        ax_donut.set_title("Scanned Crates:\nVulnerable vs Clean", fontsize=10, fontweight="bold")
+
+    # --- Top-right: Vulnerability concentration ---
+    ax_conc = fig.add_subplot(gs[0, 2])
+    if conc_rows:
+        buckets = [r.get("concentration_bucket", "?") for r in conc_rows]
+        pcts = [safe_float(r.get("pct_of_all_vulns", 0)) for r in conc_rows]
+        colors_conc = ["#922b21", "#c0392b", "#e74c3c", "#f5b7b1"]
+        bars = ax_conc.barh(range(len(buckets)), pcts, color=colors_conc,
+                            edgecolor="#2c3e50", height=0.55)
+        ax_conc.set_yticks(range(len(buckets)))
+        ax_conc.set_yticklabels(buckets, fontsize=8)
+        ax_conc.invert_yaxis()
+        ax_conc.set_xlabel("% of All Vulnerabilities")
+        ax_conc.set_title("Vulnerability Concentration", fontsize=10, fontweight="bold")
+        for i, p in enumerate(pcts):
+            ax_conc.text(p + 1, i, f"{p}%", va="center", fontsize=8, fontweight="bold")
+
+    # --- Bottom-left: Vuln count distribution histogram ---
+    ax_vuln = fig.add_subplot(gs[1, 0])
+    if vuln_dist_rows:
+        labels_v = [r.get("vuln_count_bracket", "?") for r in vuln_dist_rows]
+        counts_v = [safe_int(r.get("crate_count", 0)) for r in vuln_dist_rows]
+        colors_v = plt.cm.Reds([0.25 + 0.75 * (i / max(len(labels_v) - 1, 1)) for i in range(len(labels_v))])
+        ax_vuln.bar(range(len(labels_v)), counts_v, color=colors_v, edgecolor="#922b21")
+        ax_vuln.set_xticks(range(len(labels_v)))
+        ax_vuln.set_xticklabels(labels_v, fontsize=8)
+        ax_vuln.set_ylabel("Number of Scanned Crates")
+        ax_vuln.set_title("Vulnerability Count Distribution", fontsize=10, fontweight="bold")
+        for i, c in enumerate(counts_v):
+            ax_vuln.text(i, c + max(counts_v) * 0.02, f"{c:,}", ha="center", fontsize=7)
+
+    # --- Bottom-middle: Dependency count distribution histogram ---
+    ax_dep = fig.add_subplot(gs[1, 1])
+    if dep_dist_rows:
+        labels_d = [r.get("dep_count_bracket", "?") for r in dep_dist_rows]
+        counts_d = [safe_int(r.get("crate_count", 0)) for r in dep_dist_rows]
+        colors_d = plt.cm.Blues([0.25 + 0.75 * (i / max(len(labels_d) - 1, 1)) for i in range(len(labels_d))])
+        ax_dep.bar(range(len(labels_d)), counts_d, color=colors_d, edgecolor="#2471a3")
+        ax_dep.set_xticks(range(len(labels_d)))
+        ax_dep.set_xticklabels(labels_d, rotation=30, fontsize=7, ha="right")
+        ax_dep.set_ylabel("Number of Scanned Crates")
+        ax_dep.set_title("Dependency Count Distribution", fontsize=10, fontweight="bold")
+        for i, c in enumerate(counts_d):
+            ax_dep.text(i, c + max(counts_d) * 0.02, f"{c:,}", ha="center", fontsize=7)
+
+    # --- Bottom-right: Downloads vs Vulns scatter (scanned crates only) ---
+    ax_scatter = fig.add_subplot(gs[1, 2])
+    scatter_rows = run_raw_query("""
+        SELECT
+            c.crate_downloads,
+            COUNT(car.id) AS vuln_count
+        FROM crates c
+        INNER JOIN scan_results sr ON c.id = sr.id AND sr.llm_malicious_score != -1
+        LEFT JOIN cargo_audit_results car ON c.id = car.crate
+        GROUP BY c.id, c.crate_downloads
+    """)
+    if scatter_rows and len(scatter_rows) > 10:
+        dls = np.array([max(safe_int(r.get("crate_downloads", 0)), 1) for r in scatter_rows])
+        vulns_arr = np.array([safe_int(r.get("vuln_count", 0)) for r in scatter_rows])
+        mask = dls > 0
+        ax_scatter.hexbin(np.log10(dls[mask]), vulns_arr[mask], gridsize=30,
+                           cmap="YlOrRd", mincnt=1, edgecolors="none")
+        ax_scatter.set_xlabel("Downloads (log10)")
+        ax_scatter.set_ylabel("Vuln Count")
+        ax_scatter.set_title("Vulns vs Downloads\n(scanned crates)", fontsize=9, fontweight="bold")
 
     fig.savefig(os.path.join(out_dir, "02_vuln_per_download_ratio.png"))
     plt.close(fig)
@@ -279,16 +358,17 @@ def plot_secret_types(rows, out_dir):
     types = [r.get("secret_type", "?")[:35] for r in rows]
     counts = [safe_int(r.get("occurrence_count", 0)) for r in rows]
 
-    fig, ax = plt.subplots(figsize=(12, max(6, len(types) * 0.22)))
+    fig, ax = plt.subplots(figsize=(12, max(6, len(types) * 0.25)))
     colors = plt.cm.Reds([0.3 + 0.7 * (i / max(len(types) - 1, 1)) for i in range(len(types))])
     bars = ax.barh(range(len(types)), counts, color=colors, edgecolor="#922b21", height=0.6)
     ax.set_yticks(range(len(types)))
     ax.set_yticklabels(types, fontsize=7)
     ax.invert_yaxis()
-    ax.set_xlabel("Number of Findings")
+    ax.set_xlabel("Number of Findings (log scale)")
+    ax.set_xscale("log")
     ax.set_title("Secrets Leaked: All Gitleaks Rule Matches (non-test/non-example locations)")
     for i, c in enumerate(counts):
-        ax.text(c + max(counts)*0.01, i, str(c), va="center", fontsize=7)
+        ax.text(c * 1.15, i, f"{c:,}", va="center", fontsize=7)
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "04_secret_types.png"))
     plt.close(fig)
@@ -323,38 +403,6 @@ def plot_build_rs_flags(rows, out_dir):
 
 
 # =============================================================================
-# PLOT 6: LLM Score vs Cargo-Audit Agreement (Grouped Bar)
-# =============================================================================
-
-def plot_llm_agreement(rows, out_dir):
-    if not rows:
-        return
-    categories = sorted(set(r.get("llm_category", "") for r in rows))
-    vuln_statuses = sorted(set(r.get("vuln_status", "") for r in rows))
-    data = {}
-    for r in rows:
-        cat = r.get("llm_category", "")
-        vs = r.get("vuln_status", "")
-        data[(cat, vs)] = safe_int(r.get("crate_count", 0))
-
-    fig, ax = plt.subplots(figsize=(11, 5))
-    x = np.arange(len(categories))
-    width = 0.35
-    for i, vs in enumerate(vuln_statuses):
-        vals = [data.get((cat, vs), 0) for cat in categories]
-        bars = ax.bar(x + i * width, vals, width, label=vs, edgecolor="#2c3e50")
-    ax.set_xticks(x + width / 2)
-    ax.set_xticklabels([c.replace("LLM: ", "") for c in categories], fontsize=7, rotation=15)
-    ax.set_ylabel("Number of Crates")
-    ax.set_title("LLM Score vs Cargo-Audit Agreement Matrix")
-    ax.legend(fontsize=8)
-    fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "06_llm_vs_cargo_audit.png"))
-    plt.close(fig)
-    print(f"[PLOT] 06_llm_vs_cargo_audit.png")
-
-
-# =============================================================================
 # PLOT 7: Vulnerability Severity Distribution (Pie/Donut)
 # =============================================================================
 
@@ -375,9 +423,9 @@ def plot_severity_distribution(rows, out_dir):
               title="Severity Level", loc="center left", bbox_to_anchor=(1, 0.5), fontsize=7)
     ax.set_title("Cargo-Audit Findings by Severity Level")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "07_severity_distribution.png"))
+    fig.savefig(os.path.join(out_dir, "06_severity_distribution.png"))
     plt.close(fig)
-    print(f"[PLOT] 07_severity_distribution.png")
+    print(f"[PLOT] 06_severity_distribution.png")
 
 
 # =============================================================================
@@ -403,9 +451,9 @@ def plot_dependency_centrality(rows, out_dir):
     for i, c in enumerate(dep_counts):
         ax.text(c + max(dep_counts)*0.01, i, str(c), va="center", fontsize=6)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "08_dependency_centrality.png"))
+    fig.savefig(os.path.join(out_dir, "07_dependency_centrality.png"))
     plt.close(fig)
-    print(f"[PLOT] 08_dependency_centrality.png")
+    print(f"[PLOT] 07_dependency_centrality.png")
 
 
 # =============================================================================
@@ -432,9 +480,9 @@ def plot_ecosystem_risk(rows, out_dir):
     for i, (s, d) in enumerate(zip(scores, dependents)):
         ax.text(norm_scores[i] + 0.02, i, f"score={s:.0f}  ({d} deps)", va="center", fontsize=6)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "09_ecosystem_risk.png"))
+    fig.savefig(os.path.join(out_dir, "08_ecosystem_risk.png"))
     plt.close(fig)
-    print(f"[PLOT] 09_ecosystem_risk.png")
+    print(f"[PLOT] 08_ecosystem_risk.png")
 
 
 # =============================================================================
@@ -465,9 +513,9 @@ def plot_temporal_creation(rows, out_dir):
 
     ax1.set_title("Crate Creation Rate vs Vulnerability Prevalence Over Time")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "10_temporal_creation_vs_vulns.png"))
+    fig.savefig(os.path.join(out_dir, "09_temporal_creation_vs_vulns.png"))
     plt.close(fig)
-    print(f"[PLOT] 10_temporal_creation_vs_vulns.png")
+    print(f"[PLOT] 09_temporal_creation_vs_vulns.png")
 
 
 # =============================================================================
@@ -493,9 +541,9 @@ def plot_crate_age_vulns(rows, out_dir):
         ax.text(i, p + 0.5, f"{p}%\n({c} crates)", ha="center", fontsize=7)
     ax.set_ylim(0, max(vuln_pcts) * 1.3 if vuln_pcts else 10)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "11_crate_age_vs_vulns.png"))
+    fig.savefig(os.path.join(out_dir, "10_crate_age_vs_vulns.png"))
     plt.close(fig)
-    print(f"[PLOT] 11_crate_age_vs_vulns.png")
+    print(f"[PLOT] 10_crate_age_vs_vulns.png")
 
 
 # =============================================================================
@@ -524,9 +572,9 @@ def plot_executables_by_downloads(rows, out_dir):
         ax.text(i, max(total[i], exec_counts[i]) + max(total)*0.02,
                 f"{p}% have\n executables", ha="center", fontsize=6)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "12_executables_by_downloads.png"))
+    fig.savefig(os.path.join(out_dir, "11_executables_by_downloads.png"))
     plt.close(fig)
-    print(f"[PLOT] 12_executables_by_downloads.png")
+    print(f"[PLOT] 11_executables_by_downloads.png")
 
 
 # =============================================================================
@@ -587,9 +635,9 @@ def plot_analysis_timing(out_dir):
         if v95 > 0:
             ax.text(i + width/2, v95 + max(p95)*0.02, f"{v95:.0f}", ha="center", fontsize=6)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "13_analysis_timing.png"))
+    fig.savefig(os.path.join(out_dir, "12_analysis_timing.png"))
     plt.close(fig)
-    print(f"[PLOT] 13_analysis_timing.png")
+    print(f"[PLOT] 12_analysis_timing.png")
 
 
 # =============================================================================
@@ -622,9 +670,9 @@ def plot_download_velocity(rows, out_dir):
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
     ax1.set_title("Download Velocity vs Vulnerability Rate")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "15_download_velocity.png"))
+    fig.savefig(os.path.join(out_dir, "13_download_velocity.png"))
     plt.close(fig)
-    print(f"[PLOT] 15_download_velocity.png")
+    print(f"[PLOT] 13_download_velocity.png")
 
 
 # =============================================================================
@@ -648,9 +696,9 @@ def plot_dependency_distribution(rows, out_dir):
     for i, (c, p) in enumerate(zip(counts, pcts)):
         ax.text(i, c + max(counts) * 0.02, f"{c:,}\n({p}%)", ha="center", fontsize=7)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "16_dependency_distribution.png"))
+    fig.savefig(os.path.join(out_dir, "14_dependency_distribution.png"))
     plt.close(fig)
-    print(f"[PLOT] 16_dependency_distribution.png")
+    print(f"[PLOT] 14_dependency_distribution.png")
 
 
 # =============================================================================
@@ -677,9 +725,9 @@ def plot_build_rs_entropy(rows, out_dir):
             ax.text(x + 0.17, c + max(counts) * 0.02, str(c), ha="center", fontsize=7)
     ax.legend(fontsize=8)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "17_build_rs_entropy.png"))
+    fig.savefig(os.path.join(out_dir, "15_build_rs_entropy.png"))
     plt.close(fig)
-    print(f"[PLOT] 17_build_rs_entropy.png")
+    print(f"[PLOT] 15_build_rs_entropy.png")
 
 
 # =============================================================================
@@ -730,41 +778,9 @@ def plot_vulns_by_download_bracket(out_dir):
         ax.text(i, max(totals[i], vuln_counts[i]) + max(totals) * 0.02,
                 f"{p}% vuln\navg {a}/crate", ha="center", fontsize=6)
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "18_vulns_by_download_bracket.png"))
+    fig.savefig(os.path.join(out_dir, "16_vulns_by_download_bracket.png"))
     plt.close(fig)
-    print(f"[PLOT] 18_vulns_by_download_bracket.png")
-
-
-# =============================================================================
-# PLOT 19: Secrets vs Vulnerabilities Overlap
-# =============================================================================
-
-def plot_secrets_vulns_overlap(rows, out_dir):
-    if len(rows) < 3:
-        return
-    names = [r.get("crate_name", "?")[:20] for r in rows]
-    secrets = [safe_int(r.get("secrets_count", 0)) for r in rows]
-    vulns = [safe_int(r.get("vuln_count", 0)) for r in rows]
-    downloads = [max(safe_int(r.get("crate_downloads", 0)), 1) for r in rows]
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sizes = [max(np.log10(d) * 25, 4) for d in downloads]
-    scatter = ax.scatter(vulns, secrets, s=sizes, c=np.log10(downloads),
-                          cmap="viridis", alpha=0.7, edgecolors="black", linewidth=0.2)
-    cbar = fig.colorbar(scatter, ax=ax, label="log10(Downloads)")
-    ax.set_xlabel("Cargo-Audit Vulnerability Count")
-    ax.set_ylabel("Gitleaks Secrets Count")
-    ax.set_title("Compound Risk: Crates with Both Secrets Leaked and Known Vulns\n(bubble size = log10(downloads))")
-    ax.set_xscale("symlog")
-    ax.set_yscale("symlog")
-    for i, name in enumerate(names[:12]):
-        ax.annotate(name, (vulns[i], secrets[i]), fontsize=5, alpha=0.8,
-                     xytext=(4, 4), textcoords="offset points")
-    ax.grid(True, alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "19_secrets_vs_vulns_overlap.png"))
-    plt.close(fig)
-    print(f"[PLOT] 19_secrets_vs_vulns_overlap.png")
+    print(f"[PLOT] 16_vulns_by_download_bracket.png")
 
 
 # =============================================================================
@@ -809,6 +825,34 @@ def main():
         if rows:
             print_data_table(label.replace("_", " ").title(), rows)
 
+    # --- Scan status summary ---
+    scan_summary = run_raw_query("""
+        SELECT
+            (SELECT COUNT(*) FROM crates) AS total_crates,
+            (SELECT COUNT(*) FROM scan_results) AS crates_with_scan_results,
+            (SELECT COUNT(*) FROM scan_results WHERE llm_malicious_score != -1) AS successfully_scanned,
+            (SELECT COUNT(*) FROM scan_results WHERE llm_malicious_score = -1) AS failed_scans
+    """)
+    if scan_summary:
+        r = scan_summary[0]
+        total = safe_int(r.get("total_crates", 0))
+        with_results = safe_int(r.get("crates_with_scan_results", 0))
+        scanned = safe_int(r.get("successfully_scanned", 0))
+        failed = safe_int(r.get("failed_scans", 0))
+        never_attempted = total - with_results
+        print(f"\n{'='*80}")
+        print(f"  SCAN COVERAGE SUMMARY")
+        print(f"{'='*80}")
+        print(f"  Total crates in database:       {total:>8,}")
+        print(f"  Crates with scan results:       {with_results:>8,}  ({with_results/total*100:.1f}%)")
+        print(f"    Successfully scanned:         {scanned:>8,}  ({scanned/total*100:.1f}%)")
+        print(f"    Failed (score = -1):          {failed:>8,}  ({failed/total*100:.1f}%)")
+        print(f"  Never attempted:                {never_attempted:>8,}  ({never_attempted/total*100:.1f}%)")
+        print(f"{'='*80}")
+        print(f"  Using SUCCESSFULLY SCANNED crates as base for % calculations.")
+        print(f"  Crates that failed or were never scanned have unknown vuln status.")
+        print(f"{'='*80}\n")
+
     # --- Generate plots ---
     if not args.skip_plots:
         print(f"\n{'='*80}")
@@ -848,78 +892,65 @@ def main():
             if flag_rows:
                 plot_build_rs_flags(flag_rows, plots_dir)
 
-        # Plot 06
-        if "06_llm_score_correlation" in all_results:
-            agree_rows = [r for r in all_results["06_llm_score_correlation"] if "llm_category" in r]
-            if agree_rows:
-                plot_llm_agreement(agree_rows, plots_dir)
-
-        # Plot 07 - severity distribution from ecosystem overview
+        # Plot 06 - severity distribution from ecosystem overview
         if "10_ecosystem_overview" in all_results:
             sev_rows = [r for r in all_results["10_ecosystem_overview"] if "severity_level" in r]
             if sev_rows:
                 plot_severity_distribution(sev_rows, plots_dir)
 
-        # Plot 08
+        # Plot 07 - dependency centrality
         if "08_dependency_network" in all_results:
             dep_rows = [r for r in all_results["08_dependency_network"] if "dependents_count" in r
                        and "has_vulnerabilities" in r]
             if dep_rows:
                 plot_dependency_centrality(dep_rows, plots_dir)
 
-        # Plot 09 - ecosystem risk from dependency network
+        # Plot 08 - ecosystem risk
         if "08_dependency_network" in all_results:
             risk_rows = [r for r in all_results["08_dependency_network"] if "ecosystem_risk_score" in r]
             if risk_rows:
                 plot_ecosystem_risk(risk_rows, plots_dir)
 
-        # Plot 10
+        # Plot 09 - temporal creation
         if "09_temporal_analysis" in all_results:
             creation_rows = [r for r in all_results["09_temporal_analysis"] if "creation_year" in r]
             if creation_rows:
                 plot_temporal_creation(creation_rows, plots_dir)
 
-        # Plot 11 - crate age analysis
+        # Plot 10 - crate age
         if "09_temporal_analysis" in all_results:
             age_rows = [r for r in all_results["09_temporal_analysis"] if "crate_age" in r]
             if age_rows:
                 plot_crate_age_vulns(age_rows, plots_dir)
 
-        # Plot 12
+        # Plot 11 - executable prevalence
         if "07_executable_files_analysis" in all_results:
             dl_rows = [r for r in all_results["07_executable_files_analysis"] if "download_bracket" in r]
             if dl_rows:
                 plot_executables_by_downloads(dl_rows, plots_dir)
 
-        # Plot 13 - timing
+        # Plot 12 - analysis timing
         plot_analysis_timing(plots_dir)
 
-        # Plot 14 - secrets + vulns overlap scatter
-        if "04_secrets_leaked" in all_results:
-            overlap_rows = [r for r in all_results["04_secrets_leaked"]
-                           if "crate_name" in r and "vuln_advisories" in r]
-            if overlap_rows:
-                plot_secrets_vulns_overlap(overlap_rows, plots_dir)
-
-        # Plot 15
+        # Plot 13 - download velocity
         if "09_temporal_analysis" in all_results:
             velocity_rows = [r for r in all_results["09_temporal_analysis"] if "download_velocity" in r]
             if velocity_rows:
                 plot_download_velocity(velocity_rows, plots_dir)
 
-        # Plot 16 - dependency count distribution
+        # Plot 14 - dependency count distribution
         if "08_dependency_network" in all_results:
             dep_dist_rows = [r for r in all_results["08_dependency_network"] if "dep_count_bracket" in r]
             if dep_dist_rows:
                 plot_dependency_distribution(dep_dist_rows, plots_dir)
 
-        # Plot 17 - build.rs entropy distribution
+        # Plot 15 - build.rs entropy distribution
         if "05_build_rs_suspicious" in all_results:
             entropy_rows = [r for r in all_results["05_build_rs_suspicious"] if "entropy_bucket" in r]
             if entropy_rows:
                 plot_build_rs_entropy(entropy_rows, plots_dir)
 
-        # Plot 18 - vulnerability prevalence by download bracket
+        # Plot 16 - vulnerability prevalence by download bracket
         plot_vulns_by_download_bracket(plots_dir)
 
     print(f"\n{'='*80}")

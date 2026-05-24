@@ -149,20 +149,29 @@ async fn dir_size(path: &std::path::Path) -> u64 {
 /// Analyzes a single crate independently (no dependency traversal)
 /// This is designed for distributed worker architecture where each crate is analyzed separately
 pub async fn analyze_crate(c: &Crate, database: &Database, config: &Config) -> Result<(), anyhow::Error> {
-    // Check if this crate needs analysis
-    let needs_analysis = get_crate_ids_needing_analysis(database, std::slice::from_ref(c))
-        .await
-        .context(format!("Failed to check if crate '{}' needs analysis", c.name))?;
-    
-    if !needs_analysis.contains(&c.id) {
-        info!("Crate '{}' (id: {}) is already up-to-date, skipping", c.name, c.id);
-        return Ok(());
+    analyze_crate_inner(c, database, config, false, false).await
+}
+
+pub async fn analyze_crate_force(c: &Crate, database: &Database, config: &Config) -> Result<(), anyhow::Error> {
+    analyze_crate_inner(c, database, config, true, true).await
+}
+
+async fn analyze_crate_inner(c: &Crate, database: &Database, config: &Config, force: bool, skip_audit: bool) -> Result<(), anyhow::Error> {
+    if !force {
+        let needs_analysis = get_crate_ids_needing_analysis(database, std::slice::from_ref(c))
+            .await
+            .context(format!("Failed to check if crate '{}' needs analysis", c.name))?;
+
+        if !needs_analysis.contains(&c.id) {
+            info!("Crate '{}' (id: {}) is already up-to-date, skipping", c.name, c.id);
+            return Ok(());
+        }
     }
-    
+
     info!("Analyzing crate '{}' (id: {})", c.name, c.id);
     
     // Analyze just this crate - handle failures by inserting a failed placeholder
-    let result = match analyze_single_crate(c, config).await {
+    let result = match analyze_single_crate(c, config, skip_audit).await {
         Ok(result) => result,
         Err(e) => {
             // Insert a "failed" placeholder to prevent re-scanning this crate forever
@@ -196,7 +205,7 @@ pub async fn analyze_crate_by_id(crate_id: i64, database: &Database, config: &Co
     analyze_crate(&crate_data, database, config).await
 }
 
-async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<AnalysisResult, anyhow::Error> {
+async fn analyze_single_crate(crate_data: &Crate, config: &Config, skip_audit: bool) -> Result<AnalysisResult, anyhow::Error> {
     // Skip crates without a valid repository URL
     if crate_data.repository.is_empty() {
         info!("Skipping crate {} (id: {}) - no repository URL", crate_data.name, crate_data.id);
@@ -231,7 +240,7 @@ async fn analyze_single_crate(crate_data: &Crate, config: &Config) -> Result<Ana
             let download_duration_ms = download_start.elapsed().as_millis() as i64;
             info!("Successfully downloaded crate '{}' (id: {}) to {}", crate_data.name, crate_data.id, dir);
             
-            let result_data = perform_analysis(crate_data, &dir, config).await;
+            let result_data = perform_analysis(crate_data, &dir, config, skip_audit).await;
             
             if let Err(e) = remove_dir_all(&dir).await {
                 warn!("Failed to clean up directory {}: {:?}", dir, e);
@@ -441,6 +450,7 @@ async fn perform_analysis(
     crate_data: &Crate,
     crate_dir: &str,
     config: &Config,
+    skip_audit: bool,
 ) -> Result<AnalysisResult, anyhow::Error> {
     let crate_id = crate_data.id;
     
@@ -458,6 +468,15 @@ async fn perform_analysis(
         }
     };
 
+    let audit_future = async {
+        if skip_audit {
+            info!("Skipping cargo audit for crate '{}'", crate_data.name);
+            Ok::<Vec<(String, u8)>, anyhow::Error>(Vec::new())
+        } else {
+            run_cargo_audit(crate_dir, crate_id).await
+        }
+    };
+
     let (
         (audit_result, cargo_audit_duration_ms),
         (gitleaks_result, gitleaks_duration_ms),
@@ -465,7 +484,7 @@ async fn perform_analysis(
         (build_rs_result, build_rs_analysis_duration_ms),
         (llm_result, llm_analysis_duration_ms),
     ) = tokio::join!(
-        measure_future_ms(run_cargo_audit(crate_dir, crate_id)),
+        measure_future_ms(audit_future),
         measure_future_ms(run_gitleaks(crate_dir)),
         measure_future_ms(check_executable_files(crate_dir, crate_id)),
         measure_future_ms(analyze_build_rs(crate_dir)),

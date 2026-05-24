@@ -23,7 +23,7 @@
 \contentsline {paragraph}{Rust Foundation Typosquatting Protection}{21}{section*.6}%
 \contentsline {section}{\numberline {2.4}Malicious Code Detection in Package Ecosystems}{21}{section.2.4}%
 \contentsline {subsection}{\numberline {2.4.1}Categories of Malicious Behavior}{21}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Static Analysis Approaches}{22}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.2}Static Analysis Approaches}{21}{subsection.2.4.2}%
 \contentsline {subsection}{\numberline {2.4.3}Dynamic Analysis Approaches}{22}{subsection.2.4.3}%
 \contentsline {subsection}{\numberline {2.4.4}Machine Learning Approaches}{22}{subsection.2.4.4}%
 \contentsline {section}{\numberline {2.5}Build Script Security Risks and Detection}{23}{section.2.5}%
@@ -34,7 +34,7 @@
 \contentsline {subsection}{\numberline {2.6.4}Local vs. API-Based LLM Deployment}{25}{subsection.2.6.4}%
 \contentsline {section}{\numberline {2.7}Secret Detection in Source Code}{25}{section.2.7}%
 \contentsline {subsection}{\numberline {2.7.1}The Problem of Hardcoded Secrets}{25}{subsection.2.7.1}%
-\contentsline {subsection}{\numberline {2.7.2}Secret Detection Approaches}{26}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.2}Secret Detection Approaches}{25}{subsection.2.7.2}%
 \contentsline {subsection}{\numberline {2.7.3}Gitleaks}{26}{subsection.2.7.3}%
 \contentsline {subsection}{\numberline {2.7.4}Secrets in the Rust Ecosystem}{26}{subsection.2.7.4}%
 \contentsline {section}{\numberline {2.8}Existing Tools and Related Work}{26}{section.2.8}%
@@ -84,36 +84,30 @@
 \contentsline {section}{\numberline {6.6}Batch Processing and Database Optimization}{46}{section.6.6}%
 \contentsline {chapter}{\numberline {7}Results and Evaluation}{47}{chapter.7}%
 \contentsline {section}{\numberline {7.1}Dataset Overview}{47}{section.7.1}%
-\contentsline {section}{\numberline {7.2}Vulnerability Landscape}{48}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Secret Leakage Findings}{48}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Build Script Risk Assessment}{49}{section.7.4}%
-\contentsline {section}{\numberline {7.5}LLM Malicious Code Analysis}{49}{section.7.5}%
-\contentsline {section}{\numberline {7.6}Typosquatting Detection Results}{49}{section.7.6}%
-\contentsline {section}{\numberline {7.7}Dependency Chain Risk Propagation}{49}{section.7.7}%
-\contentsline {section}{\numberline {7.8}Performance and Scalability}{49}{section.7.8}%
-\contentsline {chapter}{\numberline {8}Discussion}{57}{chapter.8}%
-\contentsline {section}{\numberline {8.1}Interpretation of Results}{57}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Comparison with Existing Approaches}{57}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Limitations}{57}{section.8.3}%
-\contentsline {subsection}{\numberline {8.3.1}Detection Limitations}{57}{subsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.3.2}LLM-Specific Limitations}{58}{subsection.8.3.2}%
-\contentsline {subsection}{\numberline {8.3.3}Scalability and Resource Limitations}{58}{subsection.8.3.3}%
-\contentsline {subsection}{\numberline {8.3.4}Ground Truth Limitations}{58}{subsection.8.3.4}%
-\contentsline {subsection}{\numberline {8.3.5}Generalizability Limitations}{58}{subsection.8.3.5}%
-\contentsline {section}{\numberline {8.4}Threats to Validity}{58}{section.8.4}%
-\contentsline {chapter}{\numberline {9}Conclusions and Future Work}{61}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Summary of Contributions}{61}{section.9.1}%
-\contentsline {section}{\numberline {9.2}Future Directions}{61}{section.9.2}%
-\contentsline {chapter}{Bibliography}{63}{chapter*.7}%
-\contentsline {chapter}{\numberline {A}Database Schema}{65}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Configuration Reference}{67}{appendix.B}%
-\contentsline {chapter}{\numberline {C}Web Dashboard API Reference}{69}{appendix.C}%
-\contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{71}{appendix.D}%
-\contentsline {section}{\numberline {D.1}Software Artifacts}{71}{section.D.1}%
-\contentsline {section}{\numberline {D.2}Data Artifacts}{71}{section.D.2}%
-\contentsline {section}{\numberline {D.3}Hardware Requirements}{71}{section.D.3}%
-\contentsline {section}{\numberline {D.4}Software Requirements}{72}{section.D.4}%
-\contentsline {section}{\numberline {D.5}Reproduction Steps}{72}{section.D.5}%
-\contentsline {section}{\numberline {D.6}Expected Outputs}{73}{section.D.6}%
-\contentsline {chapter}{\numberline {E}Glossary}{75}{appendix.E}%
-\contentsline {chapter}{\numberline {F}Generative AI Tools Usage}{77}{appendix.F}%
+\contentsline {section}{\numberline {7.2}Dependency network}{48}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Suspicious \texttt {build.rs} Analysis}{50}{section.7.3}%
+\contentsline {chapter}{\numberline {8}Discussion}{51}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Comparison with Existing Approaches}{51}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Limitations}{51}{section.8.2}%
+\contentsline {subsection}{\numberline {8.2.1}Detection Limitations}{51}{subsection.8.2.1}%
+\contentsline {subsection}{\numberline {8.2.2}LLM-Specific Limitations}{51}{subsection.8.2.2}%
+\contentsline {subsection}{\numberline {8.2.3}Scalability and Resource Limitations}{52}{subsection.8.2.3}%
+\contentsline {subsection}{\numberline {8.2.4}Ground Truth Limitations}{52}{subsection.8.2.4}%
+\contentsline {subsection}{\numberline {8.2.5}Generalizability Limitations}{52}{subsection.8.2.5}%
+\contentsline {section}{\numberline {8.3}Threats to Validity}{52}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Conclusions and Future Work}{53}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Summary of Contributions}{53}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Future Directions}{53}{section.9.2}%
+\contentsline {chapter}{Bibliography}{55}{chapter*.7}%
+\contentsline {chapter}{\numberline {A}Database Schema}{57}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Configuration Reference}{59}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Web Dashboard API Reference}{61}{appendix.C}%
+\contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{63}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Software Artifacts}{63}{section.D.1}%
+\contentsline {section}{\numberline {D.2}Data Artifacts}{63}{section.D.2}%
+\contentsline {section}{\numberline {D.3}Hardware Requirements}{63}{section.D.3}%
+\contentsline {section}{\numberline {D.4}Software Requirements}{64}{section.D.4}%
+\contentsline {section}{\numberline {D.5}Reproduction Steps}{64}{section.D.5}%
+\contentsline {section}{\numberline {D.6}Expected Outputs}{65}{section.D.6}%
+\contentsline {chapter}{\numberline {E}Glossary}{67}{appendix.E}%
+\contentsline {chapter}{\numberline {F}Generative AI Tools Usage}{69}{appendix.F}%

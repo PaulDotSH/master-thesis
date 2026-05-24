@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.13)  10 MAY 2026 03:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.4.13)  24 MAY 2026 14:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -828,7 +828,7 @@ Package hyperref Info: Link coloring OFF on input line 27.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \c@lstlisting=\count367
-<FI.png, id=469, 578.8827pt x 290.0436pt>
+<FI.png, id=449, 578.8827pt x 290.0436pt>
 File: FI.png Graphic file (type png)
 <use FI.png>
 Package pdftex.def Info: FI.png  used on input line 35.
@@ -958,8 +958,9 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.2.3}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.399 
-      ]
+l.402 M
+       achine learning approaches can also be an useful tool for secret dete...
+]
 Underfull \hbox (badness 10000) in paragraph at lines 452--452
 []|\OT1/cmr/bx/n/10.95 Automation in
  []
@@ -967,6 +968,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 452--452
 
 Underfull \hbox (badness 1242) in paragraph at lines 452--452
 []|\OT1/cmr/bx/n/10.95 Ecosystem Scale &
+ []
+
+
+Underfull \hbox (badness 1048) in paragraph at lines 452--452
+[]|\OT1/cmr/m/n/10.95 High - CLI, JSON
  []
 
 
@@ -985,6 +991,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 452--452
  []
 
 
+Underfull \hbox (badness 5741) in paragraph at lines 452--452
+[]|\OT1/cmr/m/n/10.95 High - \OT1/cmtt/m/n/10.95 deny.toml
+ []
+
+
 Underfull \hbox (badness 4441) in paragraph at lines 452--452
 \OT1/cmr/m/n/10.95 tion; no community-
  []
@@ -992,11 +1003,6 @@ Underfull \hbox (badness 4441) in paragraph at lines 452--452
 
 Underfull \hbox (badness 6825) in paragraph at lines 452--452
 []|\OT1/cmr/m/n/10.95 Distributed code-
- []
-
-
-Underfull \hbox (badness 5091) in paragraph at lines 452--452
-[]|\OT1/cmr/m/n/10.95 Partial --- re-views
  []
 
 
@@ -1054,8 +1060,8 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.2.4}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.469 \subsection
-                 {General-Purpose Security Tools}\label{sect:general-purpose...
+l.473 S
+       emgrep is a fast open source static analysis tool, supporting manu la...
 ] [27] [28]) (./cap3.tex [29] [30
 
 ]
@@ -1280,12 +1286,6 @@ Overfull \hbox (17.62482pt too wide) in paragraph at lines 69--70
 
 [45]) (./cap7.tex [46]
 Chapter 7.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
 [47
 
 
@@ -1293,186 +1293,53 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.7.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.153 \end{table}
-                 
+l.62 
+     
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.2}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.153 \end{table}
-                 ]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (69.94516pt too wide) in paragraph at lines 213--234
- [][] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[48
+l.62 
+     ] [48
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.3}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.373 \end{table}
+l.163 \end{table}
                  
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.4}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.373 \end{table}
-                 ]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (40.80104pt too wide) in paragraph at lines 429--448
- [][] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/bx/n/12 Potential Ty-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 opentelemetry-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-\OT1/cmr/m/n/12 appender-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 opentelemetry-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 proc-macro-error-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 proc-macro-error-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 azure[]-stor-age[]-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 azure[]-stor-age[]-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 clap-verbosity-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 clap-verbosity-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 566--566
-[]|\OT1/cmr/m/n/12 tikv-jemalloc-
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[49
+l.163 \end{table}
+                 
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.5}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.709 
-      
+l.163 \end{table}
+                 ]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <17.28> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 231.
+ [49
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.6}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.709 
-      ]) (./cap8.tex [50
+l.248 \end{table}
+                 
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.7}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
+l.248 \end{table}
+                 ]) (./cap8.tex [50
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.8}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [51
+            {Discussion}\label{chapter:chap8}
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.9}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
@@ -1484,128 +1351,26 @@ has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.11}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.12}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [52
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.13}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.14}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.15}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.16}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [53
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.17}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.18}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.19}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.20}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [54
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.21}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.22}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.23}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.24}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [55
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.25}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.26}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.27}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [56
-
-]
+            {Discussion}\label{chapter:chap8}]
 Chapter 8.
-[57]) (./cap9.tex [58] [59] [60
+[51
 
-]
+]) (./cap9.tex [52]
 Chapter 9.
-) (./main_file_template_bachelor_masters_english.bbl [61] [62
+) (./main_file_template_bachelor_masters_english.bbl [53
+
+] [54
 
 ])
-(./appendixA.tex [63] [64
+(./appendixA.tex [55] [56
 
 ]
 Appendix A.
 
 Underfull \vbox (badness 4927) has occurred while \output is active []
 
- [65])
-(./appendixB.tex [66]
+ [57])
+(./appendixB.tex [58]
 Appendix B.
 
 Overfull \hbox (20.53989pt too wide) in paragraph at lines 25--25
@@ -1613,9 +1378,9 @@ Overfull \hbox (20.53989pt too wide) in paragraph at lines 25--25
 5432/crates"[] 
  []
 
-) (./appendixC.tex [67
+) (./appendixC.tex [59
 
-] [68
+] [60
 
 ]
 Appendix C.
@@ -1627,14 +1392,14 @@ LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
 (Font)              for symbol `textbraceleft' on input line 25.
 
-) (./appendixD.tex [69
+) (./appendixD.tex [61
 pdfTeX warning (ext4): destination with the same identifier (name{table.C.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.1 \chapter
             {Artifact Documentation and Reproducibility}\label{appendix:arti...
-] [70
+] [62
 
 ]
 Appendix D.
@@ -1648,7 +1413,7 @@ Overfull \hbox (17.46674pt too wide) in paragraph at lines 49--64
  [][] 
  []
 
-[71]
+[63]
 Overfull \hbox (31.38957pt too wide) in paragraph at lines 100--100
  []\OT1/cmtt/m/n/12 git clone https://github.com/[REDACTED]/crates-security-fra
 mework.git[] 
@@ -1666,7 +1431,7 @@ Overfull \hbox (12.86456pt too wide) in paragraph at lines 146--146
 s 10000[] 
  []
 
-[72]) (./appendixE.tex [73] [74
+[64]) (./appendixE.tex [65] [66
 
 ]
 Appendix E.
@@ -1675,13 +1440,13 @@ Overfull \hbox (31.56152pt too wide) in paragraph at lines 5--30
  [][] 
  []
 
-) [75
+) [67
 pdfTeX warning (ext4): destination with the same identifier (name{table.E.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.270 \chapter
-              {Generative AI Tools Usage}] [76
+              {Generative AI Tools Usage}] [68
 
 ]
 Appendix F.
@@ -1691,7 +1456,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 289--289
  []
 
 
-LaTeX Warning: Reference `sectionGhatGPT' on page 77 undefined on input line 28
+LaTeX Warning: Reference `sectionGhatGPT' on page 69 undefined on input line 28
 9.
 
 
@@ -1705,15 +1470,15 @@ Underfull \hbox (badness 2512) in paragraph at lines 289--289
  []
 
 
-LaTeX Warning: Reference `sectionGhatGPT' on page 77 undefined on input line 28
+LaTeX Warning: Reference `sectionGhatGPT' on page 69 undefined on input line 28
 9.
 
 
-LaTeX Warning: Reference `sectionCopilot' on page 77 undefined on input line 28
+LaTeX Warning: Reference `sectionCopilot' on page 69 undefined on input line 28
 9.
 
 
-LaTeX Warning: Reference `sectionDeepL' on page 77 undefined on input line 289.
+LaTeX Warning: Reference `sectionDeepL' on page 69 undefined on input line 289.
 
 
 
@@ -1721,7 +1486,7 @@ Underfull \hbox (badness 2680) in paragraph at lines 289--289
 []|\OT1/cmr/m/n/12 Correct gram-mar
  []
 
-[77
+[69
 pdfTeX warning (ext4): destination with the same identifier (name{table.F.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
@@ -1742,34 +1507,65 @@ LaTeX Warning: There were undefined references.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package rerunfilecheck Info: File `main_file_template_bachelor_masters_english.
-out' has not changed.
-(rerunfilecheck)             Checksum: C6C654C04001BADC47A084124B8DD09C;22200.
+
+Package rerunfilecheck Warning: File `main_file_template_bachelor_masters_engli
+sh.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main_file_template_bachelor_masters
+_english.out':
+(rerunfilecheck)             Before: 6E27A0EAE0E5C686F39F9AE2404716E4;21151
+(rerunfilecheck)             After:  BD5806E4815B86730E7B25664F1568D5;20964.
  ) 
 Here is how much of TeX's memory you used:
- 25743 strings out of 469515
- 462753 string characters out of 5470807
- 902403 words of memory out of 5000000
- 53689 multiletter control sequences out of 15000+600000
- 637719 words of font info for 77 fonts, out of 8000000 for 9000
+ 25693 strings out of 469515
+ 462034 string characters out of 5470807
+ 872167 words of memory out of 5000000
+ 53664 multiletter control sequences out of 15000+600000
+ 637888 words of font info for 78 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  84i,15n,94p,1757b,832s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/s
-hare/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl12.pfb></usr/share/texmf-dis
-t/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmti12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pf
-b></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/s
-hare/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on main_file_template_bachelor_masters_english.pdf (77 pages, 39
-0166 bytes).
+
+pdfTeX warning (dest): name{section.8.4} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.8.3.5} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.8.3.4} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.8.3.3} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.8.3.2} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.8.3.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/s
+hare/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmsl12.pfb></usr/share/texmf-dist/fonts/type1/pu
+blic/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmti12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/share/te
+xmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on main_file_template_bachelor_masters_english.pdf (69 pages, 37
+7954 bytes).
 PDF statistics:
- 1125 PDF objects out of 1200 (max. 8388607)
- 1007 compressed objects within 11 object streams
- 256 named destinations out of 1000 (max. 500000)
- 938 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1048 PDF objects out of 1200 (max. 8388607)
+ 939 compressed objects within 10 object streams
+ 231 named destinations out of 1000 (max. 500000)
+ 898 words of extra memory for PDF output out of 10000 (max. 10000000)
 

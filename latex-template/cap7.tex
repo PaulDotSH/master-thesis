@@ -2,710 +2,956 @@
 
 \section{Dataset Overview}\label{sect:dataset-overview}
 
-The analysis was done against a snapshot of the crates.io database obtained on [DATE] (atm 30 March 2026).
-NOTE: I will run the tool on a more recent version and will let it reach 100\% or close to it. This is a "demo" for this class.
-
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|l|}
+\begin{tabular}{|l|r|r|}
 \hline
-\textbf{Metric} & \textbf{Value} \\
+\textbf{Status} & \textbf{Count} & \textbf{\% of total} \\
 \hline
-Total crates indexed & 245,551 \\
+Total crates in database & 264{.}750 & 100\% \\
 \hline
-Crates analyzed & 53,544 (21.8\%) \\
+Crates with scan records in the database & 260{.}912 & 98.6\% \\
 \hline
-Dependency relationships & 1,551,031 \\
+Successfully scanned (\texttt{llm\_score != -1}) & $\sim$226{.}546 & $\sim$85.6\% \\
 \hline
-Total ecosystem downloads & 266.56 billion \\
+Failed scans (\texttt{llm\_score = -1}) & $\sim$34{.}366 & $\sim$13.0\% \\
 \hline
-Temporal coverage & Nov 2014 -- Mar 2026 \\
-\hline
-Earliest crate & 2014-11-11 \\
-\hline
-Latest update & 2026-03-30 \\
+Not attempted & $\sim$3{.}838 & $\sim$1.4\% \\
 \hline
 \end{tabular}
-\caption{Dataset Summary Statistics}
-\label{tab:dataset-summary}
+\caption{Crate scanning statistics}
+\label{tab:crate-scan-stats}
 \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Percentile} & \textbf{Downloads} \\
-\hline
-25th (P25) & 1,149 \\
-\hline
-50th (Median) & 3,041 \\
-\hline
-75th (P75) & 10,667 \\
-\hline
-95th (P95) & 266,807 \\
-\hline
-Mean & 1,085,553 \\
-\hline
-\end{tabular}
-\caption{Download Distribution Statistics}
-\label{tab:download-stats}
-\end{table}
+On this run, 264.750 crates were present in the crates.io database dump. A small percentage of crates have private repositories or have blocked access on some IPs, and ~13.0\% failed to be scanned due to reasons including a missing Cargo.lock file, making the analysis with cargo audit not possible, a percentage of ~85.6\% of crates were successfully scanned.
+The percentage of vulnerable crates will use the 226.546 number of the successfully scanned crates to avoid skewing results related to crates with unknown status.
 
-The download distribution is extremely skewed, a small number of crates are responsible for most downloads. This is probably due to popular depdendencies and dependency chains.
+Out of the 226.546 successfully scanned crates, 72.773 (32.1\%) had at least one vulnerability, which would be ~1 in 3 crates.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \begin{tabular}{|l|r|}
 \hline
-\textbf{Year} & \textbf{Crates Created} \\
-\hline
-2014 & 598 \\
-\hline
-2015 & 2,595 \\
-\hline
-2016 & 3,596 \\
-\hline
-2017 & 5,485 \\
-\hline
-2018 & 7,716 \\
-\hline
-2019 & 11,426 \\
-\hline
-2020 & 17,142 \\
-\hline
-2021 & 19,909 \\
-\hline
-2022 & 25,582 \\
-\hline
-2023 & 32,606 \\
-\hline
-2024 & 36,126 \\
-\hline
-2025 & 50,589 \\
-\hline
-2026 (partial) & 32,181 \\
-\hline
-\end{tabular}
-\caption{Crates Created per Year}
-\label{tab:crates-per-year}
-\end{table}
-
-We can see consistent growth in the number of crates, with a growth of ~40\% since 2015, and a significant growth in the last 2 years, especially since this data is from March.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Crate} & \textbf{Dependents} \\
-\hline
-serde & 80,031 \\
-\hline
-serde\_json & 55,479 \\
-\hline
-thiserror & 42,910 \\
-\hline
-tokio & 39,830 \\
-\hline
-clap & 33,224 \\
-\hline
-anyhow & 30,862 \\
-\hline
-log & 26,509 \\
-\hline
-tracing & 24,714 \\
-\hline
-chrono & 24,470 \\
-\hline
-rand & 19,968 \\
-\hline
-\end{tabular}
-\caption{Most Depended-Upon Crates}
-\label{tab:top-crates-dependents}
-\end{table}
-
-Those crates represent are the most critical ones which would have the biggest impact in case of a compromise or vulnerability, affecting a very large number of dependent crates and their users.
-
-\section{Vulnerability Landscape}\label{sect:vuln-landscape}
-
-The cargo audit module identified a large number of known vulnerabilities across this small subset of the ecosystem.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
 \textbf{Metric} & \textbf{Value} \\
 \hline
-Total vulnerability instances & 19,558 \\
+Total crates in database & 264{,}750 \\
 \hline
-Unique RustSec advisories & 281 \\
+Successfully scanned & 226{,}546 \\
 \hline
-Affected crates & 4,473 (8.4\% of analyzed) \\
+Failed / never attempted & 38{,}204 (14.4\%) \\
 \hline
-Crates with $\geq 1$ vulnerability & 8.36\% \\
+Crates with vulns & 72{,}773 (32.1\% of scanned) \\
 \hline
-Average vulnerabilities per affected crate & 4.37 \\
+Max vulns in a single crate & 83 \\
 \hline
-Maximum vulnerabilities in single crate & 62 \\
+Mean vulns per crate (scanned) & $\sim$2.13 \\
+\hline
+Median vulns per crate (scanned) & 0 \\
+\hline
+Mean dependencies per crate & 6.47 \\
+\hline
+Median dependencies per crate & 4 \\
 \hline
 \end{tabular}
-\caption{Vulnerability Statistics Summary}
-\label{tab:vulnerability-stats}
+\caption{Summary statistics for scanned crates}
+\label{tab:crate-summary}
 \end{table}
 
-\begin{table}[h]
+The median crate has 0 vulnerabilities, but the mean is ~2.13 due to some unmaintained crates that have a large number of vulnerabilities.
+Sim1h, the "most vulnerable" crate, has been last updated over 5 years ago, the same case is for holochain\_core\_types, in\_stream, holochain\_locksmith, oatie, which are the 5 most vulnerable crates by cargo audit vulnerability count. Due to a minority of the crates having a large number of vulnerabilities the mean and median are quite different.
+
+\begin{table}[ht]
 \centering
-\begin{tabular}{|l|l|r|r|}
+\begin{tabular}{|c|r|r|}
 \hline
-\textbf{Severity Level} & \textbf{CVSS Score Range} & \textbf{Count} & \textbf{Percentage} \\
+\textbf{Vulns per crate} & \textbf{Count} & \textbf{\% of scanned} \\
 \hline
-Critical & 90--100 & 415 & 2.1\% \\
+0 & $\sim$153{,}773 & $\sim$67.9\% \\
 \hline
-High & 70--89 & 2,155 & 11.0\% \\
+1 & $\sim$19{,}054 & $\sim$8.4\% \\
 \hline
-Medium & 40--69 & 1,583 & 8.1\% \\
+2 & $\sim$8{,}412 & $\sim$3.7\% \\
 \hline
-Low & 1--39 & 352 & 1.8\% \\
+3--4 & $\sim$12{,}891 & $\sim$5.7\% \\
 \hline
-Unknown/Unscored & 0 & 15,053 & 77.0\% \\
+5--9 & $\sim$16{,}496 & $\sim$7.3\% \\
+\hline
+10+ & $\sim$15{,}920 & $\sim$7.0\% \\
 \hline
 \end{tabular}
-\caption{CVSS Severity Distribution}
-\label{tab:cvss-severity}
+\caption{Distribution of vulnerabilities per scanned crate}
+\label{tab:vuln-distribution}
 \end{table}
 
-A high proportion of vulnerabilities have no CVSS score.
+~68\% of scanned crates have zero known vulnerabilities, however ~7\% have at least 10 vulnerabilities, we can see that there is a significant count of unmaintained crates.
 
-\begin{table}[h]
+\section{Dependency network}\label{sect:dependency-network}
+
+\begin{table}[ht]
 \centering
-\begin{tabular}{|l|r|}
+\begin{tabular}{|c|r|r|}
 \hline
-\textbf{RustSec ID} & \textbf{Occurrences} \\
+\textbf{Dependencies} & \textbf{Count} & \textbf{\%} \\
 \hline
-RUSTSEC-2026-0007 & 1,377 \\
+0 & $\sim$43{,}729 & $\sim$16.5\% \\
 \hline
-RUSTSEC-2026-0049 & 1,231 \\
+1--4 & $\sim$96{,}868 & $\sim$36.6\% \\
 \hline
-RUSTSEC-2026-0009 & 1,081 \\
+5--9 & $\sim$64{,}836 & $\sim$24.5\% \\
 \hline
-RUSTSEC-2024-0421 & 987 \\
+10--19 & $\sim$43{,}762 & $\sim$16.5\% \\
 \hline
-RUSTSEC-2025-0055 & 816 \\
+20--49 & $\sim$14{,}597 & $\sim$5.5\% \\
 \hline
-RUSTSEC-2026-0037 & 683 \\
+50--99 & 907 & 0.3\% \\
 \hline
-RUSTSEC-2023-0071 & 668 \\
+100--199 & 47 & 0.02\% \\
 \hline
-RUSTSEC-2025-0009 & 623 \\
-\hline
-RUSTSEC-2024-0006 & 514 \\
-\hline
-RUSTSEC-2026-0067 & 417 \\
+200+ & 4 & 0.002\% \\
 \hline
 \end{tabular}
-\caption{Most Frequent RustSec Advisories}
-\label{tab:rustsec-frequency}
+\caption{Distribution of dependency counts across crates}
+\label{tab:dependency-distribution}
 \end{table}
 
-The most common vulnerability is RUSTSEC-2026-0007 which is a memory corruption vulnerability in the "bytes" crate, which can lead to a buffer overflow and potential RCE.
+Most crates have a small number of dependency, however the ecosystem has over 1.7 million dependency relationships.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|r|r|}
-\hline
-\textbf{Crate} & \textbf{Vulnerability Count} & \textbf{Weighted Risk Score} & \textbf{Downloads} \\
-\hline
-radicle-registry-node & 58 & 1,796 & 1,819 \\
-\hline
-radicle-registry-client & 58 & 1,796 & 1,685 \\
-\hline
-radicle-registry-runtime & 58 & 1,796 & 3,119 \\
-\hline
-memzero & 36 & 1,631 & --- \\
-\hline
-keccak-hasher & 36 & 1,631 & --- \\
-\hline
-tetcore-std & 62 & 1,463 & 52,681 \\
-\hline
-noble-contracts-proc-macro & 62 & 1,463 & 7,372 \\
-\hline
-tetcore-test-utils-test-crate & 62 & 1,463 & 1,586 \\
-\hline
-\end{tabular}
-\caption{High-Risk Crates by Vulnerability and Score}
-\label{tab:high-risk-crates}
-\end{table}
-
-Radicle packages suggest shared vulnerable dependencies relied upon.
-
-\section{Secret Leakage Findings}\label{sect:secret-leakage}
-
-The gitleaks module dertected substential exposre across the analyzed repositories, a significant number is of false positives from test files.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Metric} & \textbf{Value} \\
-\hline
-Total secrets detected & 393,059 \\
-\hline
-Unique detection rules triggered & 31 \\
-\hline
-Affected crates & 1,496 (2.8\% of analyzed) \\
-\hline
-Average secrets per affected crate & 262.7 \\
-\hline
-\end{tabular}
-\caption{Secret Detection (Gitleaks) Summary}
-\label{tab:gitleaks-summary}
-\end{table}
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \begin{tabular}{|l|r|l|}
 \hline
-\textbf{Rule ID} & \textbf{Count} & \textbf{Percentage} \\
+\textbf{Crate} & \textbf{Dependents} & \textbf{Notes} \\
 \hline
-generic-api-key & 391,361 & 99.57\% \\
+\texttt{serde} & 89{,}672 & -- \\
 \hline
-aws-access-token & 561 & 0.14\% \\
+\texttt{serde\_json} & 63{,}881 & -- \\
 \hline
-curl-auth-header & 426 & 0.11\% \\
+\texttt{thiserror} & 49{,}325 & -- \\
 \hline
-private-key & 244 & 0.06\% \\
+\texttt{tokio} & 45{,}351 & -- \\
 \hline
-jwt & 109 & 0.03\% \\
-\hline
-github-pat & 73 & 0.02\% \\
-\hline
-curl-auth-user & 57 & 0.01\% \\
-\hline
-stripe-access-token & 48 & 0.01\% \\
-\hline
-datadog-access-token & 32 & <0.01\% \\
-\hline
-slack-webhook-url & 31 & <0.01\% \\
+\texttt{clap} & 36{,}323 & Has 6 vulns \\
 \hline
 \end{tabular}
-\caption{Gitleaks Rule Frequency Distribution}
-\label{tab:gitleaks-rules}
+\caption{Top 5 most depended-upon crates}
+\label{tab:top-dependent-crates}
 \end{table}
 
-\begin{table}[h]
+The most dependend-upon crates are mostly vulnerability free as of the current scan, however clap according to cargo audit has 6 known vulnerabilities which could affect over 36.000 of downstream crates.
+
+Some crates are both highly dependend upon and also have known vulnerabilities, some of these are:
+
+\begin{table}[ht]
 \centering
-\begin{tabular}{|l|l|}
+\begin{tabular}{|l|r|r|}
 \hline
-\textbf{Metric} & \textbf{Value} \\
+\textbf{Crate} & \textbf{Dependents} & \textbf{Vulnerabilities} \\
 \hline
-Average entropy & 3.82 bits \\
+\texttt{sp-runtime} & 567 & 41 \\
 \hline
-Minimum entropy & 0.00 bits \\
+\texttt{sp-core} & 473 & 41 \\
 \hline
-Maximum entropy & 5.68 bits \\
+\texttt{sqlx} & 2{,}411 & 12 \\
+\hline
+\texttt{tokio-rustls} & 1{,}434 & 9 \\
+\hline
+\texttt{prost} & 3{,}699 & 2 \\
 \hline
 \end{tabular}
-\caption{Entropy Statistics for Detected Secrets}
-\label{tab:entropy-stats-secrets}
+\caption{Popular crates with notable vulnerability counts}
+\label{tab:popular-vulnerable-crates}
 \end{table}
 
-The minimum of 0 bits is due to the system failing on select repositories.
+sp-runtime has sp-core as a dependency which makes it also appear as highly vulnerable.
 
-\begin{table}[h]
+A single advisory (RUSTSEC-2023-0071) propagates to multiple crates due to the dependency on sp-core or crates that depend on sp-core.
+
+Excluding entries that have 'test' or 'example' in the file location, there have been 882.955 secrets found across 18.571 crates. However almost all of the found secrets are false positives of the gitleaks rule 'generic-api-key', besides this, even for the rest of the rules almost all detections are still false positives. Even some other rules like openai-api-key after being manually checked, contain false positives due to keys mimicking the patterns but not being actual valid keys, in this exact case they are being comments for examples.
+
+\begin{table}[ht]
 \centering
-\begin{tabular}{|l|r|}
+\begin{tabular}{|l|r|r|r|}
 \hline
-\textbf{Crate} & \textbf{Secret Count} \\
+\textbf{Type} & \textbf{Occurrences} & \textbf{\%} & \textbf{Crates} \\
 \hline
-xoofff & 187,640 \\
+\texttt{generic-api-key} & 845{,}625 & 95.8\% & 16{,}387 \\
 \hline
-fuel-core-bft & 29,431 \\
+\texttt{private-key} & 18{,}168 & 2.1\% & 3{,}646 \\
 \hline
-libjade-sys & 9,646 \\
+\texttt{curl-auth-header} & 9{,}631 & 1.1\% & 1{,}849 \\
 \hline
-libcrux-hacl & 9,646 \\
+\texttt{jwt} & 1{,}885 & 0.2\% & 917 \\
 \hline
-libcrux-platform & 9,646 \\
+\texttt{github-pat} & 1{,}512 & 0.2\% & 561 \\
 \hline
-tnt-core-fixtures & 8,960 \\
+\texttt{gcp-api-key} & 1{,}136 & 0.1\% & 412 \\
 \hline
-cryptocol & 4,943 \\
+\texttt{aws-access-token} & 1{,}094 & 0.1\% & 438 \\
 \hline
-tinyaes & 4,372 \\
+\texttt{stripe-access-token} & 923 & 0.1\% & 511 \\
 \hline
-tari\_base\_node\_client & 2,892 \\
+\texttt{openai-api-key} & 2 & $<0.01\%$ & 1 \\
 \hline
-minotari\_wallet\_ffi & 2,892 \\
+All others & 3{,}983 & 0.5\% & --- \\
 \hline
 \end{tabular}
-\caption{Crates with Highest Number of Detected Secrets}
-\label{tab:top-secret-crates}
+\caption{Distribution of detected secret types}
+\label{tab:secret-type-distribution}
 \end{table}
 
-'generic-api-key' detections are the most common with a percentage of 99.57\%, indicating a high number of false positives from crypto constants and test files.
+The mean entropy is 3.87, median entropy is 3.81, p95 is 4.83 and max entropy is 5.91. Higher entropies indicate potential secrets. However due to the high amount of false positives entropy is not a good way to filter results, however it can filter out low entropy "fake" secrets.
 
-\section{Build Script Risk Assessment}\label{sect:build-script-risk}
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Severity} & \textbf{Findings} & \textbf{\%} & \textbf{Affected crates} \\
+\hline
+Critical (9.0--10.0) & 8{,}841 & 1.8\% & 4{,}917 \\
+\hline
+High (7.0--8.9) & 39{,}536 & 8.2\% & 18{,}258 \\
+\hline
+Medium (4.0--6.9) & 30{,}717 & 6.4\% & 23{,}177 \\
+\hline
+Low (1.0--3.9) & 5{,}148 & 1.1\% & 2{,}461 \\
+\hline
+Info ($<1.0$) & 398{,}783 & 82.6\% & 67{,}785 \\
+\hline
+\end{tabular}
+\caption{Distribution of vulnerability severities}
+\label{tab:vulnerability-severity-distribution}
+\end{table}
 
-The build script analysis revealted the following:
+Most vulnerabilities are informational, most being from unmaintained and deprecated crates. Even though most vulnerabilities are not exploitable, there is a supply-chain hygiene problem.
+
+The most common advisory that has a severity score is RUSTSEC-2023-0071, with a 5.9 severity and 12.487 occurrences.
+
+
+The raw ip analysis found 13 results, which are all false positives, stemming from stuff like setup files version numbers, user agents.
+\section{Suspicious \texttt{build.rs} Analysis}
 
 \begin{table}[h]
 \centering
 \begin{tabular}{|l|r|r|}
 \hline
-\textbf{Indicator} & \textbf{Count} & \textbf{Percentage of Analyzed} \\
+\textbf{Pattern} & \textbf{Crates} & \textbf{\% of scanned} \\
 \hline
-Total crates with build.rs & 2,463 & 4.6\% \\
-\hline
-Network calls (reqwest, curl, etc.) & 246 & 0.46\% \\
-\hline
-Link directives & 1,084 & 2.02\% \\
-\hline
-Process spawning (\texttt{Command::new}) & 730 & 1.36\% \\
-\hline
-Raw IP addresses & 0 & 0.00\% \\
-\hline
-Free/suspicious TLDs & 13 & 0.02\% \\
-\hline
-Crates with executable files & 841 & 1.57\% \\
+Process Spawning & 3,194 & 1.41\% \\
+Link Directives & 2,403 & 1.06\% \\
+Network Calls & 1,005 & 0.44\% \\
+Free TLDs & 36 & 0.02\% \\
+Raw IP Addresses & 13 & $<0.01\%$ \\
 \hline
 \end{tabular}
-\caption{Build Script Risk Indicators}
-\label{tab:build-rs-risk}
+\caption{Suspicious \texttt{build.rs} Analysis}
+\label{tab:suspicious-buildrs}
 \end{table}
+
+Only 3.5\% of the scanned crates include binaries.
+
+The typosquat detection feature is not as useful for crates.io compared to other ecosystems due to the "patterns" of naming crates, such as opentelemetry-appender and opentelemetry-appender2, safer\_ffi-proc\_macro and safer\_ffi-proc\_macros
+
+The analysis pipeline had cargo audit take most of the time to run.
 
 \begin{table}[h]
 \centering
 \begin{tabular}{|l|r|}
 \hline
-\textbf{Entropy Range} & \textbf{Count} \\
-\hline
-Very High ($\geq$5.5) & 14 \\
-\hline
-High (5.0--5.5) & 380 \\
-\hline
-Medium (4.5--5.0) & 1,869 \\
-\hline
-Low (0--4.5) & 200 \\
-\hline
-None (no build.rs) & 51,081 \\
-\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+Median analysis time & 1.46 seconds \\ \hline
+Mean analysis time & 15.1 seconds \\ \hline
+p95 analysis time & 86.8 seconds \\ \hline
+Max analysis time & 52.1 minutes \\ \hline
+Dominant component & Cargo-audit (avg 11.2s) \\ \hline
 \end{tabular}
-\caption{Build Script Entropy Distribution}
-\label{tab:build-rs-entropy-dist}
+\caption{Analysis Runtime Statistics}
+\label{tab:analysis-runtime}
 \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Crate} & \textbf{Entropy Score} \\
-\hline
-shiguredo\_fdk\_aac & 5.91 \\
-\hline
-shiguredo\_dav1d & 5.84 \\
-\hline
-lbl-tg-rcore-tutorial-vga & 5.80 \\
-\hline
-lbl-tg-rcore-tutorial-ch1-game & 5.80 \\
-\hline
-tg-rcore-tutorial-ch1-t2l3 & 5.80 \\
-\hline
-shiguredo\_nvcodec & 5.79 \\
-\hline
-shiguredo\_webrtc & 5.77 \\
-\hline
-shiguredo\_opus & 5.72 \\
-\hline
-shiguredo\_libyuv & 5.71 \\
-\hline
-shiguredo\_aom & 5.70 \\
-\hline
-\end{tabular}
-\caption{Highest Entropy Build Scripts}
-\label{tab:build-rs-high-entropy}
-\end{table}
+74\% of the mean time is taken by cargo audit, while gitleaks on the second place takes 3.1s on average. The max time analysis is very big compared to mean and median, after manually checking, there are more crates that have similar analysis time and most are due to cargo audit, while some due to the LLM component, cargo audit seems to have problems updating the `tuna` index, even when running the command manually on the max analysis time crate
+We can see that most runs are fast, however there is a right skewe, possibly due to some crates lacking a repository or a Cargo.lock file.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Crate} & \textbf{Network} & \textbf{Link} & \textbf{Process} & \textbf{Free TLDs} & \textbf{Total Indicators} \\
-\hline
-libsodium-ffi & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-ghidra-decompiler-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-tcmalloc2 & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-intel-onemkl-prebuild & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-jc-libavif-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-libntirpc-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
-\hline
-libtor-src & --- & \checkmark & \checkmark & \checkmark & 3 \\
-\hline
-\end{tabular}
-\caption{Crates with Multiple Build.rs Risk Indicators ($\geq$3)}
-\label{tab:build-rs-multi-risk}
-\end{table}
+We used the model "google/gemma-4-e4b" for the LLM analysis and we scanned the top 10 crates by vulnerability count.
+The biggest score is 95, for 'holochain\_core\_types', due to it containing a file at the path crates/trycp\_server/src/main.rs that runs Command::new("bash").args(\&["-c", arbitrary\_command])
 
-Network calls, link directives and process spawning in FFI and sys crates is usually expected but the combination of these together with free TLDs is suspicious and should be manually investigated.
+Crate oatie has the second biggest score, of 75, however the LLM doesn't find any highly suspicious code, and neither does manual checking do.
 
-\section{LLM Malicious Code Analysis}\label{sect:llm-analysis}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Percentile} & \textbf{Downloads} \\
+% \hline
+% 25th (P25) & 1,149 \\
+% \hline
+% 50th (Median) & 3,041 \\
+% \hline
+% 75th (P75) & 10,667 \\
+% \hline
+% 95th (P95) & 266,807 \\
+% \hline
+% Mean & 1,085,553 \\
+% \hline
+% \end{tabular}
+% \caption{Download Distribution Statistics}
+% \label{tab:download-stats}
+% \end{table}
 
-LLM analysis was disabled due to computational constrains on this test run
+% The download distribution is extremely skewed, a small number of crates are responsible for most downloads. This is probably due to popular depdendencies and dependency chains.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|r|}
-\hline
-\textbf{Score Range} & \textbf{Count} & \textbf{Percentage} \\
-\hline
-Minimal (0--24) & 53,544 & 100.0\% \\
-\hline
-Low (25--49) & 0 & 0.0\% \\
-\hline
-Medium (50--74) & 0 & 0.0\% \\
-\hline
-High (75--100) & 0 & 0.0\% \\
-\hline
-\end{tabular}
-\caption{LLM Score Distribution}
-\label{tab:llm-score-distribution}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Year} & \textbf{Crates Created} \\
+% \hline
+% 2014 & 598 \\
+% \hline
+% 2015 & 2,595 \\
+% \hline
+% 2016 & 3,596 \\
+% \hline
+% 2017 & 5,485 \\
+% \hline
+% 2018 & 7,716 \\
+% \hline
+% 2019 & 11,426 \\
+% \hline
+% 2020 & 17,142 \\
+% \hline
+% 2021 & 19,909 \\
+% \hline
+% 2022 & 25,582 \\
+% \hline
+% 2023 & 32,606 \\
+% \hline
+% 2024 & 36,126 \\
+% \hline
+% 2025 & 50,589 \\
+% \hline
+% 2026 (partial) & 32,181 \\
+% \hline
+% \end{tabular}
+% \caption{Crates Created per Year}
+% \label{tab:crates-per-year}
+% \end{table}
 
-All crates received the default score of 0. The following runs will have a partial LLM analysis.
+% We can see consistent growth in the number of crates, with a growth of ~40\% since 2015, and a significant growth in the last 2 years, especially since this data is from March.
 
-\section{Typosquatting Detection Results}\label{sect:typosquat-results}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Crate} & \textbf{Dependents} \\
+% \hline
+% serde & 80,031 \\
+% \hline
+% serde\_json & 55,479 \\
+% \hline
+% thiserror & 42,910 \\
+% \hline
+% tokio & 39,830 \\
+% \hline
+% clap & 33,224 \\
+% \hline
+% anyhow & 30,862 \\
+% \hline
+% log & 26,509 \\
+% \hline
+% tracing & 24,714 \\
+% \hline
+% chrono & 24,470 \\
+% \hline
+% rand & 19,968 \\
+% \hline
+% \end{tabular}
+% \caption{Most Depended-Upon Crates}
+% \label{tab:top-crates-dependents}
+% \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Metric} & \textbf{Value} \\
-\hline
-Total similar pairs identified & 37,596 \\
-\hline
-Average combined score & 79.16 \\
-\hline
-Score range & 75--98 \\
-\hline
-\end{tabular}
-\caption{Typosquatting Detection Overview}
-\label{tab:typosquat-overview}
-\end{table}
+% Those crates represent are the most critical ones which would have the biggest impact in case of a compromise or vulnerability, affecting a very large number of dependent crates and their users.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|r|}
-\hline
-\textbf{Score Range} & \textbf{Count} & \textbf{Percentage} \\
-\hline
-Very High (90--100) & 882 & 2.3\% \\
-\hline
-High (80--89) & 13,286 & 35.3\% \\
-\hline
-Medium (75--79) & 23,428 & 62.3\% \\
-\hline
-\end{tabular}
-\caption{Typosquatting Score Distribution}
-\label{tab:typosquat-score-dist}
-\end{table}
+% \section{Vulnerability Landscape}\label{sect:vuln-landscape}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|r|}
-\hline
-\textbf{Crate} & \textbf{Similar To} & \textbf{Score} \\
-\hline
-opentelemetry-appender-tracing2 & opentelemetry-appender-tracing & 98 \\
-\hline
-tauri-plugin-notifications & tauri-plugin-notification & 97 \\
-\hline
-derive\_destructure & derive\_destructure2 & 97 \\
-\hline
-dioxus-config-macros & dioxus-config-macro & 97 \\
-\hline
-safer\_ffi-proc\_macro & safer\_ffi-proc\_macros & 97 \\
-\hline
-dprint-plugin-jsonc & dprint-plugin-json & 97 \\
-\hline
-clap-verbosity-flag2 & clap-verbosity-flag & 97 \\
-\hline
-protobuf-codegen-pure3 & protobuf-codegen-pure & 97 \\
-\hline
-proc-macro-error-attr2 & proc-macro-error-attr & 97 \\
-\hline
-tauri-plugin-shellx & tauri-plugin-shell & 97 \\
-\hline
-\end{tabular}
-\caption{Highest Scoring Similar Typosquatting Pairs}
-\label{tab:typosquat-top-pairs}
-\end{table}
+% The cargo audit module identified a large number of known vulnerabilities across this small subset of the ecosystem.
 
-\begin{table}[h]
-\centering
-\begin{tabularx}{\textwidth}{|X|X|r|r|r|}
-\hline
-\textbf{Potential Typosquat} & \textbf{Target Crate} & \textbf{Typosquat DL} & \textbf{Target DL} & \textbf{Score} \\
-\hline
-opentelemetry-appender-tracing2 & opentelemetry-appender-tracing & 5,043 & 6.4M & 98 \\
-\hline
-proc-macro-error-attr2 & proc-macro-error-attr & 75.8M & 258.9M & 97 \\
-\hline
-azure\_storage\_blob & azure\_storage\_blobs & 735K & 16.1M & 97 \\
-\hline
-clap-verbosity-flag2 & clap-verbosity-flag & 3,490 & 12.0M & 97 \\
-\hline
-windows-string & windows-strings & 1,670 & 148.8M & 96 \\
-\hline
-async-recursion2 & async-recursion & 2,475 & 95.7M & 96 \\
-\hline
-tikv-jemalloc-sys2 & tikv-jemalloc-sys & 1,639 & 66.8M & 96 \\
-\hline
-\end{tabularx}
-\caption{High-Risk Typosquats Targeting Popular Crates (1M+ Downloads)}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Total vulnerability instances & 19,558 \\
+% \hline
+% Unique RustSec advisories & 281 \\
+% \hline
+% Affected crates & 4,473 (8.4\% of analyzed) \\
+% \hline
+% Crates with $\geq 1$ vulnerability & 8.36\% \\
+% \hline
+% Average vulnerabilities per affected crate & 4.37 \\
+% \hline
+% Maximum vulnerabilities in single crate & 62 \\
+% \hline
+% \end{tabular}
+% \caption{Vulnerability Statistics Summary}
+% \label{tab:vulnerability-stats}
+% \end{table}
 
-The majority of the high scores are legitimate forks or versions rather than typosquats. However pairs like 'windows-string' and 'windows-strings' are suspicious and should be manually investigated.
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|r|r|}
+% \hline
+% \textbf{Severity Level} & \textbf{CVSS Score Range} & \textbf{Count} & \textbf{Percentage} \\
+% \hline
+% Critical & 90--100 & 415 & 2.1\% \\
+% \hline
+% High & 70--89 & 2,155 & 11.0\% \\
+% \hline
+% Medium & 40--69 & 1,583 & 8.1\% \\
+% \hline
+% Low & 1--39 & 352 & 1.8\% \\
+% \hline
+% Unknown/Unscored & 0 & 15,053 & 77.0\% \\
+% \hline
+% \end{tabular}
+% \caption{CVSS Severity Distribution}
+% \label{tab:cvss-severity}
+% \end{table}
+
+% A high proportion of vulnerabilities have no CVSS score.
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{RustSec ID} & \textbf{Occurrences} \\
+% \hline
+% RUSTSEC-2026-0007 & 1,377 \\
+% \hline
+% RUSTSEC-2026-0049 & 1,231 \\
+% \hline
+% RUSTSEC-2026-0009 & 1,081 \\
+% \hline
+% RUSTSEC-2024-0421 & 987 \\
+% \hline
+% RUSTSEC-2025-0055 & 816 \\
+% \hline
+% RUSTSEC-2026-0037 & 683 \\
+% \hline
+% RUSTSEC-2023-0071 & 668 \\
+% \hline
+% RUSTSEC-2025-0009 & 623 \\
+% \hline
+% RUSTSEC-2024-0006 & 514 \\
+% \hline
+% RUSTSEC-2026-0067 & 417 \\
+% \hline
+% \end{tabular}
+% \caption{Most Frequent RustSec Advisories}
+% \label{tab:rustsec-frequency}
+% \end{table}
+
+% The most common vulnerability is RUSTSEC-2026-0007 which is a memory corruption vulnerability in the "bytes" crate, which can lead to a buffer overflow and potential RCE.
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|r|r|}
+% \hline
+% \textbf{Crate} & \textbf{Vulnerability Count} & \textbf{Weighted Risk Score} & \textbf{Downloads} \\
+% \hline
+% radicle-registry-node & 58 & 1,796 & 1,819 \\
+% \hline
+% radicle-registry-client & 58 & 1,796 & 1,685 \\
+% \hline
+% radicle-registry-runtime & 58 & 1,796 & 3,119 \\
+% \hline
+% memzero & 36 & 1,631 & --- \\
+% \hline
+% keccak-hasher & 36 & 1,631 & --- \\
+% \hline
+% tetcore-std & 62 & 1,463 & 52,681 \\
+% \hline
+% noble-contracts-proc-macro & 62 & 1,463 & 7,372 \\
+% \hline
+% tetcore-test-utils-test-crate & 62 & 1,463 & 1,586 \\
+% \hline
+% \end{tabular}
+% \caption{High-Risk Crates by Vulnerability and Score}
+% \label{tab:high-risk-crates}
+% \end{table}
+
+% Radicle packages suggest shared vulnerable dependencies relied upon.
+
+% \section{Secret Leakage Findings}\label{sect:secret-leakage}
+
+% The gitleaks module dertected substential exposre across the analyzed repositories, a significant number is of false positives from test files.
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Total secrets detected & 393,059 \\
+% \hline
+% Unique detection rules triggered & 31 \\
+% \hline
+% Affected crates & 1,496 (2.8\% of analyzed) \\
+% \hline
+% Average secrets per affected crate & 262.7 \\
+% \hline
+% \end{tabular}
+% \caption{Secret Detection (Gitleaks) Summary}
+% \label{tab:gitleaks-summary}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|l|}
+% \hline
+% \textbf{Rule ID} & \textbf{Count} & \textbf{Percentage} \\
+% \hline
+% generic-api-key & 391,361 & 99.57\% \\
+% \hline
+% aws-access-token & 561 & 0.14\% \\
+% \hline
+% curl-auth-header & 426 & 0.11\% \\
+% \hline
+% private-key & 244 & 0.06\% \\
+% \hline
+% jwt & 109 & 0.03\% \\
+% \hline
+% github-pat & 73 & 0.02\% \\
+% \hline
+% curl-auth-user & 57 & 0.01\% \\
+% \hline
+% stripe-access-token & 48 & 0.01\% \\
+% \hline
+% datadog-access-token & 32 & <0.01\% \\
+% \hline
+% slack-webhook-url & 31 & <0.01\% \\
+% \hline
+% \end{tabular}
+% \caption{Gitleaks Rule Frequency Distribution}
+% \label{tab:gitleaks-rules}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Average entropy & 3.82 bits \\
+% \hline
+% Minimum entropy & 0.00 bits \\
+% \hline
+% Maximum entropy & 5.68 bits \\
+% \hline
+% \end{tabular}
+% \caption{Entropy Statistics for Detected Secrets}
+% \label{tab:entropy-stats-secrets}
+% \end{table}
+
+% The minimum of 0 bits is due to the system failing on select repositories.
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Crate} & \textbf{Secret Count} \\
+% \hline
+% xoofff & 187,640 \\
+% \hline
+% fuel-core-bft & 29,431 \\
+% \hline
+% libjade-sys & 9,646 \\
+% \hline
+% libcrux-hacl & 9,646 \\
+% \hline
+% libcrux-platform & 9,646 \\
+% \hline
+% tnt-core-fixtures & 8,960 \\
+% \hline
+% cryptocol & 4,943 \\
+% \hline
+% tinyaes & 4,372 \\
+% \hline
+% tari\_base\_node\_client & 2,892 \\
+% \hline
+% minotari\_wallet\_ffi & 2,892 \\
+% \hline
+% \end{tabular}
+% \caption{Crates with Highest Number of Detected Secrets}
+% \label{tab:top-secret-crates}
+% \end{table}
+
+% 'generic-api-key' detections are the most common with a percentage of 99.57\%, indicating a high number of false positives from crypto constants and test files.
+
+% \section{Build Script Risk Assessment}\label{sect:build-script-risk}
+
+% The build script analysis revealted the following:
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|r|}
+% \hline
+% \textbf{Indicator} & \textbf{Count} & \textbf{Percentage of Analyzed} \\
+% \hline
+% Total crates with build.rs & 2,463 & 4.6\% \\
+% \hline
+% Network calls (reqwest, curl, etc.) & 246 & 0.46\% \\
+% \hline
+% Link directives & 1,084 & 2.02\% \\
+% \hline
+% Process spawning (\texttt{Command::new}) & 730 & 1.36\% \\
+% \hline
+% Raw IP addresses & 0 & 0.00\% \\
+% \hline
+% Free/suspicious TLDs & 13 & 0.02\% \\
+% \hline
+% Crates with executable files & 841 & 1.57\% \\
+% \hline
+% \end{tabular}
+% \caption{Build Script Risk Indicators}
+% \label{tab:build-rs-risk}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Entropy Range} & \textbf{Count} \\
+% \hline
+% Very High ($\geq$5.5) & 14 \\
+% \hline
+% High (5.0--5.5) & 380 \\
+% \hline
+% Medium (4.5--5.0) & 1,869 \\
+% \hline
+% Low (0--4.5) & 200 \\
+% \hline
+% None (no build.rs) & 51,081 \\
+% \hline
+% \end{tabular}
+% \caption{Build Script Entropy Distribution}
+% \label{tab:build-rs-entropy-dist}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Crate} & \textbf{Entropy Score} \\
+% \hline
+% shiguredo\_fdk\_aac & 5.91 \\
+% \hline
+% shiguredo\_dav1d & 5.84 \\
+% \hline
+% lbl-tg-rcore-tutorial-vga & 5.80 \\
+% \hline
+% lbl-tg-rcore-tutorial-ch1-game & 5.80 \\
+% \hline
+% tg-rcore-tutorial-ch1-t2l3 & 5.80 \\
+% \hline
+% shiguredo\_nvcodec & 5.79 \\
+% \hline
+% shiguredo\_webrtc & 5.77 \\
+% \hline
+% shiguredo\_opus & 5.72 \\
+% \hline
+% shiguredo\_libyuv & 5.71 \\
+% \hline
+% shiguredo\_aom & 5.70 \\
+% \hline
+% \end{tabular}
+% \caption{Highest Entropy Build Scripts}
+% \label{tab:build-rs-high-entropy}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|c|c|c|c|c|}
+% \hline
+% \textbf{Crate} & \textbf{Network} & \textbf{Link} & \textbf{Process} & \textbf{Free TLDs} & \textbf{Total Indicators} \\
+% \hline
+% libsodium-ffi & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% ghidra-decompiler-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% tcmalloc2 & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% intel-onemkl-prebuild & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% jc-libavif-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% libntirpc-sys & \checkmark & \checkmark & \checkmark & --- & 3 \\
+% \hline
+% libtor-src & --- & \checkmark & \checkmark & \checkmark & 3 \\
+% \hline
+% \end{tabular}
+% \caption{Crates with Multiple Build.rs Risk Indicators ($\geq$3)}
+% \label{tab:build-rs-multi-risk}
+% \end{table}
+
+% Network calls, link directives and process spawning in FFI and sys crates is usually expected but the combination of these together with free TLDs is suspicious and should be manually investigated.
+
+% \section{LLM Malicious Code Analysis}\label{sect:llm-analysis}
+
+% LLM analysis was disabled due to computational constrains on this test run
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|r|}
+% \hline
+% \textbf{Score Range} & \textbf{Count} & \textbf{Percentage} \\
+% \hline
+% Minimal (0--24) & 53,544 & 100.0\% \\
+% \hline
+% Low (25--49) & 0 & 0.0\% \\
+% \hline
+% Medium (50--74) & 0 & 0.0\% \\
+% \hline
+% High (75--100) & 0 & 0.0\% \\
+% \hline
+% \end{tabular}
+% \caption{LLM Score Distribution}
+% \label{tab:llm-score-distribution}
+% \end{table}
+
+% All crates received the default score of 0. The following runs will have a partial LLM analysis.
+
+% \section{Typosquatting Detection Results}\label{sect:typosquat-results}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Total similar pairs identified & 37,596 \\
+% \hline
+% Average combined score & 79.16 \\
+% \hline
+% Score range & 75--98 \\
+% \hline
+% \end{tabular}
+% \caption{Typosquatting Detection Overview}
+% \label{tab:typosquat-overview}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|r|}
+% \hline
+% \textbf{Score Range} & \textbf{Count} & \textbf{Percentage} \\
+% \hline
+% Very High (90--100) & 882 & 2.3\% \\
+% \hline
+% High (80--89) & 13,286 & 35.3\% \\
+% \hline
+% Medium (75--79) & 23,428 & 62.3\% \\
+% \hline
+% \end{tabular}
+% \caption{Typosquatting Score Distribution}
+% \label{tab:typosquat-score-dist}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|r|}
+% \hline
+% \textbf{Crate} & \textbf{Similar To} & \textbf{Score} \\
+% \hline
+% opentelemetry-appender-tracing2 & opentelemetry-appender-tracing & 98 \\
+% \hline
+% tauri-plugin-notifications & tauri-plugin-notification & 97 \\
+% \hline
+% derive\_destructure & derive\_destructure2 & 97 \\
+% \hline
+% dioxus-config-macros & dioxus-config-macro & 97 \\
+% \hline
+% safer\_ffi-proc\_macro & safer\_ffi-proc\_macros & 97 \\
+% \hline
+% dprint-plugin-jsonc & dprint-plugin-json & 97 \\
+% \hline
+% clap-verbosity-flag2 & clap-verbosity-flag & 97 \\
+% \hline
+% protobuf-codegen-pure3 & protobuf-codegen-pure & 97 \\
+% \hline
+% proc-macro-error-attr2 & proc-macro-error-attr & 97 \\
+% \hline
+% tauri-plugin-shellx & tauri-plugin-shell & 97 \\
+% \hline
+% \end{tabular}
+% \caption{Highest Scoring Similar Typosquatting Pairs}
+% \label{tab:typosquat-top-pairs}
+% \end{table}
+
+% \begin{table}[h]
+% \centering
+% \begin{tabularx}{\textwidth}{|X|X|r|r|r|}
+% \hline
+% \textbf{Potential Typosquat} & \textbf{Target Crate} & \textbf{Typosquat DL} & \textbf{Target DL} & \textbf{Score} \\
+% \hline
+% opentelemetry-appender-tracing2 & opentelemetry-appender-tracing & 5,043 & 6.4M & 98 \\
+% \hline
+% proc-macro-error-attr2 & proc-macro-error-attr & 75.8M & 258.9M & 97 \\
+% \hline
+% azure\_storage\_blob & azure\_storage\_blobs & 735K & 16.1M & 97 \\
+% \hline
+% clap-verbosity-flag2 & clap-verbosity-flag & 3,490 & 12.0M & 97 \\
+% \hline
+% windows-string & windows-strings & 1,670 & 148.8M & 96 \\
+% \hline
+% async-recursion2 & async-recursion & 2,475 & 95.7M & 96 \\
+% \hline
+% tikv-jemalloc-sys2 & tikv-jemalloc-sys & 1,639 & 66.8M & 96 \\
+% \hline
+% \end{tabularx}
+% \caption{High-Risk Typosquats Targeting Popular Crates (1M+ Downloads)}
+% \end{table}
+
+% The majority of the high scores are legitimate forks or versions rather than typosquats. However pairs like 'windows-string' and 'windows-strings' are suspicious and should be manually investigated.
 
 
 
-\section{Dependency Chain Risk Propagation}\label{sect:dep-chain-risk}
+% \section{Dependency Chain Risk Propagation}\label{sect:dep-chain-risk}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Metric} & \textbf{Value} \\
-\hline
-Crates with malicious dependencies flag & 0 \\
-\hline
-Crates with executable files & 841 (1.57\%) \\
-\hline
-Average dependencies per crate & 6.32 \\
-\hline
-\end{tabular}
-\caption{Transitive Risk Summary}
-\label{tab:transitive-risk-summary}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Crates with malicious dependencies flag & 0 \\
+% \hline
+% Crates with executable files & 841 (1.57\%) \\
+% \hline
+% Average dependencies per crate & 6.32 \\
+% \hline
+% \end{tabular}
+% \caption{Transitive Risk Summary}
+% \label{tab:transitive-risk-summary}
+% \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Crate} & \textbf{Direct Dependencies} \\
-\hline
-pezkuwi-sdk & 394 \\
-\hline
-polkadot-sdk & 380 \\
-\hline
-zigbee2mqtt-types & 254 \\
-\hline
-gnostr & 199 \\
-\hline
-forest-filecoin & 169 \\
-\hline
-apollo-router & 150 \\
-\hline
-uhg-custom-appollo-roouter & 143 \\
-\hline
-solana-core & 141 \\
-\hline
-zero4rs & 140 \\
-\hline
-solana-runtime & 136 \\
-\hline
-\end{tabular}
-\caption{Crates with Most Dependencies}
-\label{tab:top-dependencies}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Crate} & \textbf{Direct Dependencies} \\
+% \hline
+% pezkuwi-sdk & 394 \\
+% \hline
+% polkadot-sdk & 380 \\
+% \hline
+% zigbee2mqtt-types & 254 \\
+% \hline
+% gnostr & 199 \\
+% \hline
+% forest-filecoin & 169 \\
+% \hline
+% apollo-router & 150 \\
+% \hline
+% uhg-custom-appollo-roouter & 143 \\
+% \hline
+% solana-core & 141 \\
+% \hline
+% zero4rs & 140 \\
+% \hline
+% solana-runtime & 136 \\
+% \hline
+% \end{tabular}
+% \caption{Crates with Most Dependencies}
+% \label{tab:top-dependencies}
+% \end{table}
 
-Large dependency trees increase complexity of security audits and the attack surface, this list demonstrates potential supply chain risks, we can remove unnecessary dependencies if possible.
+% Large dependency trees increase complexity of security audits and the attack surface, this list demonstrates potential supply chain risks, we can remove unnecessary dependencies if possible.
 
-\section{Performance and Scalability}\label{sect:performance}
+% \section{Performance and Scalability}\label{sect:performance}
 
-The framework was deployed on a single machine with multiple workers.
+% The framework was deployed on a single machine with multiple workers.
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Metric} & \textbf{Value} \\
-\hline
-Total crates analyzed & 52,550 \\
-\hline
-Total wall-clock time & 14h 24m 5s \\
-\hline
-Total CPU time & 60.09 hours \\
-\hline
-Throughput & 1.01 crates/second \\
-\hline
-Throughput & 60.8 crates/minute \\
-\hline
-Throughput & 3,649 crates/hour \\
-\hline
-\end{tabular}
-\caption{Analysis Performance Summary}
-\label{tab:analysis-performance-summary}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|l|}
+% \hline
+% \textbf{Metric} & \textbf{Value} \\
+% \hline
+% Total crates analyzed & 52,550 \\
+% \hline
+% Total wall-clock time & 14h 24m 5s \\
+% \hline
+% Total CPU time & 60.09 hours \\
+% \hline
+% Throughput & 1.01 crates/second \\
+% \hline
+% Throughput & 60.8 crates/minute \\
+% \hline
+% Throughput & 3,649 crates/hour \\
+% \hline
+% \end{tabular}
+% \caption{Analysis Performance Summary}
+% \label{tab:analysis-performance-summary}
+% \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Module} & \textbf{Average Duration (ms)} \\
-\hline
-Total per crate & 4,116.58 \\
-\hline
-Cargo audit & 5,540.03 \\
-\hline
-Gitleaks & 1,047.31 \\
-\hline
-Build.rs analysis & 0.03 \\
-\hline
-LLM analysis & 0.00 (disabled) \\
-\hline
-Git clone/download & 1,645.94 \\
-\hline
-\end{tabular}
-\caption{Per-Analysis Module Timing}
-\label{tab:module-timing}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Module} & \textbf{Average Duration (ms)} \\
+% \hline
+% Total per crate & 4,116.58 \\
+% \hline
+% Cargo audit & 5,540.03 \\
+% \hline
+% Gitleaks & 1,047.31 \\
+% \hline
+% Build.rs analysis & 0.03 \\
+% \hline
+% LLM analysis & 0.00 (disabled) \\
+% \hline
+% Git clone/download & 1,645.94 \\
+% \hline
+% \end{tabular}
+% \caption{Per-Analysis Module Timing}
+% \label{tab:module-timing}
+% \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|}
-\hline
-\textbf{Percentile} & \textbf{Duration (ms)} \\
-\hline
-P50 (Median) & 1,077 \\
-\hline
-P95 & 12,056 \\
-\hline
-P99 & 88,183 \\
-\hline
-Maximum & 1,972,283 (32.9 min) \\
-\hline
-\end{tabular}
-\caption{Analysis Duration Percentiles}
-\label{tab:analysis-duration-percentiles}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|}
+% \hline
+% \textbf{Percentile} & \textbf{Duration (ms)} \\
+% \hline
+% P50 (Median) & 1,077 \\
+% \hline
+% P95 & 12,056 \\
+% \hline
+% P99 & 88,183 \\
+% \hline
+% Maximum & 1,972,283 (32.9 min) \\
+% \hline
+% \end{tabular}
+% \caption{Analysis Duration Percentiles}
+% \label{tab:analysis-duration-percentiles}
+% \end{table}
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|l|r|r|}
-\hline
-\textbf{Worker ID} & \textbf{Crates Analyzed} & \textbf{Avg Duration (ms)} \\
-\hline
-admin-pc & 52,550 & 4,116.58 \\
-\hline
-\end{tabular}
-\caption{Worker Performance}
-\label{tab:worker-performance}
-\end{table}
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{|l|r|r|}
+% \hline
+% \textbf{Worker ID} & \textbf{Crates Analyzed} & \textbf{Avg Duration (ms)} \\
+% \hline
+% admin-pc & 52,550 & 4,116.58 \\
+% \hline
+% \end{tabular}
+% \caption{Worker Performance}
+% \label{tab:worker-performance}
+% \end{table}
 
-The configuration achieved a decently high throughput on the test dataset. The maximum of 33 minutes is indicative of the fact that in the ran version there was no cleaning of caches and the machine remained with no available storage, this was fixed and will not be present in the next runs.
+% The configuration achieved a decently high throughput on the test dataset. The maximum of 33 minutes is indicative of the fact that in the ran version there was no cleaning of caches and the machine remained with no available storage, this was fixed and will not be present in the next runs.
 
 
 

@@ -1,13 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# Safe Docker cleanup for this project.
 # - Stops workers
 # - Removes unused containers/images/networks
-# - Optionally removes project cache volumes
-#
-# Usage:
-#   ./docker-cleanup.sh            # keep named cache volumes
 #   ./docker-cleanup.sh --all      # also remove cache volumes
 
 REMOVE_VOLUMES=false

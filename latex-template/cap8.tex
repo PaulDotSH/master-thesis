@@ -1,22 +1,8 @@
 \chapter{Discussion}\label{chapter:chap8}
 
-\section{Interpretation of Results}\label{sect:interpretation}
-
-The key findings from the analysis is the following:
-
-8.4\% of analyzed crates contain at least one vulnerability, with an average of 4.37 per vulnerable crate. This is lower than the npm rate, however it remains a concern
-
-The top 10 dependent crates have over 350.000 dependent crates.
-
-Over 393.059 secrets were detected by gitleaks, however the majority of them are false positives of generic API key patterns, and probably represent test and constants. The non-generic detections are a small number and should require manual analysis.
-
-Around 4.6\% of crates contain build scripts, with over 240 performing network operations.
-
 \section{Comparison with Existing Approaches}\label{sect:comparison}
 
 SBOM approaches~\cite{spdx2024,owasp2024} provide transparency but do not detect malicious behavior.
-
-TODO: After rerun of framework
 
 \section{Limitations}\label{sect:limitations}
 

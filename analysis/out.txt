@@ -47,44 +47,51 @@ RUSTSEC-2021-0003, RUS               45.31                3119            esvm-r
 ================================================================================
 
 [SQL] Running 02_vuln_per_download_ratio.sql ...
-       -> 30 rows returned
+       -> 19 rows returned
 
 
 ================================================================================
-  02 Vuln Per Download Ratio
+  02 Vuln Per Download Ratio  [Part 1/4]
 ================================================================================
-        advisories        avg_severity     crate_downloads          crate_name        max_severity          vuln_count  vuln_per_log_downl
-------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-RUSTSEC-2020-0008, RUS               41.47                1974               oatie                  98                  58              316.93
-RUSTSEC-2023-0090, RUS               28.87                2965  financial-primitives                  99                  83              299.69
-RUSTSEC-2023-0090, RUS               25.88                1688  runtime-module-conditi                  99                  81              282.03
-RUSTSEC-2023-0090, RUS               25.88                1833  celer-pay-module-rpc                  99                  81              278.94
-RUSTSEC-2023-0090, RUS               25.88                1906    celer-pay-module                  99                  81              277.50
-RUSTSEC-2023-0090, RUS               25.99                1648  pallet-cosmos-abci                  99                  79              277.14
-RUSTSEC-2023-0090, RUS               25.99                2022        abci-storage                  99                  79              269.69
-RUSTSEC-2023-0090, RUS               24.31                1663         punk-pallet                  99                  78              255.63
-RUSTSEC-2023-0090, RUS               25.88                4583  celer-pay-module-rpc-r                  99                  81              248.63
-RUSTSEC-2023-0090, RUS               25.88                4657  mock-boolean-condition                  99                  81              248.15
-RUSTSEC-2023-0090, RUS               25.88                4682  mock-numeric-condition                  99                  81              248.00
-RUSTSEC-2023-0090, RUS               25.99                4850         pallet-abci                  99                  79              241.90
-RUSTSEC-2021-0093, RUS               30.97                1686  radicle-registry-clien                  98                  58              241.70
-RUSTSEC-2021-0093, RUS               30.97                1820  radicle-registry-node                  98                  58              239.24
-RUSTSEC-2019-0034, RUS               37.96                1896          howtocards                  98                  47              236.35
-RUSTSEC-2021-0003, RUS               35.59               34025           in_stream                  98                  68              231.91
-RUSTSEC-2021-0003, RUS               35.59               38552               sim1h                  98                  68              229.17
-RUSTSEC-2021-0003, RUS               43.18                1678             webcord                  98                  39              226.77
-RUSTSEC-2021-0093, RUS               30.97                3158  radicle-registry-runti                  98                  58              222.88
-RUSTSEC-2021-0003, RUS               35.59               69005  holochain_core_types                  98                  68              217.20
-RUSTSEC-2021-0003, RUS               35.59               70999  holochain_locksmith                  98                  68              216.64
-RUSTSEC-2021-0003, RUS               35.20                5230          embed-wasm                  98                  51              209.64
-RUSTSEC-2021-0097, RUS               35.20                5255    embed-wasm-build                  98                  51              209.52
-RUSTSEC-2020-0123, RUS               33.78                1877  substrate-keybase-keys                  98                  46              206.16
-RUSTSEC-2021-0003, RUS               45.31                3119            esvm-rlp                  98                  36              202.72
-RUSTSEC-2019-0012, RUS               45.06                2105            youkebox                  98                  34              200.19
-RUSTSEC-2023-0090, RUS               20.04                1572  tetcore-fabric-rpc-sup                  99                  73              198.76
-RUSTSEC-2023-0090, RUS               20.04                1578  tetcore-test-runtime-t                  99                  73              198.65
-RUSTSEC-2023-0090, RUS               20.04                1587  tetcore-test-utils-tes                  99                  73              198.50
-RUSTSEC-2023-0090, RUS               20.04                1618     noble-elections                  99                  73              197.98
+ crates_with_vulns        failed_scans     in_scan_results  max_vulns_in_crate  mean_deps_per_crat  mean_vulns_per_cra  median_deps_per_cr  median_vulns_per_c     pct_vuln_crates  successfully_scann        total_crates
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+             72773               34366              260912                  83                6.31                2.13                   4                   0               32.12              226546              264750
+
+================================================================================
+  02 Vuln Per Download Ratio  [Part 2/4]
+================================================================================
+       crate_count  vuln_count_bracket
+------------------  ------------------
+            153773                   0
+             19054                   1
+              8412                   2
+             12891                 3-4
+             16496                 5-9
+             15920                 10+
+
+================================================================================
+  02 Vuln Per Download Ratio  [Part 3/4]
+================================================================================
+       crate_count   dep_count_bracket
+------------------  ------------------
+             37035                   0
+             84657                 1-4
+             55848                 5-9
+             36437               10-19
+             11856               20-49
+               683               50-99
+                29             100-199
+                 1                200+
+
+================================================================================
+  02 Vuln Per Download Ratio  [Part 4/4]
+================================================================================
+concentration_buck    pct_of_all_vulns     vulns_in_bucket
+------------------  ------------------  ------------------
+     Top 10 crates                 0.2                 809
+     Top 50 crates                 0.8                3740
+    Top 100 crates                 1.5                7390
+  Remaining crates                98.5              475635
 ================================================================================
 
 [SQL] Running 03_typosquatting_analysis.sql ...
@@ -167,7 +174,7 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
 ================================================================================
 
 [SQL] Running 04_secrets_leaked.sql ...
-       -> 118 rows returned
+       -> 119 rows returned
 
 
 ================================================================================
@@ -234,8 +241,8 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
                 48                3.55                  49                 0.0     algolia-api-key
                 35                4.99                  44                 0.0        github-oauth
                 29                4.83                  42                 0.0     slack-bot-token
-                19                3.49                  38                 0.0  atlassian-api-token
                 19                4.19                  38                 0.0  twitter-access-secret
+                19                3.49                  38                 0.0  atlassian-api-token
                  6                3.88                  37                 0.0  facebook-page-access-t
                 25                4.87                  31                 0.0    npm-access-token
                 17                5.02                  17                 0.0  github-refresh-token
@@ -243,38 +250,39 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
                 16                3.78                  16                 0.0    pulumi-api-token
                  1                4.42                  15                 0.0  gitlab-runner-authenti
                  1                2.71                  15                 0.0     asana-client-id
-                 7                3.89                  11                 0.0   discord-api-token
                 11                3.98                  11                 0.0  cloudflare-api-key
                  6                5.16                  11                 0.0  sendgrid-api-token
+                 7                3.89                  11                 0.0   discord-api-token
+                 4                0.00                   8                 0.0         pkcs12-file
                  6                3.78                   7                 0.0  coinbase-access-token
-                 2                3.10                   6                 0.0          jwt-base64
                  6                3.15                   6                 0.0  linkedin-client-id
+                 2                3.10                   6                 0.0          jwt-base64
                  5                5.23                   5                 0.0  easypost-api-token
                  4                4.98                   4                 0.0  openshift-user-token
                  2                1.50                   4                 0.0  substrate-seed-phrase
-                 1                4.48                   3                 0.0  huggingface-access-tok
                  3                3.67                   3                 0.0  flickr-access-token
+                 1                4.48                   3                 0.0  huggingface-access-tok
+                 1                5.27                   2                 0.0      openai-api-key
+                 2                4.95                   2                 0.0  azure-ad-client-secret
+                 2                3.16                   2                 0.0  linkedin-client-secret
                  1                0.00                   2                 0.0      docs-allowlist
                  2                3.77                   2                 0.0   dropbox-api-token
-                 2                3.16                   2                 0.0  linkedin-client-secret
-                 2                4.95                   2                 0.0  azure-ad-client-secret
-                 1                5.27                   2                 0.0      openai-api-key
                  1                4.32                   1                 0.0          gitlab-rrt
-                 1                5.24                   1                 0.0     grafana-api-key
-                 1                4.32                   1                 0.0    cohere-api-token
-                 1                4.02                   1                 0.0  gitlab-oauth-app-secre
+                 1                3.93                   1                 0.0  nytimes-access-token
+                 1                4.42                   1                 0.0  alibaba-access-key-id
                  1                3.58                   1                 0.0      heroku-api-key
                  1                3.35                   1                 0.0     slack-app-token
-                 1                3.93                   1                 0.0  nytimes-access-token
+                 1                4.32                   1                 0.0    cohere-api-token
                  1                2.92                   1                 0.0  hashicorp-tf-password
-                 1                4.42                   1                 0.0  alibaba-access-key-id
+                 1                4.02                   1                 0.0  gitlab-oauth-app-secre
+                 1                5.24                   1                 0.0     grafana-api-key
 
 ================================================================================
   04 Secrets Leaked  [Part 3/4]
 ================================================================================
        avg_entropy  crates_with_secret         max_entropy      median_entropy         p95_entropy  total_secrets_foun  unique_secret_type
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-              3.87               18567           5.9137626           3.8078642           4.8342094              882947                  57
+              3.87               18571           5.9137626           3.8078642           4.8342094              882955                  58
 
 ================================================================================
   04 Secrets Leaked  [Part 4/4]
@@ -322,9 +330,9 @@ avg_combined_score  high_similarity_pa           max_score        median_score  
 ================================================================================
        crate_count             pattern      pct_of_scanned
 ------------------  ------------------  ------------------
-              3195    Process Spawning                1.22
+              3194    Process Spawning                1.22
               2403     Link Directives                0.92
-              1006       Network Calls                0.39
+              1005       Network Calls                0.39
                 36           Free TLDs                0.01
                 13    Raw IP Addresses                0.00
 
@@ -382,78 +390,96 @@ build_rs_entropy_s     crate_downloads          crate_name   max_vuln_severity  
          5.0218234                5731               wx-rs                   0                   4                  12
          4.9667773                8392  mavlink-camera-manager                  86                   3                  17
          4.8757997               15573            vmaf-sys                  91                   3                  10
-          4.928511                1576            rsmaxsat                   0                   3                   9
          5.0210547                6102           bwapi-sys                  91                   3                   9
+          4.928511                1576            rsmaxsat                   0                   3                   9
          4.8304596                1122      yubikey-signer                  59                   3                   8
          4.7848606                1620        libpostal-rs                   0                   3                   8
            4.95685               11889    libscap-bindings                   0                   3                   6
-         4.7995925               61100                zbox                  75                   3                   6
           5.245913                5188   pico-tflmicro-sys                   0                   3                   6
-          5.523224                 336              chijin                   0                   3                   5
+         4.7995925               61100                zbox                  75                   3                   6
           5.062338                  70             mullama                   0                   3                   5
+          5.523224                 336              chijin                   0                   3                   5
          4.8907933               35765          netscanner                   0                   3                   5
          5.5232263                 356              cadrum                   0                   3                   5
           4.496238                4317           glpk-rust                   0                   3                   4
-         5.0344777                4380            miniseed                  86                   3                   3
-         4.7387843               16120         vzense-rust                   0                   3                   3
-         4.8873672                6381         picotcp-sys                  75                   3                   3
           4.813798               16399            libcwtch                  62                   3                   3
+         4.8873672                6381         picotcp-sys                  75                   3                   3
+         4.7387843               16120         vzense-rust                   0                   3                   3
           4.844399                1607  tangram-vision-sdk                  75                   3                   3
+         5.0344777                4380            miniseed                  86                   3                   3
           4.910997               44062            luis_sys                   0                   3                   2
-          4.960296               37000  cognitive-services-spe                   0                   3                   2
          4.8914633               52486       libsodium-ffi                  62                   3                   2
+          4.960296               37000  cognitive-services-spe                   0                   3                   2
           5.013751                3183      payload_dumper                   0                   3                   2
-         5.1917353               85677            v8-goose                   0                   3                   1
-         5.1933055                  20            flora_v8                   0                   3                   1
           4.719925                3422             tfmicro                   0                   3                   1
-          4.963306                 925           chdb-rust                   0                   3                   1
+         5.1933055                  20            flora_v8                   0                   3                   1
          5.0031343                9145     ring-fork-dtool                   0                   3                   1
+          4.963306                 925           chdb-rust                   0                   3                   1
          5.1787343               12478   rusty_v8_protryon                   0                   3                   1
+         5.1917353               85677            v8-goose                   0                   3                   1
 
 ================================================================================
   05 Build Rs Suspicious  [Part 4/4]
 ================================================================================
       bucket_lower         crate_count      entropy_bucket
 ------------------  ------------------  ------------------
-               0.0              249008                   1
+               0.0              249012                   1
                2.4                   1                   7
                2.8                   4                   8
                3.2                  57                   9
                3.6                  42                  10
                4.0                 805                  11
-               4.4                4871                  12
-               4.8                5639                  13
+               4.4                4868                  12
+               4.8                5638                  13
                5.2                 462                  14
                5.6                  22                  15
                6.0                   1                  16
 ================================================================================
 
 [SQL] Running 06_llm_score_correlation.sql ...
-       -> 5 rows returned
+       -> 17 rows returned
 
 
 ================================================================================
-  06 Llm Score Correlation  [Part 1/3]
+  06 Llm Score Correlation  [Part 1/4]
 ================================================================================
       bucket_lower         crate_count  crates_with_secret   crates_with_vulns        score_bucket
 ------------------  ------------------  ------------------  ------------------  ------------------
                 -5               34366                   0                   0                   0
-                 0              226546               22165               72773                   1
+                 0              226536               22161               72763                   1
+                 5                   1                   0                   1                   2
+                10                   4                   0                   4                   3
+                30                   1                   1                   1                   7
+                40                   1                   1                   1                   9
+                65                   1                   1                   1                  14
+                75                   1                   0                   1                  16
+                95                   1                   1                   1                  20
 
 ================================================================================
-  06 Llm Score Correlation  [Part 2/3]
+  06 Llm Score Correlation  [Part 2/4]
+================================================================================
+ cargo_audit_vulns     crate_downloads          crate_name    gitleaks_secrets  has_executable_fil  has_suspicious_bui  llm_malicious_scor   max_vuln_severity
+------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
+                68               69005  holochain_core_types                   3                   f                   f                  95                  98
+                58                1974               oatie                   0                   f                   f                  75                  98
+
+================================================================================
+  06 Llm Score Correlation  [Part 3/4]
 ================================================================================
        crate_count        llm_category         vuln_status
 ------------------  ------------------  ------------------
-             72773   LLM: Benign (<25)  Has cargo-audit vulns
+             72768   LLM: Benign (<25)  Has cargo-audit vulns
             188139   LLM: Benign (<25)  No cargo-audit vulns
+                 2  LLM: Low suspicion (25  Has cargo-audit vulns
+                 2  LLM: Malicious (>=75)  Has cargo-audit vulns
+                 1  LLM: Suspicious (50-74  Has cargo-audit vulns
 
 ================================================================================
-  06 Llm Score Correlation  [Part 3/3]
+  06 Llm Score Correlation  [Part 4/4]
 ================================================================================
 avg_llm_score_with  avg_llm_score_with      flagged_by_llm  overall_avg_llm_sc       total_scanned
 ------------------  ------------------  ------------------  ------------------  ------------------
-              0.00               -0.18                   0               -0.13              260912
+              0.00               -0.18                   2               -0.13              260912
 ================================================================================
 
 [SQL] Running 07_executable_files_analysis.sql ...
@@ -465,7 +491,7 @@ avg_llm_score_with  avg_llm_score_with      flagged_by_llm  overall_avg_llm_sc  
 ================================================================================
      avg_llm_score         crate_count  crates_with_secret  crates_with_suspic   crates_with_vulns  has_executable_fil        pct_of_total
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-             -0.14              252926               18320                3321               67364                   f                96.9
+             -0.13              252926               18320                3320               67364                   f                96.9
               0.00                7986                3845                 488                5409                   t                 3.1
 
 ================================================================================
@@ -672,21 +698,21 @@ RUSTSEC-2019-0003, RUS           320029170         prost-types                16
 ================================================================================
      avg_downloads           crate_age         crate_count      pct_vulnerable    vulnerable_count
 ------------------  ------------------  ------------------  ------------------  ------------------
-              3832       Last 6 months               61319                31.0               18991
-             53340   6 months - 1 year               24797                29.0                7191
-            127867           1-2 years               38923                27.4               10669
-            611950           2-5 years               83189                25.3               21086
-           4270014            5+ years               56522                26.2               14836
+              3711       Last 6 months               60913                30.9               18835
+             53249   6 months - 1 year               24992                29.2                7291
+            127295           1-2 years               38950                27.4               10667
+            611084           2-5 years               83242                25.4               21106
+           4261185            5+ years               56653                26.3               14874
 
 ================================================================================
   09 Temporal Analysis  [Part 3/3]
 ================================================================================
 avg_vulns_per_crat         crate_count   download_velocity      pct_vulnerable    vulnerable_count
 ------------------  ------------------  ------------------  ------------------  ------------------
-              1.25                6617  High velocity (>=1k/d)                25.2                1666
-              2.54               10970  Medium velocity (100-1                31.3                3437
-              2.29               49757  Low velocity (10-100/d                32.1               15986
-              1.69              197406  Very low velocity (<10                26.2               51684
+              1.25                6603  High velocity (>=1k/d)                25.2                1666
+              2.54               10952  Medium velocity (100-1                31.3                3424
+              2.29               49374  Low velocity (10-100/d                32.1               15869
+              1.69              197821  Very low velocity (<10                26.2               51814
 ================================================================================
 
 [SQL] Running 10_ecosystem_overview.sql ...
@@ -700,17 +726,17 @@ avg_vulns_per_crat         crate_count   download_velocity      pct_vulnerable  
 ------------------  ------------------
 Total typosquat pairs                38495
 Total crates in databa              264750
-Total analysis metrics              254651
-Crates with suspicious                3809
+Total analysis metrics              254962
+Crates with suspicious                3808
 Crates with executable                7986
 Crates with scan resul              260912
-Crates with high LLM s                   0
+Crates with high LLM s                   2
 Total cargo-audit find              483025
 Crates with cargo-audi               72773
 Total dependency relat             1711983
 Unique RustSec advisor                 436
 Crates with leaked sec               22165
-Total secrets found (g             3339139
+Total secrets found (g             3339147
 
 ================================================================================
   10 Ecosystem Overview  [Part 2/5]
@@ -754,7 +780,7 @@ Total secrets found (g             3339139
 ================================================================================
    avg_build_rs_ms  avg_cargo_audit_ms     avg_download_ms     avg_gitleaks_ms          avg_llm_ms        avg_total_ms       avg_total_sec        max_total_ms     median_total_ms        p95_total_ms      total_analyses
 ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------  ------------------
-                 0               11207                1497                3060                   0               15099                15.1             3126859                1462               86889              254651
+                 0               11193                1496                3056                  28               15109                15.1             3126859                1460   86800.64999999918              254962
 
 ================================================================================
   10 Ecosystem Overview  [Part 5/5]
@@ -795,6 +821,20 @@ build_rs_has_free_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c  
 
 
 ================================================================================
+  SCAN COVERAGE SUMMARY
+================================================================================
+  Total crates in database:        264,750
+  Crates with scan results:        260,912  (98.6%)
+    Successfully scanned:          226,546  (85.6%)
+    Failed (score = -1):            34,366  (13.0%)
+  Never attempted:                   3,838  (1.4%)
+================================================================================
+  Using SUCCESSFULLY SCANNED crates as base for % calculations.
+  Crates that failed or were never scanned have unknown vuln status.
+================================================================================
+
+
+================================================================================
   GENERATING PLOTS
 ================================================================================
 
@@ -803,19 +843,17 @@ build_rs_has_free_  build_rs_has_proce  build_rs_has_raw_i  build_rs_network_c  
 [PLOT] 03_typosquat_score_distribution.png
 [PLOT] 04_secret_types.png
 [PLOT] 05_build_rs_suspicious_flags.png
-[PLOT] 06_llm_vs_cargo_audit.png
-[PLOT] 07_severity_distribution.png
-[PLOT] 08_dependency_centrality.png
-[PLOT] 09_ecosystem_risk.png
-[PLOT] 10_temporal_creation_vs_vulns.png
-[PLOT] 11_crate_age_vs_vulns.png
-[PLOT] 12_executables_by_downloads.png
-[PLOT] 13_analysis_timing.png
-[PLOT] 19_secrets_vs_vulns_overlap.png
-[PLOT] 15_download_velocity.png
-[PLOT] 16_dependency_distribution.png
-[PLOT] 17_build_rs_entropy.png
-[PLOT] 18_vulns_by_download_bracket.png
+[PLOT] 06_severity_distribution.png
+[PLOT] 07_dependency_centrality.png
+[PLOT] 08_ecosystem_risk.png
+[PLOT] 09_temporal_creation_vs_vulns.png
+[PLOT] 10_crate_age_vs_vulns.png
+[PLOT] 11_executables_by_downloads.png
+[PLOT] 12_analysis_timing.png
+[PLOT] 13_download_velocity.png
+[PLOT] 14_dependency_distribution.png
+[PLOT] 15_build_rs_entropy.png
+[PLOT] 16_vulns_by_download_bracket.png
 
 ================================================================================
   ANALYSIS COMPLETE

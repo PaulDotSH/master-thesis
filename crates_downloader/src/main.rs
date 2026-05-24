@@ -55,6 +55,12 @@ enum Commands {
         #[arg(short, long)]
         name: String,
     },
+    /// Scan the most X vulnerable crates (by cargo-audit risk score) with LLM analysis
+    ScanMostVulnerable {
+        /// Number of most vulnerable crates to scan
+        #[arg(short, long)]
+        count: usize,
+    },
     /// Check if LM Studio is available and properly set up
     CheckLlm,
     /// Scan all crates for potential typosquatting
@@ -629,6 +635,52 @@ async fn main() {
             info!("Dependency graph initialized: {}", stats);
             println!("\n=== Crate '{}' queued for distributed analysis ===", name);
             println!("{}", stats);
+        }
+        Commands::ScanMostVulnerable { count } => {
+            info!("Scanning top {} most vulnerable crates (by cargo-audit risk score) with LLM", count);
+
+            if !config.llm_enabled {
+                error!("LLM analysis is disabled in config. Enable it with llm_enabled = true");
+                panic!("LLM analysis disabled");
+            }
+
+            if !analysis::llm::check_lm_studio_connection(&config).await.unwrap_or(false) {
+                error!("LM Studio is not available at {}. Please start LM Studio or configure a different URL.", config.lm_studio_url);
+                panic!("LM Studio not available");
+            }
+            info!("LM Studio connection verified at {}", config.lm_studio_url);
+
+            let crate_ids = repositories::crates::get_most_vulnerable_crate_ids(&database, count as i64)
+                .await
+                .expect("Failed to fetch most vulnerable crate IDs");
+
+            if crate_ids.is_empty() {
+                info!("No vulnerable crates found. Make sure cargo-audit has been run first.");
+                return;
+            }
+
+            info!("Found {} vulnerable crate IDs, fetching details...", crate_ids.len());
+
+            let crates_map = repositories::crates::get_crates_by_ids(&database, &crate_ids)
+                .await
+                .expect("Failed to fetch crate details");
+
+            let mut crates: Vec<_> = crates_map.values().cloned().collect();
+            crates.sort_by_key(|c| crate_ids.iter().position(|id| *id == c.id));
+
+            let total = crates.len();
+            info!("Starting LLM scan of {} most vulnerable crates", total);
+
+            for (i, c) in crates.iter().enumerate() {
+                info!("[{}/{}] Scanning vulnerable crate: {} (id: {})",
+                      i + 1, total, c.name, c.id);
+
+                if let Err(e) = analysis::analysis::analyze_crate_force(c, &database, &config).await {
+                    error!("Failed to analyze crate '{}': {:?}", c.name, e);
+                }
+            }
+
+            info!("Completed LLM scan of {} most vulnerable crates", total);
         }
         Commands::CheckLlm => {
             info!("Checking LM Studio connection...");

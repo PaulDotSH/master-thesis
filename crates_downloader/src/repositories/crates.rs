@@ -143,6 +143,32 @@ pub async fn get_all_crates(db: &Database) -> Result<Vec<Crate>, anyhow::Error> 
     Ok(all_crates)
 }
 
+#[derive(QueryableByName)]
+pub struct MostVulnerableCrateId {
+    #[diesel(sql_type = diesel::sql_types::BigInt)]
+    pub id: i64,
+}
+
+pub async fn get_most_vulnerable_crate_ids(db: &Database, limit: i64) -> Result<Vec<i64>, anyhow::Error> {
+    let mut conn = db.get_connection().await?;
+
+    let query = r#"
+        SELECT c.id
+        FROM crates c
+        INNER JOIN cargo_audit_results car ON c.id = car.crate
+        GROUP BY c.id
+        ORDER BY (COUNT(car.id) * AVG(car.severity) + MAX(car.severity) / 10.0) DESC
+        LIMIT $1
+    "#;
+
+    let rows: Vec<MostVulnerableCrateId> = diesel::sql_query(query)
+        .bind::<diesel::sql_types::BigInt, _>(limit)
+        .load(&mut conn)
+        .await?;
+
+    Ok(rows.into_iter().map(|r| r.id).collect())
+}
+
 pub async fn get_top_download_crates(db: &Database, limit: i64) -> Result<Vec<Crate>, anyhow::Error> {
     let mut conn = db.get_connection().await?;
     let top_crates = crates::table

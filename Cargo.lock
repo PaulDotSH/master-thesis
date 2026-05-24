@@ -3193,29 +3193,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "webpanel"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "bb8",
- "chrono",
- "diesel",
- "diesel-async",
- "futures",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "toml 1.1.2+spec-1.1.0",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
 name = "webpanel-sailfish"
 version = "0.1.0"
 dependencies = [

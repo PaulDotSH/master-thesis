@@ -1,34 +1,23 @@
-# Rust build artifacts (huge!)
-target/
-
-# Git
 .git/
 .gitignore
-
-# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Logs
 logs/
 *.log
 
-# Database dumps (not needed for workers)
+# Database dumps
 db-dump/
 crates_downloader/db-dump/
 crates_downloader/migrations/db-dump/
 crates_downloader/migrations/logs/
+target/
 
-# Docker
 Dockerfile*
 docker-compose*.yml
 .dockerignore
-
-# Documentation
 *.md
 docs/
-
-# Misc
 *.csv

@@ -1,0 +1,193 @@
+
+\begin{columns}[t]
+
+\separatorcolumn
+
+\begin{column}{0.3\paperwidth}
+
+\begin{block}{Motivation}
+    Rust's crate ecosystem (\texttt{crates.io}) containes over \textbf{264,000 crates} with billions of downloads, however it is understudied compared to other ecosystems like npm and PyPI.
+    Supply chain attacks are practical and effective, and become more popular year over year, a single compromised crate can propagate code to millions of downstream projects.
+
+    \bigskip
+    \textbf{Key risks in the Rust supply chain:}
+    \begin{itemize}
+        \item \texttt{build.rs} scripts allows arbitrary code execution at compile time (network, process spawning, etc.)
+        \item Typosquatting and malicious crate uploads already observed in the wild in other ecosystems
+        \item No existing framework integrates vulnerability scanning, secret detection, build script heuristics, typosquatting, and LLM-based analysis into a single pipeline
+    \end{itemize}
+\end{block}
+
+\begin{block}{Objectives \& Scope}
+    \heading{Core Objective}
+    Design, implement and evaluate a scalable security analysis platform that unifies six analysis modules and processes the entire crates.io ecosystem.
+
+    \bigskip
+    \heading{Scope}
+    \begin{itemize}
+        \item Over 264,000 crates from the official crates.io database dump
+        \item Source code analysis via shallow git clones of the latest commit
+        \item 6 integrated analysis modules in parallel execution
+        \item Redis-based distributed work queue with topological ordering
+        \item Optimized PostgreSQL database
+        \item Web dashboard
+        \item Containerized deployment (Docker Compose, scalable worker count)
+    \end{itemize}
+\end{block}
+
+\begin{exampleblock}{System Architecture}
+    \heading{Data Pipeline}
+    \begin{enumerate}
+        \item Parse \textbf{crates.io} CSV dump to extract crate metadata \& dependency graph
+        \item Populate Redis queue with \textbf{leaf crates} (no dependencies first)
+        \item Workers claim crates via \texttt{BRPOPLPUSH}, clone source, run the analysis modules in parralel
+        \item Mark crate done, promote dependents via Lua scripts
+        \item Periodic cargo cache cleaning, results stored in PostgreSQL
+    \end{enumerate}
+
+    \bigskip
+    \heading{Technology Stack}
+    \begin{itemize}
+        \item \textbf{Core}: Rust (tokio, clap CLI, diesel ORM)
+        \item \textbf{Queue}: Redis (lists, sets, Lua scripting for atomic operations)
+        \item \textbf{DB}: PostgreSQL (7 tables, indexes)
+        \item \textbf{Deploy}: Docker Compose, tmpfs ramdisk, multi-stage Dockerfiles
+        \item \textbf{Web}: Axum + Tower-HTTP REST API, backend rendering, vanilla JS dashboard with Chart.js
+    \end{itemize}
+\end{exampleblock}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{0.3\paperwidth}
+
+\begin{block}{Six Integrated Analysis Modules}
+    \heading{1.\ \textcolor{UVTDarkBlue}{Cargo audit Vulnerability Scanning}}
+    Cross-references the \texttt{Cargo.lock} file against the RustSec Advisory Database.
+    Computes CVSS 3.1 scores. Detects unmaintained and yanked crates besides vulnerabilities.
+
+    \bigskip
+    \heading{2.\ \textcolor{UVTDarkBlue}{Gitleaks Secret Detection}}
+    Scans source for 150+ secret patterns (API keys, tokens, private keys, credentials).
+    Excludes test and example directories. Generates per-file findings with line numbers.
+
+    \bigskip
+    \heading{3.\ \textcolor{UVTDarkBlue}{Build.rs Heuristic Analysis}}
+    Six rule-based checks on build scripts:
+    \begin{itemize}
+        \item Network calls (URLs, IPs, sockets)
+        \item Process spawning (\texttt{Command}, \texttt{std::process})
+        \item Raw IP addresses and suspicious TLDs (\texttt{.tk}, \texttt{.xyz}, etc.)
+        \item High-entropy strings (possible obfuscation)
+    \end{itemize}
+
+    \bigskip
+    \heading{4.\ \textcolor{UVTDarkBlue}{LLM-Based Malicious Code Scoring}}
+    Locally-hosted LM Studio model scores crate source for
+    malicious intent. Treated as an optional module
+
+    \bigskip
+    \heading{5.\ \textcolor{UVTDarkBlue}{Typosquatting Detection}}
+    Five string-similarity algorithms combined with weighted scoring:
+    Levenshtein, Damerau-Levenshtein, Jaro-Winkler, keyboard proximity,
+    prefix similarity. Compares every crate name against all others.
+
+    \bigskip
+    \heading{6.\ \textcolor{UVTDarkBlue}{Transitive Risk Propagation}}
+    Dependency graph analysis that propagates vulnerability and risk scores
+    \textbf{transitively} through the entire dependency tree.
+\end{block}
+
+\begin{block}{Performance Characteristics}
+    \begin{table}
+    \centering
+    \caption{Per-crate analysis time (226,546 crates)}
+    \begin{tabular}{@{} lr @{}}
+        \toprule
+        Metric & Value \\
+        \midrule
+        Median & \textbf{1.46 s} \\
+        Mean & 15.1 s \\
+        P95 & 86.8 s \\
+        Max & 52.1 min \\
+        \midrule
+        Bottleneck & \texttt{cargo-audit} (74\% of mean time) \\
+        \bottomrule
+    \end{tabular}
+    \end{table}
+
+    \bigskip
+    Horizontal scaling with topological ordering ensures dependencies are always processed before their dependents.
+    Cycle detection via DFS at seeding time.
+\end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{0.3\paperwidth}
+
+\begin{alertblock}{Key Findings}
+    \heading{Dataset}
+    226,546 crates scanned successfully (85.6\% of 264,750 total).\\
+    13\% failed due to missing \texttt{Cargo.lock} or inaccessible repositories.
+
+    \bigskip
+    \heading{Vulnerabilities}
+    \begin{itemize}
+        \item \textbf{32.1\%} of scanned crates have at least one known vulnerability (72,773 crates)
+        \item Most frequent advisory: RUSTSEC-2023-0071 (12,487 occurrences)
+        \item \textbf{82.6\%} informational severity; only 11\% High/Critical
+        \item Crate age < 6 months: \textbf{30.9\% vuln rate} (higher than average)
+        \item High-download-velocity crates: only \textbf{25.2\% vuln rate}
+    \end{itemize}
+
+    \bigskip
+    \heading{Secrets \& Build Scripts}
+    \begin{itemize}
+        \item 882,955 secrets found across 18,571 crates
+        \item 95.8\% generic-api-key matches (almost all are false positives)
+        \item 561 crates leak GitHub PATs
+        \item 3,194 crates (1.41\%) spawn processes in \texttt{build.rs}
+        \item 1,005 crates (0.44\%) make network calls in \texttt{build.rs}
+    \end{itemize}
+\end{alertblock}
+
+\begin{alertblock}{Critical Insights}
+    Crates shipping binaries have a \textbf{67.7\% vulnerability rate}, more than double the ecosystem average (32.1\%).
+    \textbf{38,495} name-similarity pairs detected; \textbf{891 pairs} with
+    scores $\geq$ 95. However this is mostly due to crates.io crate naming patterns.
+    \heading{Substrate/Polkadot: \#1 Risk Source}
+    The largest single source of transitive vulnerability risk. \texttt{sp-runtime}: 567 dependents, 41 vulnerabilities.
+    The top 100 most-vulnerable crates contain a large fraction of all ecosystem vulnerabilities. Th dependency network counts over \textbf{1.7 million} relationships.
+\end{alertblock}
+
+\begin{block}{Conclusions \& Future Work}
+    This thesis provides the \textbf{first large-scale, multi-modal security
+    characterization of crates.io}. The framework is open-source and designed
+    for potential Rust Foundation adoption, however with many required changes, and sufficiently powerful hardware.
+    \heading{Future Directions}
+    \begin{itemize}
+        \item Version-specific analysis (track vulnerabilities per release)
+        \item Real-time monitoring of new crate publications
+        \item Sandboxed \texttt{build.rs} execution for dynamic analysis
+        \item Repository caching layer to reduce git clone overhead
+        \item Storing everything possible in RAM, more caching
+    \end{itemize}
+
+    \bigskip
+    \heading{References}
+    \begin{thebibliography}{1}
+        \bibitem{ladisa} Ladisa et al., \textit{SoK: Taxonomy of Attacks on Open-Source Software Supply Chains}, IEEE S\&P 2023.
+        \bibitem{ohm} Ohm et al., \textit{Backstabber's Knife Collection}, IEEE S\&P 2020.
+        \bibitem{zimmermann} Zimmermann et al., \textit{Small World with High Risks}, USENIX Security 2019.
+        \bibitem{rustsec} RustSec Advisory Database, \url{https://rustsec.org/}.
+    \end{thebibliography}
+\end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\end{columns}
