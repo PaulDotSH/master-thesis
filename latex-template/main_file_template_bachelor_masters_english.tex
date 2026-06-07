@@ -95,7 +95,7 @@ MASTER STUDY PROGRAM:  CYBERSECURITY }}
 \normalsize{}
 
 \section*{Abstract} 
-The Rust programming language has gained popularity in multiple programming fields due to its memofry safety features and performance. Rust's package ecosystem, crates.io, delivers over 150.000 crates to the language's users. Due to the rapid growth of the language and ecosystem, potential security risks are present, including known vulnerabilities in dependencies, a history of supply chain attacks through code injection and typosquatting, secrets being leaked in source code and cases of malicious build scripts present in the optional build.rs file at the root of the packages. This thesis presents a distributed framework for automating security analysis on the Rust package library ecosystem. The system parses metadata from the crates.io database dump, constructing a dependency graph and applying multiple analysis modules: Vulnerability scanning using `cargo audit`, which uses the RustSec Advisory Database, Secret leakage detection using the FOSS tool GitLeaks, heurisitc analysis for the `build.rs` script, detecting network calls, process creation, obfuscation and suspicious TLDs used, the possibility of LLM code scoring using LM Studio's REST API, typosquatting detection using multiple string similarity algorithms and transitive dependency chain risk propagation. Horizontal scaling is possible across multiple nodes, achieved with Redis used as a work queue, with the possibility of upgrading to a faster in-memory database. The results are persisted in a PostgreSQL database and can be visualized through the web dashboard. This thesis aims to make it easier to search for cases of malicious dependencies in the Rust ecosystem, providing tools for security auditing.
+The Rust programming language has gained popularity in multiple programming fields due to its memory safety features and performance. Rust's package ecosystem, crates.io, delivers over 150.000 crates to the language's users. Due to the rapid growth of the language and ecosystem, potential security risks are present, including known vulnerabilities in dependencies, a history of supply chain attacks through code injection and typosquatting, secrets being leaked in source code and cases of malicious build scripts present in the optional build.rs file at the root of the packages. This thesis presents a distributed framework for automating security analysis on the Rust package library ecosystem. The system parses metadata from the crates.io database dump, constructing a dependency graph and applying multiple analysis modules: Vulnerability scanning using `cargo audit`, which uses the RustSec Advisory Database, Secret leakage detection using the FOSS tool GitLeaks, heuristic analysis for the `build.rs` script, detecting network calls, process creation, obfuscation and suspicious TLDs used, the possibility of LLM code scoring using LM Studio's REST API, typosquatting detection using multiple string similarity algorithms and transitive dependency chain risk propagation. Horizontal scaling is possible across multiple nodes, achieved with Redis used as a work queue, with the possibility of upgrading to a faster in-memory database. The results are persisted in a PostgreSQL database and can be visualized through the web dashboard. This thesis aims to make it easier to search for cases of malicious dependencies in the Rust ecosystem, providing tools for security auditing.
 \newline
 \textbf{Keywords:} crates.io, Rust, supply chain security, typosquatting, distributed systems, software security
 
@@ -230,31 +230,6 @@ I declare that this BSc / MSc thesis is an original report and represents my own
 %     return M
 % \end{lstlisting}
 
-% \section{Tablels}
-
-% A simple example of a table (see Table \ref{tab:my_tabel}). 
-
-% \begin{table}[!ht]
-%     \centering
-%     \begin{tabular}{|l | c |  c | c |} 
-%  \hline
-%  Stopping criteria & \textbf{Alg.1} & \textbf{Alg.2} & \textbf{Alg.3} \\  
-%  \hline\hline
-% \textbf{ MSQ} & 0.97 & 0.8 & 00.60 \\ 
-%  \hline
-%  \textbf{R2} & 0.77 & 0.78 & 0.54 \\
-%  \hline
- 
-%  \hline
-% \end{tabular}
-%     \caption{Algorithm comparison}
-%     \label{tab:my_tabel}
-% \end{table}
-
-
-% For more details about how to create a table, use the following reference \url{https://www.overleaf.com/learn/latex/Tables}.
-
-
 \bibliography{mybib}
 \bibliographystyle{alpha}
 \addcontentsline{toc}{chapter}{Bibliography}
@@ -270,37 +245,56 @@ I declare that this BSc / MSc thesis is an original report and represents my own
 \chapter{Generative AI Tools Usage}
 \label{genAIUsage}
 
-An overview how  generative AI Tools are used in this thesis is presented in Table \ref{tab:genAIOverview}.
+
+An overview of how generative AI tools were used during the research and writing process is presented following table:
 
 \rowcolors{2}{gray!15}{white}
 \begin{table}[h!]
     \centering
     \begin{tabularx}{\textwidth}{|l|X|X|X|}
             \hline \rowcolor{blue!20}
-         AI Tool& Use case & Used in & Remarks \\\hline
-         \multirow{2}{*}{ChatGPT 5.0} & Provide remarks of writing, reviewing typos & All chapters& Prompts in section \ref{sectionGhatGPT}\\ \cline{2-4}
+         AI Tool & Use case & Used in \\\hline
+         Claude Opus 4.6, DeepSeek V4 Pro 
+            & Rephrasing paragraphs for clarity 
+            & All chapters  \\\cline{2-4}
           
-          & Generate initial state of the art bibliography list & Chapter 2 & Prompts in section \ref{sectionGhatGPT}\\ \hline
-         
-         Microsoft Copilot & Code generation & Chapter 4 pp.2-21  & Details in section \ref{sectionCopilot}\\ \hline
-         Deep L &  Translation of text pages & Chapter 2 & Prompts in section \ref{sectionDeepL} \\ \hline
-         Grammarly & Correct grammar and style mistakes & Entire work & Free version\\ \hline
-         ... &  & & \\\hline
+            & Typo checking and grammar corrections 
+            & All chapters \\\cline{2-4}
+          
+         Claude Opus 4.6, DeepSeek V4 Pro  
+            & Assistance with Rust code patterns for better code hygiene and idioms 
+            & N/A  \\\hline
+
     \end{tabularx}
-    \caption{Overview of generative AI Usage}
+    \caption{Overview of generative AI tool usage in this thesis.}
     \label{tab:genAIOverview}
 \end{table}
 
+\section{Claude Opus 4.6, DeepSeek V4 Pro --- Rephrasing, Typo Checking, and Bibliography}
 
-% \section{ChatGPT Details} 
-% \label{sectionGhatGPT}
-% Specify for each usage the following:
-% \begin{enumerate}
-%     \item Purpose of use
-%     \item Method (which promts and for which parts of the thesis)
-%     \item How the output has been examined/verified (has the generated output been examined for accuracy and reliability?)
-%     \item How the output is implemented/used
-%     %\item Add the prompts and output as an attachment or separated file (mandatory)
-% \end{enumerate}
+\textbf{Purpose:} Claude Opus 4.6 and DeepSeek V4 Pro were used for:
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+    \item \textbf{Rephrasing:} Paragraphs written by the author were submitted to the mentioned models with instructions to improve clarity, conciseness, and academic tone while preserving the accuracy of the content.
+    \item \textbf{Typo checking:} After each writing session, selected sections were submitted to different AI models with a prompt requesting identification of spelling errors, grammatical mistakes, and awkward phrasing. All suggested corrections were reviewed and rewritten with modifications by the authors.
+\end{enumerate}
+
+\textbf{Method:} The prompts used were variations of:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item \textit{``Improve the clarity and academic tone of the following paragraph while preserving ALL technical details and references: [text]''}
+    \item \textit{``Check the following text for typos, spelling errors, and grammatical mistakes: [text]''}
+\end{itemize}
+
+\textbf{Verification:} All generated output was manually reviewed by the author and modified. For rephrasing, the author compared the suggested modifications against the original to ensure no meaning was altered or technical inaccuracies introduced.
+
+\textbf{Implementation:} Rephrased text was accepted or rejected on a word by word basis, with modifications and checks, nothing is copy-pasted.
+
+
+\section{Code Generation Assistance}
+
+\textbf{Purpose:} The mentioned models were used to assist with Rust code patterns during the development of the analysis framework.
+
+\textbf{Method:} The author described manually wrote and implemented the entire framework, asked for better code hygiene, better patterns and optimizations and received code suggestions. The author adapted, refactored, and integrated the generated code into the existing codebase following the project's conventions without copy-pasting or accepting agentic changes.
+
+\textbf{Implementation:} No generated code was used verbatim without understanding and modification.
 
 \end{document} 

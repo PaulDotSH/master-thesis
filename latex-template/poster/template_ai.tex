@@ -43,7 +43,7 @@ A Distributed Framework for Vulnerability and Malicious Code Detection}
 \begin{column}{0.3\paperwidth}
 
 \begin{block}{Motivation}
-    Rust's crate ecosystem (\texttt{crates.io}) containes over \textbf{264,000 crates} with billions of downloads, however it is understudied compared to other ecosystems like npm and PyPI.
+    Rust's crate ecosystem (\texttt{crates.io}) contains over \textbf{264,000 crates} with billions of downloads, however it is understudied compared to other ecosystems like npm and PyPI.
     Supply chain attacks are practical and effective, and become more popular year over year, a single compromised crate can propagate code to millions of downstream projects.
 
     \bigskip
@@ -77,7 +77,7 @@ A Distributed Framework for Vulnerability and Malicious Code Detection}
     \begin{enumerate}
         \item Parse \textbf{crates.io} CSV dump to extract crate metadata \& dependency graph
         \item Populate Redis queue with \textbf{leaf crates} (no dependencies first)
-        \item Workers claim crates via \texttt{BRPOPLPUSH}, clone source, run the analysis modules in parralel
+        \item Workers claim crates via \texttt{BRPOPLPUSH}, clone source, run the analysis modules in parallel
         \item Mark crate done, promote dependents via Lua scripts
         \item Periodic cargo cache cleaning, results stored in PostgreSQL
     \end{enumerate}

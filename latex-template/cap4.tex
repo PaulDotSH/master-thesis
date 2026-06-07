@@ -2,7 +2,7 @@
 
 \section{High-Level Architecture Overview}\label{sect:arch-overview}
 
-The framework uses a producer-consumer arhitecture with a central layer, the main components are:
+The framework uses a producer-consumer architecture with a central layer, the main components are:
 
 1. Data Pipeline - Imports all the crate information required from the crates.io database into PostgreSQL
 
@@ -75,16 +75,16 @@ These CSVs are all processed, firstly we resolve crate-version relationships and
 The dependency graph is a DAG where nodes represent crates and edges represent dependency relationships.
 The graph is build by:
 
-1. Query PostgreSQL for all depdendencies
+1. Query PostgreSQL for all dependencies
 
 2. For each crate build a dependency set in Redis, 
-tracking unprocessed depdendencies.
+tracking unprocessed dependencies.
 
 3. Build a reverse index to be able to get which crates depend on a target crate.
 
 4. Pushing crates ready to process (with zero unprocessed dependencies) into the Redis ready queue.
 
-After a worker analyses a crate, it has to atomically update the depdendency sets of all that crate's dependent crates. If any of these's sets becomes an empty set, it is pushed into the ready queue.
+After a worker analyses a crate, it has to atomically update the dependency sets of all that crate's dependent crates. If any of these's sets becomes an empty set, it is pushed into the ready queue.
 
 Dependency cycles are detected using depth first search and are resolved by breaking cycle edges.
 
@@ -106,7 +106,7 @@ The Redis queue has the following structures:
 \hline
 \end{tabular}
 
-A worker uses 'BRPOPLPUSH' to do an atomic claim of a crate, this ensure there are no race conditions. Failed crates are marked as failed but are not requeued and do not block dependent crates from being processed. This can be further improved if 
+A worker uses 'BRPOPLPUSH' to do an atomic claim of a crate, this ensures there are no race conditions. Failed crates are marked as failed but are not re-queued and do not block dependent crates from being processed. This can be further improved if 
 
 \section{Database Schema Design}\label{sect:db-schema}
 
@@ -163,9 +163,9 @@ The workers are containerized using Docker to ensure easy scalability on a singl
 
 - PostgreSQL database with persistent storage
 
-- Redis for the work queue and depdendency graph
+- Redis for the work queue and dependency graph
 
-- Worker containers, by using a custom Dockerfile we can scale multiple workers using 'ocker-compose up -d --scale worker=N' where N is the number of workers to start. Each worker has a limit of 2 cores and 4GB of RAM.
+- Worker containers, by using a custom Dockerfile we can scale multiple workers using 'docker-compose up -d --scale worker=N' where N is the number of workers to start. Each worker has a limit of 2 cores and 4GB of RAM.
 
 To achieve maximum I/O performance the analysis is done on a temporary mounted RAM disk at /tmp/crates, eliminating the disk I/O bottleneck during cloning and analysis.
 

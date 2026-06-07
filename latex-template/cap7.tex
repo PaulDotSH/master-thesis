@@ -2,25 +2,20 @@
 
 \section{Dataset Overview}\label{sect:dataset-overview}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
+\caption{Crate scanning statistics.}\label{tab:crate-scan-stats}
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{Status} & \textbf{Count} & \textbf{\% of total} \\
 \hline
-Total crates in database & 264{.}750 & 100\% \\
-\hline
-Crates with scan records in the database & 260{.}912 & 98.6\% \\
-\hline
-Successfully scanned (\texttt{llm\_score != -1}) & $\sim$226{.}546 & $\sim$85.6\% \\
-\hline
-Failed scans (\texttt{llm\_score = -1}) & $\sim$34{.}366 & $\sim$13.0\% \\
-\hline
-Not attempted & $\sim$3{.}838 & $\sim$1.4\% \\
+Total crates in database          & 264,750 & 100\% \\
+Crates with scan records          & 260,912 & 98.6\% \\
+Successfully scanned ($\neq -1$)  & 226,546 & 85.6\% \\
+Failed scans ($= -1$)             &  34,366 & 13.0\% \\
+Not attempted                     &   3,838 &  1.4\% \\
 \hline
 \end{tabular}
-\caption{Crate scanning statistics}
-\label{tab:crate-scan-stats}
 \end{table}
 
 On this run, 264.750 crates were present in the crates.io database dump. A small percentage of crates have private repositories or have blocked access on some IPs, and ~13.0\% failed to be scanned due to reasons including a missing Cargo.lock file, making the analysis with cargo audit not possible, a percentage of ~85.6\% of crates were successfully scanned.
@@ -30,34 +25,25 @@ Out of the 226.546 successfully scanned crates, 72.773 (32.1\%) had at least one
 
 \begin{table}[ht]
 \centering
+\caption{Summary statistics for scanned crates.}\label{tab:crate-summary}
 \begin{tabular}{|l|r|}
 \hline
 \textbf{Metric} & \textbf{Value} \\
 \hline
-Total crates in database & 264{,}750 \\
-\hline
-Successfully scanned & 226{,}546 \\
-\hline
-Failed / never attempted & 38{,}204 (14.4\%) \\
-\hline
-Crates with vulns & 72{,}773 (32.1\% of scanned) \\
-\hline
-Max vulns in a single crate & 83 \\
-\hline
-Mean vulns per crate (scanned) & $\sim$2.13 \\
-\hline
-Median vulns per crate (scanned) & 0 \\
-\hline
-Mean dependencies per crate & 6.47 \\
-\hline
-Median dependencies per crate & 4 \\
+Total crates in database        & 264,750 \\
+Successfully scanned            & 226,546 \\
+Failed / never attempted        &  38,204 (14.4\%) \\
+Crates with $\ge 1$ vulnerability &  72,773 (32.1\% of scanned) \\
+Max vulns in a single crate     &      83 \\
+Mean vulns per crate (scanned)  & $\sim$2.13 \\
+Median vulns per crate (scanned)&       0 \\
+Mean dependencies per crate     &    6.47 \\
+Median dependencies per crate   &       4 \\
 \hline
 \end{tabular}
-\caption{Summary statistics for scanned crates}
-\label{tab:crate-summary}
 \end{table}
 
-The median crate has 0 vulnerabilities, but the mean is ~2.13 due to some unmaintained crates that have a large number of vulnerabilities.
+The median crate has zero vulnerabilities, but the mean is ~2.13 due to some unmaintained crates that have a large number of vulnerabilities.
 Sim1h, the "most vulnerable" crate, has been last updated over 5 years ago, the same case is for holochain\_core\_types, in\_stream, holochain\_locksmith, oatie, which are the 5 most vulnerable crates by cargo audit vulnerability count. Due to a minority of the crates having a large number of vulnerabilities the mean and median are quite different.
 
 \begin{table}[ht]
@@ -83,7 +69,51 @@ Sim1h, the "most vulnerable" crate, has been last updated over 5 years ago, the 
 \label{tab:vuln-distribution}
 \end{table}
 
-~68\% of scanned crates have zero known vulnerabilities, however ~7\% have at least 10 vulnerabilities, we can see that there is a significant count of unmaintained crates.
+Approximately 68\% of scanned crates have zero known vulnerabilities, however ~7\% have at least 10 vulnerabilities, we can see that there is a significant count of unmaintained crates.
+
+\section{Vulnerability Landscape}\label{sect:vuln-landscape}
+
+\begin{table}[ht]
+\centering
+\caption{Vulnerability severity distribution (CVSS 3.1).}\label{tab:vulnerability-severity}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Severity} & \textbf{Findings} & \textbf{\%} & \textbf{Affected crates} \\
+\hline
+Critical (9.0--10.0) &   8,841 &  1.8\% &  4,917 \\
+High (7.0--8.9)      &  39,536 &  8.2\% & 18,258 \\
+Medium (4.0--6.9)    &  30,717 &  6.4\% & 23,177 \\
+Low (1.0--3.9)       &   5,148 &  1.1\% &  2,461 \\
+Info ($<1.0$)        & 398,783 & 82.6\% & 67,785 \\
+\hline
+\textbf{Total}       & 483,025 & 100\%  & --- \\
+\hline
+\end{tabular}
+\end{table}
+
+The majority of findings (82.6\%) are informational only, composed of mostly advisories for unmaintained or depracated crates. A small percentage of 11\% of findings are high or critical. 
+
+\begin{table}[ht]
+\centering
+\caption{Most vulnerable crates by weighted risk score.}\label{tab:high-risk-crates}
+\begin{tabular}{|l|r|r|l|}
+\hline
+\textbf{Crate} & \textbf{Vuln Count} & \textbf{Risk Score} & \textbf{Notes} \\
+\hline
+\texttt{sim1h}                  & 83 & highest & $>$5 yrs unmaintained \\
+\texttt{holochain\_core\_types} & 62 & very high & unmaintained \\
+\texttt{in\_stream}             & 58 & high & unmaintained \\
+\texttt{holochain\_locksmith}   & 58 & high & unmaintained \\
+\texttt{oatie}                  & 52 & high & unmaintained \\
+\texttt{sp-runtime}             & 41 & medium & 567 dependents \\
+\texttt{sp-core}                & 41 & medium & 473 dependents \\
+\texttt{sqlx}                   & 12 & low & widely used ORM, 2000+ deps \\
+\texttt{tokio-rustls}           &  9 & low & TLS integration, 1000+ deps \\
+\hline
+\end{tabular}
+\end{table}
+
+The most vulnerable crates are unmaintained, confirming abandonment instead of malicious itent, this is the primary vulnerability count factor in the ecosystem.
 
 \section{Dependency network}\label{sect:dependency-network}
 
@@ -137,9 +167,9 @@ Most crates have a small number of dependency, however the ecosystem has over 1.
 \label{tab:top-dependent-crates}
 \end{table}
 
-The most dependend-upon crates are mostly vulnerability free as of the current scan, however clap according to cargo audit has 6 known vulnerabilities which could affect over 36.000 of downstream crates.
+The most depended upon crates are mostly vulnerability free as of the current scan, showing that the core crates are well-maintained, however clap according to cargo audit has 6 known vulnerabilities which could affect over 36.000 of downstream crates.
 
-Some crates are both highly dependend upon and also have known vulnerabilities, some of these are:
+Some crates are both highly depended upon and also have known vulnerabilities, some of these are:
 
 \begin{table}[ht]
 \centering
@@ -228,28 +258,70 @@ The most common advisory that has a severity score is RUSTSEC-2023-0071, with a 
 
 
 The raw ip analysis found 13 results, which are all false positives, stemming from stuff like setup files version numbers, user agents.
-\section{Suspicious \texttt{build.rs} Analysis}
+\section{Suspicious \texttt{build.rs} Analysis}\label{sect:build-rs-results}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
+\caption{Prevalence of suspicious \texttt{build.rs} patterns.}\label{tab:suspicious-buildrs}
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{Pattern} & \textbf{Crates} & \textbf{\% of scanned} \\
 \hline
 Process Spawning & 3,194 & 1.41\% \\
-Link Directives & 2,403 & 1.06\% \\
-Network Calls & 1,005 & 0.44\% \\
-Free TLDs & 36 & 0.02\% \\
-Raw IP Addresses & 13 & $<0.01\%$ \\
+Link Directives  & 2,403 & 1.06\% \\
+Network Calls    & 1,005 & 0.44\% \\
+Free TLDs        &    36 & 0.02\% \\
+Raw IP Addresses &    13 & $<0.01\%$ \\
 \hline
 \end{tabular}
-\caption{Suspicious \texttt{build.rs} Analysis}
-\label{tab:suspicious-buildrs}
 \end{table}
 
-Only 3.5\% of the scanned crates include binaries.
+Process spawning is one of the most powerful attack vectors, most instances are legitimate however from manual checking. Crates combining process spawning with network calls can be considered more suspicious and should be manually verified.
 
-The typosquat detection feature is not as useful for crates.io compared to other ecosystems due to the "patterns" of naming crates, such as opentelemetry-appender and opentelemetry-appender2, safer\_ffi-proc\_macro and safer\_ffi-proc\_macros
+All 13 raw ip address usage instances found are false positives comming from version strings in setup files, user-agent strings and documentation pieces. No crate was found to be making network calls to raw IP addresses in its build.rs.
+
+The typosquat detection feature is not as useful for crates.io compared to other ecosystems due to the "patterns" of naming crates, such as opentelemetry-appender and opentelemetry-appender2, safer\_ffi-proc\_macro and safer\_ffi-proc\_macros, most high score pairs are versioned variants comming from the same author (\texttt{proc-macro-error-attr2} and \texttt{proc-macro-error-attr}). Crates.io has heavy usage of suffixes and prefixes such as -2, -rs, -sys, etc.
+
+Only 3.5\% of the scanned crates include binaries, from these, 67.7\% have known vulnerabilities, more than double the overall percentage.
+
+\section{Temporal Trends}\label{sect:temporal}
+
+\begin{table}[ht]
+\centering
+\caption{Crate creation rate versus vulnerability prevalence over time.}\label{tab:temporal-creation}
+\begin{tabular}{|c|r|r|}
+\hline
+\textbf{Year} & \textbf{Crates Created} & \textbf{\% with Vulns} \\
+\hline
+2014 &     598 & 16.1\% \\
+2016 &   3,594 & 25.3\% \\
+2018 &   7,706 & 24.4\% \\
+2020 &  17,120 & 28.9\% \\
+2022 &  25,529 & 23.6\% \\
+2024 &  36,050 & 26.8\% \\
+2026 &  51,809 & 31.1\% \\
+\hline
+\end{tabular}
+\end{table}
+
+The ecosystem had consistent growth, with the vulnerability rate remaining stable at ~24-30\%, with a slight increase in the last 2 years. This is likely due to better RustSec coverage. 
+
+\begin{table}[ht]
+\centering
+\caption{Download velocity versus vulnerability rate.}\label{tab:temporal-velocity}
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{Velocity Bracket} & \textbf{\% Vuln} & \textbf{Avg Vulns/Crate} \\
+\hline
+High ($\ge$1K/day)       & 25.2\% & 1.25 \\
+Medium (100--1K/day)     & 31.3\% & 2.54 \\
+Low (10--100/day)         & 32.1\% & 2.29 \\
+Very low ($<$10/day)     & 26.2\% & 1.69 \\
+\hline
+\end{tabular}
+\end{table}
+
+The most downloaded crate have the lowest vulnerability rate and lowest average vulnerabilities. High usage crates are more likely to be better maintained. The medium and low velocity crates are having the highest theoretical risk, being popular enough to have users but not enough to have consistent reviews.
 
 The analysis pipeline had cargo audit take most of the time to run.
 
@@ -269,7 +341,7 @@ Dominant component & Cargo-audit (avg 11.2s) \\ \hline
 \end{table}
 
 74\% of the mean time is taken by cargo audit, while gitleaks on the second place takes 3.1s on average. The max time analysis is very big compared to mean and median, after manually checking, there are more crates that have similar analysis time and most are due to cargo audit, while some due to the LLM component, cargo audit seems to have problems updating the `tuna` index, even when running the command manually on the max analysis time crate
-We can see that most runs are fast, however there is a right skewe, possibly due to some crates lacking a repository or a Cargo.lock file.
+We can see that most runs are fast, however there is a right skew, possibly due to some crates lacking a repository or a Cargo.lock file.
 
 We used the model "google/gemma-4-e4b" for the LLM analysis and we scanned the top 10 crates by vulnerability count.
 The biggest score is 95, for 'holochain\_core\_types', due to it containing a file at the path crates/trycp\_server/src/main.rs that runs Command::new("bash").args(\&["-c", arbitrary\_command])
@@ -483,111 +555,43 @@ Crate oatie has the second biggest score, of 75, however the LLM doesn't find an
 
 % Radicle packages suggest shared vulnerable dependencies relied upon.
 
-% \section{Secret Leakage Findings}\label{sect:secret-leakage}
+\begin{table}[ht]
+\centering
+\caption{Distribution of detected secret types (non-test, non-example locations).}\label{tab:secret-type-distribution}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Type} & \textbf{Occurrences} & \textbf{\%} & \textbf{Crates} \\
+\hline
+\texttt{generic-api-key}    & 845,625 & 95.8\% & 16,387 \\
+\texttt{private-key}        &  18,168 &  2.1\% &  3,646 \\
+\texttt{curl-auth-header}   &   9,631 &  1.1\% &  1,849 \\
+\texttt{jwt}                &   1,885 &  0.2\% &    917 \\
+\texttt{github-pat}         &   1,512 &  0.2\% &    561 \\
+\texttt{gcp-api-key}        &   1,136 &  0.1\% &    412 \\
+\texttt{aws-access-token}   &   1,094 &  0.1\% &    438 \\
+\texttt{stripe-access-token}&     923 &  0.1\% &    511 \\
+\texttt{openai-api-key}     &       2 & $<0.01\%$ & 1 \\
+All others                  &   3,983 &  0.5\% & --- \\
+\hline
+\end{tabular}
+\end{table}
 
-% The gitleaks module dertected substential exposre across the analyzed repositories, a significant number is of false positives from test files.
+\begin{table}[ht]
+\centering
+\caption{Entropy statistics for detected secrets.}\label{tab:secret-entropy}
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Mean entropy   & 3.87 bits \\
+Median entropy & 3.81 bits \\
+p95 entropy    & 4.83 bits \\
+Max entropy    & 5.91 bits \\
+\hline
+\end{tabular}
+\end{table}
 
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{|l|l|}
-% \hline
-% \textbf{Metric} & \textbf{Value} \\
-% \hline
-% Total secrets detected & 393,059 \\
-% \hline
-% Unique detection rules triggered & 31 \\
-% \hline
-% Affected crates & 1,496 (2.8\% of analyzed) \\
-% \hline
-% Average secrets per affected crate & 262.7 \\
-% \hline
-% \end{tabular}
-% \caption{Secret Detection (Gitleaks) Summary}
-% \label{tab:gitleaks-summary}
-% \end{table}
-
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{|l|r|l|}
-% \hline
-% \textbf{Rule ID} & \textbf{Count} & \textbf{Percentage} \\
-% \hline
-% generic-api-key & 391,361 & 99.57\% \\
-% \hline
-% aws-access-token & 561 & 0.14\% \\
-% \hline
-% curl-auth-header & 426 & 0.11\% \\
-% \hline
-% private-key & 244 & 0.06\% \\
-% \hline
-% jwt & 109 & 0.03\% \\
-% \hline
-% github-pat & 73 & 0.02\% \\
-% \hline
-% curl-auth-user & 57 & 0.01\% \\
-% \hline
-% stripe-access-token & 48 & 0.01\% \\
-% \hline
-% datadog-access-token & 32 & <0.01\% \\
-% \hline
-% slack-webhook-url & 31 & <0.01\% \\
-% \hline
-% \end{tabular}
-% \caption{Gitleaks Rule Frequency Distribution}
-% \label{tab:gitleaks-rules}
-% \end{table}
-
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{|l|l|}
-% \hline
-% \textbf{Metric} & \textbf{Value} \\
-% \hline
-% Average entropy & 3.82 bits \\
-% \hline
-% Minimum entropy & 0.00 bits \\
-% \hline
-% Maximum entropy & 5.68 bits \\
-% \hline
-% \end{tabular}
-% \caption{Entropy Statistics for Detected Secrets}
-% \label{tab:entropy-stats-secrets}
-% \end{table}
-
-% The minimum of 0 bits is due to the system failing on select repositories.
-
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{|l|r|}
-% \hline
-% \textbf{Crate} & \textbf{Secret Count} \\
-% \hline
-% xoofff & 187,640 \\
-% \hline
-% fuel-core-bft & 29,431 \\
-% \hline
-% libjade-sys & 9,646 \\
-% \hline
-% libcrux-hacl & 9,646 \\
-% \hline
-% libcrux-platform & 9,646 \\
-% \hline
-% tnt-core-fixtures & 8,960 \\
-% \hline
-% cryptocol & 4,943 \\
-% \hline
-% tinyaes & 4,372 \\
-% \hline
-% tari\_base\_node\_client & 2,892 \\
-% \hline
-% minotari\_wallet\_ffi & 2,892 \\
-% \hline
-% \end{tabular}
-% \caption{Crates with Highest Number of Detected Secrets}
-% \label{tab:top-secret-crates}
-% \end{table}
-
-% 'generic-api-key' detections are the most common with a percentage of 99.57\%, indicating a high number of false positives from crypto constants and test files.
+The generic api key is an overwhelming false positive, it matches high entropy strings resempling API keys, including constants and test data. The Gitleaks approach is comprehensive but produces too many false positives for fully automated analysis.
 
 % \section{Build Script Risk Assessment}\label{sect:build-script-risk}
 

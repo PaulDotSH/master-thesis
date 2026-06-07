@@ -6,10 +6,9 @@
 
 \section{Software Supply Chain Security}\label{sect:supply-chain-security}
 
-% TODO CITATION
-Software supply chain security can be considered one of the most critical problems in software engineering, it reshaped how software developers and organizations from the field approach software development, deployment and risk assessment. The concept was intoruced by Ken Thompson in the "Reflections on Trusting Trust", where he modified a compiler to insert backdoors in the compiled binary even when the source code was not containing anything malicious. This attack established that the entirety of a software system depends on the unbroken chain of trust.
+Software supply chain security can be considered one of the most critical problems in software engineering, it reshaped how software developers and organizations from the field approach software development, deployment and risk assessment. The concept was introduced by Ken Thompson in the "Reflections on Trusting Trust", where he modified a compiler to insert backdoors in the compiled binary even when the source code was not containing anything malicious. This attack established that the entirety of a software system depends on the unbroken chain of trust\cite{thompson1984trusting}.
 
-Following Thompson's work, supply chains remained mostly theoretical or small operations, however the landscpae changed with the rise of open-source package distributores and their ecosystems. A new attack surface of extreme scale was introduced, modern software extensively relies on third-party libraries and dependencies, dependencies having their own dependencies which creates a complex tree that can be exploited. Popular tools and software include hundreds if not thousands of transitive dependencies, each one of them can be a potential attack vector for malicious code injection, new attacks consisting of typosquatting, malicious build files, code injection and more.
+Following Thompson's work, supply chains remained mostly theoretical or small operations, however the landscape changed with the rise of open-source package distributors and their ecosystems. A new attack surface of extreme scale was introduced, modern software extensively relies on third-party libraries and dependencies, dependencies having their own dependencies which creates a complex tree that can be exploited. Popular tools and software include hundreds if not thousands of transitive dependencies, each one of them can be a potential attack vector for malicious code injection, new attacks consisting of typosquatting, malicious build files, code injection and more.
 
 \subsection{Supply Chain Incidents}\label{sect:supply-chain-incidents}
 Multiple high profile supply chain attacks have been deployed and demonstrated the high risk of this threat vector. Table~\ref{tab:landmark-incidents} provides an overview of these incidents.
@@ -39,13 +38,13 @@ The SolarWinds attack in 2020 is a state sponsored attack, which compromised the
 
 Besides the SolarWinds attack, there was also the Log4Shell vulnerability, even though this was not a malicious attack, this critical vulnerability present in a extremely popular Java library affected millions of applications and threw the industry into chaos for multiple days, requiring maintainers and organization to move quickly and patch their software.
 
-The event-stream incident from 2018 is another example of a supply chain attack, where an attacker gained access to a maintainer account for the package 'event-stream', which is a popular npm package with over 2 million weekly downloads. Social engineering was used together with code injection targeting a cryptocurrency wallet called 'Copay Bitcoin wallet', with the goal being to steal cryptocurrency. The total amount of stolen money is unknownm, and even though it is thought to be a small amount, this attack demonstrated yet again how supply chain attacks can be deployed.
+The event-stream incident from 2018 is another example of a supply chain attack, where an attacker gained access to a maintainer account for the package 'event-stream', which is a popular npm package with over 2 million weekly downloads. Social engineering was used together with code injection targeting a cryptocurrency wallet called 'Copay Bitcoin wallet', with the goal being to steal cryptocurrency. The total amount of stolen money is unknown, and even though it is thought to be a small amount, this attack demonstrated yet again how supply chain attacks can be deployed.
 
-In 2021, 'ua-parser-js', which is a nother popular npm package with approximately 8 million weekly downloads, was compromised in a similar way to the event-stream attack, by gaining access to a maintainer account the adversaries injected cryptocurrency miners and stealers, targeting users and organizations including Microsoft, Amazon and Meta.
+In 2021, 'ua-parser-js', which is another popular npm package with approximately 8 million weekly downloads, was compromised in a similar way to the event-stream attack, by gaining access to a maintainer account the adversaries injected cryptocurrency miners and stealers, targeting users and organizations including Microsoft, Amazon and Meta.
 
-A more recent attack, from 2014, is the 'xz-utils' backdoor, where an adversary spent multiple years building trust by contributing to the library, before inserting a complex backdoor in the test files and build system targeting SSH on Linux system, this attack was complex and it contained multiple accounts mentally draining the maintainer. The backdoor was discovered by chance, luckily before being merged into major Linux distros, by Andres Freund, a software engineer working at Microsoft, by observing that on a Debian system ssh logins were unusually slow compared to previous versions, OpenSSH is interacting with a part of xz-utils.
+A more recent attack, from 2024, is the 'xz-utils' backdoor, where an adversary spent multiple years building trust by contributing to the library, before inserting a complex backdoor in the test files and build system targeting SSH on Linux system, this attack was complex and it contained multiple accounts mentally draining the maintainer. The backdoor was discovered by chance, luckily before being merged into major Linux distros, by Andres Freund, a software engineer working at Microsoft, by observing that on a Debian system ssh logins were unusually slow compared to previous versions, OpenSSH is interacting with a part of xz-utils.
 
-THe Rust ecosystem is still developing compared to other ecosystems like npm and PyPI, however it still suffered from multiple supply chain attacks. Table~\ref{tab:rust-incidents} summarizes these incidents.
+The Rust ecosystem is still developing compared to other ecosystems like npm and PyPI, however it still suffered from multiple supply chain attacks. Table~\ref{tab:rust-incidents} summarizes these incidents.
 
 \begin{table}[htbp]
 \centering
@@ -66,7 +65,7 @@ CI/CD targeting crates & Various & Env. exfiltration & GitHub/GitLab CI secrets 
 
 In 2022, researchers from SentinelOne discovered a supply chain attack which they named CrateDepression, the attack targeted GitLab CI pipelines through a typosquatting attack, by publishing a crate named 'rustdecimal', which is meant to be confused with 'rust\_decimal', which is a legitimate crate providing decimal number support without rounding errors compared to Rust's native floating point types (f32 and f64). The attack detected if the crate was used in a GitLab CI pipeline and would download and execute a binary written in Go, known as a language commonly used for malware since some antimalware solutions struggle to analyze newer languages, and Go is mature enough to be used for complex malware. This attack exfiltrated secrets from the environment and was able to persist in the system by modifying a configuration YAML file. Attacks like this one demonstrate how Rust's memory safety and other security features are unable to protect against these kinds of attacks.
 
-A more recent attack, from 2025, consists of multiple malicious crates including 'faster\_log' and 'async\_println', which was one of the motivations of this paper. These crates that targeted cryptocurrency systems developers contained code wich exfiltrated Solana and Etherum wallet keys from popular wallets present in the system by scanning for files and environment variables and sending the found data to C2 servers. This is not an example of typosquatting, since there are no similar legit crates, however they promised improved speed compared to the log crate and the println macro from the Rust standard library. These attacks were probably meant to be large-scale due to Rust being popular in cryptocurrency development, with projects including Solana being written in Rust.
+A more recent attack, from 2025, consists of multiple malicious crates including 'faster\_log' and 'async\_println', which was one of the motivations of this paper. These crates that targeted cryptocurrency systems developers contained code which exfiltrated Solana and Etherum wallet keys from popular wallets present in the system by scanning for files and environment variables and sending the found data to C2 servers. This is not an example of typosquatting, since there are no similar legit crates, however they promised improved speed compared to the log crate and the println macro from the Rust standard library. These attacks were probably meant to be large-scale due to Rust being popular in cryptocurrency development, with projects including Solana being written in Rust.
 
 Other attacks which are oriented on CI/CD exfiltration, where multiple Rust crates were identified to scan for environment variables related to CI/CD including 'CI', 'GITHUB\_ACTION', 'GITLAB\_ID' and others. These crates would exfiltrate environment files, secrets from the workflow and other credentials.
 
@@ -74,13 +73,13 @@ Multiple campains have been identified by security researchers, having dormant c
 
 \subsection{Classification of Supply Chain Attacks}\label{sect:classification-attacks}
 
-Serveral effors were made by researchers to categorize supply chain attacks to have a deeper understanding of vectors and defensive techniques, which include:
+Serveral efforts were made by researchers to categorize supply chain attacks to have a deeper understanding of vectors and defensive techniques, which include:
 
 \paragraph{Ohm et al. (2020) ``Backstabber's Knife Collection''}~\cite{ohm2020backstabber}
 This is a complex review of supply chain attacks which introduced a taxonomy to have them classified:
 \begin{description}
 	\item[Typosquatting] consists of publishing packages with similar names to popular packages, to decieve developers into installing them instead of the proper ones.
-	\item[Dependency confusion] exploits some package manager's resolution to prioritize puiblic packages instead of internally used ones. These packages have the same names as internal packages, where the names could be exfiltrated by leaked source code, leaked documentation, guessing common names or internal information from employees.
+	\item[Dependency confusion] exploits some package manager's resolution to prioritize public packages instead of internally used ones. These packages have the same names as internal packages, where the names could be exfiltrated by leaked source code, leaked documentation, guessing common names or internal information from employees.
 	\item[Compromised accounts] where by taking over legitimate maintainers and developers accounts through social engineering, credential leakage, phishing or other techniques, adversaries disguise themselves as a trusted contributor and inject malicious code, possibly months down the line after gaining access.
 	\item[Malicious contribution] similar to compromised accounts, but instead of gaining access or taking over an existing account, they submit malicious contributions to the project, sometimes being hidden behind a legitimate possibly large pull request, making use of complexity and human error.
 	\item[Ownership transfer] in some ecosystems it is possible to gain access to a package by being added as a maintainer or requesting ownership transfer for abandoned packages.
@@ -95,7 +94,7 @@ There is no comparable dataset for crates.io which is another motivation for our
 	\item[Distribution phase attacks] which target package registries, distrubution channels and infrastructure and more.
 \end{description}
 
-The taxonomy identified over 100 attack vectors across these pases and had defenses mapped to each one of the vectors, which revealed gaps in coverage, expecially present in the build phase.
+The taxonomy identified over 100 attack vectors across these phases and had defenses mapped to each one of the vectors, which revealed gaps in coverage, especially present in the build phase.
 
 \subsection{The Dependency Problem at Scale}\label{sect:dependency-problem}
 
@@ -106,10 +105,10 @@ We can consider the fundamental challenge of supply chain attacks to be the tran
 	\item A single compromised maintainer account could affect multiple million packages through transitive dependencies.
 \end{itemize}
 
-The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing a npm packages trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to NPM's arhitecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical rust application can have hundreds of transitive dependencies.
+The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing an npm packages trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to NPM's arhitecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical rust application can have hundreds of transitive dependencies.
 Our work partially fills this gap by analyzing the dependency graph of crates.io.
 
-Many crates suffer by the having a single maintainer, which is almost always an unpaid volunteer. The previously mentioned sz-utils incident demonstrated how attackers are able to mentally drain maintainers with harassment and spend multiple years in gaining trust before executing an attack.
+Many crates suffer from having a single maintainer, which is almost always an unpaid volunteer. The previously mentioned xz-utils incident demonstrated how attackers are able to mentally drain maintainers with harassment and spend multiple years in gaining trust before executing an attack.
 
 \subsection{Supply chain frameworks}\label{sect:supply-chain-frameworks}
 
@@ -120,11 +119,11 @@ Most of the Rust's ecosystem currently operates at levels 0 to 1 for the majorit
 
 \subsection{Vulnerability Databases and Advisory Systems}\label{sect:vulnerability-databases}
 
-The detection and communication of known vulnerabilities is managed through databases maintained by diverse ecosystem-specific organisations, however maintainers are not always properly notified and incentivised to update dependencies.
+The detection and communication of known vulnerabilities is managed through databases maintained by diverse ecosystem-specific organizations, however maintainers are not always properly notified and incentivised to update dependencies.
 
 The RustSec Advisory Database is managed by the Rust Secure Code Working group. It is the source of security advisories for the crates ecosyste, they cover vulnerabilities, including memory safety issues by poor unsafe code, cryptographic problems and logic errors. They include:
 \begin{itemize}
-	\item Bugs that violate RUst's safety guarantees, even when not directly exploitable.
+	\item Bugs that violate Rust's safety guarantees, even when not directly exploitable.
 	\item Unmaintained crates which usually accumulate security issues.
 \end{itemize}
 Each advisory includes metadata, such as affected versions, patched versions, a scoring system and links to relevant CVEs.
@@ -141,10 +140,36 @@ The Common Vulnerability Scoring System (known as CVSS), provides a standardized
 	\item[Availability Impact] such as Denial of Service and others.
 \end{description}
 
-The mathematical formula for the score combined these metrics into the score, which is furtherly classified as none, low, medium, high and critical. The formulat is as follows:
-% TODO: formula
+The mathematical formula for the score combined these metrics into the score, which is furtherly classified as none, low, medium, high and critical. The formula is as follows:
+$$
+\text{BaseScore} =
+\begin{cases}
+\text{Roundup}(\min(\text{Impact} + \text{Exploitability},\, 10)) & \text{if Scope = Unchanged} \\
+\text{Roundup}(\min(1.08 \times (\text{Impact} + \text{Exploitability}),\, 10)) & \text{if Scope = Changed}
+\end{cases}
+$$
 
-Cargo audit is the official tool for checking a project's dependencies agains teh RustSec database. Using a command line interface, it includes features such as:
+where:
+
+$$
+\text{Impact} =
+\begin{cases}
+6.42 \times \text{Impact}_{\text{base}} & \text{if Scope = Unchanged} \\
+7.52 \times (\text{Impact}_{\text{base}} - 0.029) - 3.25 \times (\text{Impact}_{\text{base}} - 0.02)^{15} & \text{if Scope = Changed}
+\end{cases}
+$$
+
+$$
+\text{Impact}_{\text{base}} = 1 - (1 - \text{Conf}) \times (1 - \text{Integ}) \times (1 - \text{Avail})
+$$
+
+$$
+\text{Exploitability} = 8.22 \times \text{AttackVector} \times \text{AttackComplexity} \times \text{PrivReq} \times \text{UserInt}
+$$
+
+Our implementation does implement this algorithm, correctly parsing the CVSS string and scaling it from 0 to 100.
+
+Cargo audit is the official tool for checking a project's dependencies agains the RustSec database. Using a command line interface, it includes features such as:
 \begin{itemize}
 	\item JSON output for automation and further integration.
 	\item Warnings for unmaintained crates.
@@ -153,13 +178,13 @@ Cargo audit is the official tool for checking a project's dependencies agains te
 % Even though `cargo audit` is easy to automate and is recommended by the Rust Secure Code Working Group and practitioner guides as a standard CI step, anecdotal evidence and cross-ecosystem reports suggest that many projects still do not continuously scan their dependencies for known vulnerabilities. For example, Sonatype finds that in other ecosystems, vulnerable components are typically used long after fixed versions exist
 
 \subsection{Software Bill of Materials}\label{sect:software-bill-of-materials}
-A software bill of materials (SBOM) is defined as an inventory of all components, dependencies and metadata of a project, it is intended to improve vulnerability magement across the supply chain. U.S. Executive Order 14028 and CISA's SBOM guidance treat SBOM as a baseline requirement. Rust ecosystem has tools like cargo-sbom for SPDX SBOM~\cite{spdx2024} and cargo-cyclonedx for CycloneDX SBOM~\cite{owasp2024}, however the ecosystem still has a limited adoption and no standardization of their usage or the format used.
+A software bill of materials (SBOM) is defined as an inventory of all components, dependencies and metadata of a project, it is intended to improve vulnerability management across the supply chain. U.S. Executive Order 14028 and CISA's SBOM guidance treat SBOM as a baseline requirement. Rust ecosystem has tools like cargo-sbom for SPDX SBOM~\cite{spdx2024} and cargo-cyclonedx for CycloneDX SBOM~\cite{owasp2024}, however the ecosystem still has a limited adoption and no standardization of their usage or the format used.
 
 Due to the lack of SBOM adoption in this ecosystem, immature tooling and incomplete coverage of all dependencies we do not consider SBOMs to be practical for the implementation in this framework.
 
 \subsection{Large-Scale Ecosystem Security Studies}\label{sect:large-scale-studies}
 
-Multiple research effors were already conducted on some package ecosystems, however the Rust ecosystem is still underexplored as it is still in it's early stages compared to ecosystems like npm and PyPI, which have been studied.
+Multiple research efforts were already conducted on some package ecosystems, however the Rust ecosystem is still underexplored as it is still in its early stages compared to ecosystems like npm and PyPI, which have been studied.
 
 The npm ecosystem has been studied in multiple papers:
 \begin{itemize}
@@ -172,10 +197,10 @@ The PyPI has also received attention from researchers:
 \begin{itemize}
 	\item Vu et al. (2020) documented typosquatting attacks in PyPI, which proposed detections.
 	\item Guo et al. (2023) analyzed malicious package campaigns and investigated evasion techniques.
-	\item PyPI infrasturcture has implemented complex malware detection including YARA rules and behavior analysis.
+	\item PyPI infrastructure has implemented complex malware detection including YARA rules and behavior analysis.
 \end{itemize}
 
-Cross-ecosystem studies have been also been done:
+Cross-ecosystem studies have also been done:
 \begin{itemize}
 	\item Decan et al. (2018) compared npm, CRAN and RubyGems
 	\item Ponta et al. (2020) compared patterns between Maven, npm and PyPI.
@@ -183,29 +208,29 @@ Cross-ecosystem studies have been also been done:
 
 PyPI has invested in infrastructure focused on malware detection and telemetry. Livehaul is used to collect download telemetry to detect anomalies. For malware detection specifically, YARA rules are used to scan for known malicious patterns~\cite{pypi2023security}.
 
-Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2026} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY incrase was found in malicious packages. It showed that 95\% of the time when a version with a fixed vulnerability is released, 80\% of the dependents remain on the older version for over a year. The report shows a consistent gap between fixes and patching.
+Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2026} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY increase was found in malicious packages. It showed that 95\% of the time when a version with a fixed vulnerability is released, 80\% of the dependents remain on the older version for over a year. The report shows a consistent gap between fixes and patching.
 
-However, despide Rust's high growth and importance in the industry, including security critical fields, there is a lack of a comprehensive security analysis of crates.io, existing research is mainly focused on memory safety and other language features, but not o the entire ecosystem. This thesis aims to address this gap.
+However, despite Rust's high growth and importance in the industry, including security critical fields, there is a lack of a comprehensive security analysis of crates.io, existing research is mainly focused on memory safety and other language features, but not on the entire ecosystem. This thesis aims to address this gap.
 
 \section{Typosquatting in Package Registries}\label{sect:typosquatting}
 
-Typosquatting is a form of attack where adversaries register malicious packages with names similar to popular packages, usually coantaining just a typo, this is to exploit human error, in case developers mistype packages when adding dependencies.
+Typosquatting is a form of attack where adversaries register malicious packages with names similar to popular packages, usually containing just a typo, this is to exploit human error, in case developers mistype packages when adding dependencies.
 
 A possible threat model could be:
 \begin{description}
 	\item[Attacker capabilities] Register arbitrary package names, publish malicious code and track downloads.
 	\item[Attack surface] All packages installation events (manual editing of Cargo.toml, cargo add or automated tools).
-	\item[Victim behavior] Ocassional human errors, poor verification of dependencies, relience on ai autocomplete.
+	\item[Victim behavior] Occasional human errors, poor verification of dependencies, reliance on ai autocomplete.
 	\item[Attacker goals] Code execution, which can lead to credential theft, cryptocurrency theft and mining, further remove code execution and more.
 \end{description}
 
 Researchers have identified serveral patterns used in typosquatting attacks, such as:
 \begin{description}
-	\item[Character substitution] Replacing characters with similar alternatives, such as 0 instead of o, l isntead of 1, l instead of i and others. This is not as common due to user's not usually copy-pasting package names, and being less effective on getting users to install the dependencies.
+	\item[Character substitution] Replacing characters with similar alternatives, such as 0 instead of o, l instead of 1, l instead of i and others. This is not as common due to user's not usually copy-pasting package names, and being less effective on getting users to install the dependencies.
 	\item[Character omission] By removing a single character, such as `rust\_decimal' being typosquatted by `rustdecimal', this being a previously mentioned attack.
 	\item[Character addition] Similar to character omission, but instead of removing a character another one is added.
 	\item[Character transposition] by swapping adjacent characters, such as `tokoi' instead of `tokio', this is another easily spotted pattern, however might get some users due to users typing behavior.
-	\item[Separator manipulation] by changing, adding or removing separators, such as `serde-json' vs `serde\_json', this is a common pattern in the rust ecosystem due to the common use of underscores and dashes.
+	\item[Separator manipulation] by changing, adding or removing separators, such as `serde-json` vs `serde\_json', this is a common pattern in the rust ecosystem due to the common use of underscores and dashes.
 	\item[Prefix and suffix manipulation] by removing or adding prefixes and suffixes, usually common ones for the package ecosystem, such as `rust-serde' vs `serde'.
 	\item[Combosquatting] which is combining a legitimate name with commonly used modifiers, such as `faster\_log' and `async\_println' which are previously mentioned.
 \end{description}
@@ -266,17 +291,17 @@ Metadata analysis, looking at new maintainers, recent ownership transfers, unusu
 
 Dynamic analysis is the counter part to static analysis, that involves emulating the code or executing it in a sandboxed or controlled environment to observe the runtime behavior.
 
-Sandboxed execution is running packages in isolated environments such as virttual machines or containers, with the interception of system calls, network connections and more to assess the behavior of the package.
+Sandboxed execution is running packages in isolated environments such as virtual machines or containers, with the interception of system calls, network connections and more to assess the behavior of the package.
 
 Behavioral monitoring is used to record network connections, file accesses, process execution, environment variable access and more.
 
-Differential analysis reffers to comparing behavior between two versions, to check if there is any change in behavior such as new network connections to exiting or new servers and other different patterns.
+Differential analysis refers to comparing behavior between two versions, to check if there is any change in behavior such as new network connections to exiting or new servers and other different patterns.
 
 \subsection{Machine Learning Approaches}\label{sect:ml-analysis}
 
-Feature based classification consists of extracting features such as metadata from packages and traning machine learning classifisers. It can be effective for some patterns. Code metrics, dependency graph, metadata and behaviors are analyzed.
+Feature based classification consists of extracting features such as metadata from packages and training machine learning classifiers. It can be effective for some patterns. Code metrics, dependency graph, metadata and behaviors are analyzed.
 
-Text based classification is ran on the source code and applies NLP techniques such as bag of words, TF-IDF, code embeddigns, sequence models and more to classify code.
+Text based classification is ran on the source code and applies NLP techniques such as bag of words, TF-IDF, code embeddings, sequence models and more to classify code.
 
 Graph neural networks model dependencies as graphs and are also used for malicious code detection by analyzing for suspicious patterns.
 
@@ -294,7 +319,7 @@ Arbitrary code execution; the build script has access to the filesystem, network
 
 Attack surface expansion, due to the dependency trees that packages have, the attack surface doesn't consist of just the compiled package or it's direct dependencies but also the entire entire dependency tree.
 
-CI/CD environment targetting: Build scripts are powerful enough to be able to properly detect CI/CD environments using advanced detection that can consist of detecting environment variables, system privileges and information such as the CPU, OS, storage and isntalled software, existing or missing files and others.
+CI/CD environment targeting: Build scripts are powerful enough to be able to properly detect CI/CD environments using advanced detection that can consist of detecting environment variables, system privileges and information such as the CPU, OS, storage and installed software, existing or missing files and others.
 
 Malicious build.rs code can be obfuscated and try advanced detection evasion such as conditional execution, and executing other payloads at runtime if specific conditions are met.
 
@@ -310,7 +335,7 @@ Given the lack of sandboxing or other mitigations, heuristic detection can be co
 
 Network library detection, since most build script's shouldn't have the need of making network requests, the presence of HTTP libraries is unusual and be considered a "red flag" in cases where the build script shouldn't be making network connections.
 
-Process spawning is commonly used for invocating tools, however some patterns can be suspicious such as spawning shells such as cmd, powershell, bash and others, executing downloaded binaries or decoding and executing obfuscated code from remote or embedded sources.
+Process spawning is commonly used for invoking tools, however some patterns can be suspicious such as spawning shells such as cmd, powershell, bash and others, executing downloaded binaries or decoding and executing obfuscated code from remote or embedded sources.
 
 Hardcoded raw IP addresses in build scripts is unusual, and legitimate uses usually involve trusted domains and hostnames. The usage of raw IP addresses can suggest the usage of C2 servers or downloading malicious payloads.
 
@@ -324,11 +349,11 @@ Link directive analysis can be also used, since linking to libraries downloaded 
 
 \subsection{Evolution of Code-Aware Language Models}\label{sect:evolution-code-aware-models}
 
-The application of LLMs to code understanding as rapidly evolved in the past years, starting from models such as CodeBert, Starcoder To Qwen2.5-Coder and Claude Opus. 
+The application of LLMs to code understanding has rapidly evolved in the past years, starting from models such as CodeBert, Starcoder To Qwen2.5-Coder and Claude Opus. 
 
 \subsection{LLMs for Vulnerability Detection}\label{sect:llm-vulnerability-detection}
 
-Serveral researchers have evaluated LLms on security tasks such as vulnerability detection.
+Several researchers have evaluated LLMs on security tasks such as vulnerability detection.
 
 The Li et al. (2023) "Assessing the Promise and Pitfalls of ChatGPT for Automated Vulnerability Detection" study has evaluated ChatGPT's older 3.5 and 4 models on vulnerability detection, finding that they have a reasonable accuracy on well known patterns, but that they struggle with uncommon vulnerability types and more complex code, and they have a high false positive rate.
 
@@ -399,7 +424,7 @@ Regular expressions can be treated as a form of signature based detection, using
 
 Like encrypted and obfuscated strings, secrets usually have high entropy compared to normal code.
 
-Machine learning approaches can also be an useful tool for secret detection, by training models on known past codebases with revoked secrets can be effective.
+Machine learning approaches can also be a useful tool for secret detection, by training models on known past codebases with revoked secrets can be effective.
 
 \subsection{Gitleaks}\label{sect:gitleaks}
 
@@ -407,14 +432,14 @@ Gitleaks is the industry standard for open source secret detection in git reposi
 
 \subsection{Secrets in the Rust Ecosystem}\label{sect:secrets-rust}
 
-Rust's crates have permanent publication, they cannot be completely removed, only tyanked, which remain downloadable if they version is set before the point of yanking.
+Rust's crates have permanent publication, they cannot be completely removed, only yanked, which remain downloadable if their version is set before the point of yanking.
 Developers may accidentaly include configurations files, environment files, debug code with secrets and more.
 
 \section{Existing Tools and Related Work}\label{sect:existing-tools}
 
 \subsection{Rust-Specific Security Tools}\label{sect:rust-specific-security-tools}
 
-The Rust ecosystem has several overlapping but destinct tools. The table below compares them across scope, automation level, model and limitations.
+The Rust ecosystem has several overlapping but distinct tools. The table below compares them across scope, automation level, model and limitations.
 
 \begin{table}[h]
 \centering
@@ -454,7 +479,7 @@ The Rust ecosystem has several overlapping but destinct tools. The table below c
 \label{tab:rust_security_tools}
 \end{table}
 
-Our frameworks focuses on automated, ecosystem-wide analysis, rather than per-project analysis.
+Our framework focuses on automated, ecosystem-wide analysis, rather than per-project analysis.
 
 % Cargo audit is the official RustSec vulnerability scanning tool it requires just the Project's Cargo files and lists all the known vulnerabilities of all of the depdendencies. It is well maintained and accurate.
 
@@ -499,11 +524,11 @@ Analyzing an entire package ecosystem has multiple, highly-complex challenges in
 
 The scale of the ecosystem, crates contains over 150.000 crates with each having multiple versions, easily spanning over a million releases, analysis would involve downloading each repository, running multiple advanced modules, storing results and managing temporary storage for execution speed.
 
-Depdendency ordering, transitive risk propagation is a key feature and it requires analyzing dependencies before the dependents. This heavily complicates parallelization.
+Dependency ordering, transitive risk propagation is a key feature and it requires analyzing dependencies before the dependents. This heavily complicates parallelization.
 
-Analysis time is very variable, some crates taking seconds to analyze others can take minutes for large codebases, spanning into hours when scannig the entire commit history with LLMs.
+Analysis time is very variable, some crates taking seconds to analyze others can take minutes for large codebases, spanning into hours when scanning the entire commit history with LLMs.
 
-Fault tolerance is also a challenge, the ecosystem has multiple broken repositories, failures such as network issues, timeouts and others are common and we m,ust recover gracefully without losing progress.
+Fault tolerance is also a challenge, the ecosystem has multiple broken repositories, failures such as network issues, timeouts and others are common and we must recover gracefully without losing progress.
 
 Resource management is also required, concurrent analysis require disk space management due to the usage of a ramdisk, memory usage is also high together with network bandwidth, cpu usage and database connections.
 
@@ -515,28 +540,28 @@ Redis provides primitives for implementing work queues, 'BRPOPLPUSH' is a comman
 
 RabbitMQ is a message broker providing persistent work queues, message acknowledgement, retry possibilities, load balancing and more.
 
-Apache Kafka provides high troughput, partitioning and more advanced features, however it is more complex to set up and can be overkill for this use case.
+Apache Kafka provides high throughput, partitioning and more advanced features, however it is more complex to set up and can be overkill for this use case.
 
 For this research, we picked Redis due to familiarity, simplicity performance and native atomic operations which let us implement a simple work queue.
 
 \section{Summary and Research Gap}\label{sect:research-gap}
 
-The reviewed papers show that even though supply chain security has started to receive more attention from researchers, there are still significant gaps:
+The reviewed papers show that even though supply chain security has started to receive more attention from researchers, there are still significant gaps, supply chain attack taxonomies are established\cite{ohm2020backstabber,ladisa2023taxonomy} but they have not been deployed at an ecosystem-wide scale, papers classify attacks without providing pipelines for detection or mitigation, and tools are focused on individual packages and projects instead of the entire ecosystem:
 
 \subsection{Ecosystem-Specific Gaps for Rust}\label{sect:ecosystem-specific-gaps-rust}
 
-THe rust ecosystem has received far less attention from researchers compared to ecosystems like npm or PyPI despite of it's growth in importance, especially in critical infrastrucure and fields.
-No xisting work combines vulnerability scanning, build script analysis with secret detection and LLM analysis into a unified comprehensive intuirive solution.
+The rust ecosystem has received far less attention from researchers compared to ecosystems like npm or PyPI despite of its growth in importance, especially in critical infrastrucure and fields.
+No existing work combines vulnerability scanning, build script analysis with secret detection and LLM analysis into a unified comprehensive intuitive solution.
 Especially, due to build.rs scripts being an extremely powerful feature it is needed to have more research on how to protect upstream dependents.
 
 \subsection{Methodological Gaps}\label{sect:methodological-gaps}
 
 LLMs have been evaluated for vulnerability detection, however there is a lack of research on deployment at scale on an ecosystem level.
-Existing tools such as cargo audit work on individual projects, not on the entire ecosystem to provide transitive risk propagation and other more advanced features.
+Existing tools such as cargo audit work on individual projects, not on the entire ecosystem to provide transitive risk propagation and other more advanced features such as cross-dimensional correlation.
 Security tools are used in a reactive way, isolated, there is a benefit to correlate findings across multiple "dimensions" (vulnerabilities, secrets, build.rs behavior). Which might be useful for prioritization and revealing more complex patterns.
 
 \subsection{Contributions of This Thesis}\label{sect:contributions-thesis}
 
-The thesis addresses these gaps by designing a complex, comprehensive optimized framework for analysis integrating multiple modules with a focus on the Rust crates ecosystem, by implementing a distributed arhitecture, with an in memory work queue, web dashboard and a database that can be used for further analysis.
-The framework uses multiple modules such as heuristics build scripts analysis together with existing tools, we are conducting a large scale empirical assesment to more easily identify possible malicious packages and signal possible vulnerabilities.
-The plan is to open source all of the code, with the possibility of having the Rust fundation integrating parts of it or a modified version into their infrastructure, to provide better security for the entire ecosystem.
+The thesis addresses these gaps by designing a complex, comprehensive optimized framework for analysis integrating multiple modules with a focus on the Rust crates ecosystem, by implementing a distributed architecture, with an in memory work queue, web dashboard and a database that can be used for further analysis.
+The framework uses multiple modules such as heuristic build script analysis together with existing tools, we are conducting a large scale empirical assessment to more easily identify possible malicious packages and signal possible vulnerabilities.
+The plan is to open source all of the code, with the possibility of having the Rust foundation integrating parts of it or a modified version into their infrastructure, to provide better security for the entire ecosystem.

@@ -22,15 +22,15 @@ False positives:
 
 - Test code may trigger alerts
 
-- High entryopy with legitimate usecases
+- High entropy with legitimate use cases
 
 - Common naming patterns can produce false alerts of the typosquatting features
 
 \subsection{LLM-Specific Limitations}\label{subsect:llm-limitations}
 
-- LLMs might hallucinate vulnerabilities or hallucinate that benign code is malicious or viceversa
+- LLMs might hallucinate vulnerabilities or hallucinate that benign code is malicious or vice versa
 
-- The very limited context window is a problem due to some libraries having large codebases, which are chunked on the current implementation, which can make the model miss cross-file malicious behavior (behavior that present in two separate files is benign on it's own but either imports or api usage makes it pontentially malicious)
+- The very limited context window is a problem due to some libraries having large codebases, which are chunked on the current implementation, which can make the model miss cross-file malicious behavior (behavior that present in two separate files is benign on its own but either imports or api usage makes it potentially malicious)
 
 - Reproducibility is another limitation since LLM outputs vary even with low or zero temperature parameter.
 
@@ -38,7 +38,7 @@ False positives:
 
 \subsection{Scalability and Resource Limitations}\label{subsect:scalability-limitations}
 
-LLm inference is extremely computationally expensive for an ecosystem deployment.
+LLM inference is extremely computationally expensive for an ecosystem deployment.
 
 Analysis time can take a very long time, especially on large crates, adversaries could do a DoW attack by spamming fake crates with large codebases to attack crates.io.
 
@@ -64,4 +64,4 @@ The CVSS scoring and string similarity algorithms have been tested via unit test
 
 Results are limited to crates with valid repository links in the metadata, some crates have been moved from the link from the metadata and moved to docs.rs (i.e. Find\_Matt\_C)
 
-The LLM score is only a guide and cannot guarantee anything, be it either the presence of malivious behavior or its absence.
+The LLM score is only a guide and cannot guarantee anything, be it either the presence of malicious behavior or its absence.

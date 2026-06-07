@@ -1,44 +1,29 @@
-\chapter{Web Dashboard API Reference}\label{appendix:api-ref}
+\chapter{Web Dashboard}\label{appendix:web-dashboard}
 
-TODO: Make webpanel use sailfish
+The web dashboard is implemented as a separate Rust crate in the directory (\texttt{webpanel-sailfish/}), it is using Axum and Sailfish for server-side HTML rendering. It connects to the same PostgreSQL database and provides an interface for the results. All routes return server-rendered HTML and have support for pagination, filtering, and have sortable columns.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{|l|l|l|}
+\caption{Web dashboard routes.}\label{tab:web-routes}
+\begin{tabular}{|l|l|p{6.5cm}|}
 \hline
-\textbf{Endpoint} & \textbf{Method} & \textbf{Description} \\
+\textbf{Route} & \textbf{Method} & \textbf{Description} \\
 \hline
-\texttt{/api/stats} & GET & Dashboard aggregate statistics \\
+\texttt{/} & GET & Dashboard: stats, risk score distribution, build.rs flags, top downloads, gitleaks rule frequency \\
 \hline
-\texttt{/api/stats/severity} & GET & Vulnerability severity distribution \\
+\texttt{/crates} & GET & Paginated crate list. Filters: \texttt{search}, \texttt{min\_downloads}, \texttt{max\_downloads}. Sort: name, downloads, created\_at, updated\_at \\
 \hline
-\texttt{/api/stats/risk} & GET & LLM risk score distribution \\
+\texttt{/dependencies} & GET & Dependency list with crate names. Filters: \texttt{crate\_name}, \texttt{crate\_id}, \texttt{dependency\_id} \\
 \hline
-\texttt{/api/stats/build-rs} & GET & Build script indicator statistics \\
+\texttt{/vulnerabilities} & GET & Cargo-audit results. Filters: \texttt{crate\_name}, \texttt{crate\_id}, \texttt{rustsec\_id}, \texttt{min\_severity} \\
 \hline
-\texttt{/api/stats/top-downloaded} & GET & Top 10 crates by download count \\
+\texttt{/secrets} & GET & Gitleaks results. Filters: \texttt{crate\_name}, \texttt{crate\_id}, \texttt{rule\_id}, \texttt{min\_entropy} \\
 \hline
-\texttt{/api/stats/gitleaks-rules} & GET & Top 10 Gitleaks rules by frequency \\
+\texttt{/typosquat} & GET & Typosquat pairs with all scores. Filters: \texttt{crate\_name}, \texttt{min\_combined\_score} \\
 \hline
-\texttt{/api/crates} & GET & Paginated crate list (filterable) \\
+\texttt{/scan-results} & GET & Aggregated scan results with build.rs flags. Filters: \texttt{crate\_name}, \texttt{min\_llm\_score}, \texttt{has\_vulnerabilities}, \texttt{build\_rs\_network\_calls}, \texttt{build\_rs\_process\_spawning} \\
 \hline
-\texttt{/api/crates/\{id\}} & GET & Single crate by ID \\
-\hline
-\texttt{/api/crates/name/\{name\}} & GET & Single crate by name \\
-\hline
-\texttt{/api/dependencies} & GET & Paginated dependency list \\
-\hline
-\texttt{/api/scan-results} & GET & Paginated scan results (filterable) \\
-\hline
-\texttt{/api/scan-results/\{id\}} & GET & Single scan result \\
-\hline
-\texttt{/api/cargo-audit} & GET & Paginated audit results \\
-\hline
-\texttt{/api/gitleaks} & GET & Paginated secret findings \\
-\hline
-\texttt{/api/typosquat} & GET & Paginated typosquatting pairs \\
+\texttt{/metrics} & GET & Per crate timing benchmark. Filters: \texttt{crate\_name}, \texttt{crate\_id}. Displays: total, download, cargo-audit, gitleaks, build.rs, LLM \\
 \hline
 \end{tabular}
-\caption{API Endpoints}
-\label{tab:api-endpoints}
 \end{table}

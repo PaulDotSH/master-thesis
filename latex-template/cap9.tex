@@ -2,30 +2,63 @@
 
 \section{Summary of Contributions}\label{sect:contributions}
 
-The thesis makes the following significant contributions:
+The thesis aims to design, implement and evaluate a security analysis framework for Rust's ecosystem. The results demonstrate that automated multi-dimensional analysis is effective and feasible, with some limitations including false positives and the need for manual verification.
 
-- Comprehensive analysis framework - Implemented multiple analysis modules each with a focus on different techinques
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{A modular and scalable analysis framework.} We designed and implemented a producer consumer architecture with a Redis-based work queue that enforces topological ordering. The system supports worker containers, handles crash recovery and graceful shutdown. A full ecosystem scan of 226,546 crates can be completed with consumer hardware. 
 
-- Distributed arhitecture - The redis work queues and topological ordering, together with the producer-consumer design and parallel processing we enable horizontal scaling achieving high throughput
+\item \textbf{Five integrated modules.} The framework combines:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Vulnerability scanning using \texttt{cargo-audit}, with a CVSS scoring implementation
+\item Secret detection from \texttt{gitleaks} with rule pattern matching and entropy analysis
+\item Heuristic \texttt{build.rs} analysis covering multiple patterns (network calls, process spawning, raw IPs, link directives, free TLDs, entropy)
+\item Multi-algorithm typosquatting detection with weighted combined scoring
+\item LLM-based malicious code scoring via LM Studio's API
+\end{itemize}
 
-- Analysis modules - Composite typosquatting scoring, heuristic analysis of build scripts targeting language specific attack vectors
 
-- Empirical security assesment - Provide useful insights into the security landscape of the entire ecosystem.
+\item \textbf{The largest empirical security assessment of crates.io to date.} Scanning 226,546 crates (85.6\% of the registry) resulted in the following key findings:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item 32.1\% of scanned crates (72,773) have known vulnerabilities; 82.6\% of findings are informational severity, while $\sim$11\% are High/Critical.
+\item 882,955 secrets were detected across 18,571 crates, but 95.8\% are \texttt{generic-api-key} false positives.
+\item 1.41\% of scanned crates (3,194) spawn processes in \texttt{build.rs}, representing a compile-time attack surface present across thousands of crates.
+\item 38,495 name-similarity pairs were detected; 891 with very high similarity ($\ge$95). Some have high download asymmetry suggesting possible impersonation.
+\item 13\% of crates (34,366) could not be analyzed, a significant blind spot reflecting private repositories and limitations of the current implementation, missing \texttt{Cargo.lock} files, and clone failures.
+\end{itemize}
 
-- Web dashboard - Interactive and friendly exploration of results
+\item \textbf{Evidence-based risk characterization.} Beyond raw counts, the analysis revealed structural patterns with practical implications:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Popular crates are safer high download crates have a 25.2\% vulnerability rate versus 32.1\% for medium download crates.
+\item Newest crates are most vulnerable (30.9\% rate for crates under 6 months), likely due to unpatched dependencies and less review.
+\item Crates shipping executables have a 67.7\% vulnerability rate; more than double the average.
+\item The Substrate/Polkadot ecosystem is the largest source of transitive vulnerability risk due to a single advisory from the dependency \texttt{sp-core}.
+\end{itemize}
+
+\item \textbf{A negative result for LLM-based module.} Deploying a 14B-parameter LLM at ecosystem scale was not possible due to hardware limitations, scanning the most vulnerable crates didn't produce meaningful findings.
+
+\end{enumerate}
 
 \section{Future Directions}\label{sect:future-directions}
 
-We discovered serveral possible future directions:
+The framework and findings show several opportunities for future work:
 
-- Analysis of specific crates versions, tracking vulnerabilities of a crate based on the specific version of the dependent.
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{Version-level dependency analysis.} The current implementation tracks vulnerabilities at the crate level, without tracking specific versions. The \texttt{versions} and \texttt{dependencies} tables already contain version-level data, with the pipeline logic being the missing component.
 
-- Real-time monitoring can be improved, continous scanning and alerting on new findings.
+\item \textbf{Integration with crates.io infrastructure.} The \texttt{build.rs} heuristic flags could trigger automated warnings on the crate's crates.io page, alerting users to compile-time execution before they add the dependency.
 
-- Improved LLM integration for usage of advanced providers, better prompting and usage of more advanced models.
+\item \textbf{Gitleaks rule set specialization.} 
+Gitleaks has a very high false positive rate in this context. Even after removing test and example paths the remaining are too many for manual review.
 
-- Sandboxed build script execution for hybrid analysis, implementing a sandboxed environment would help to execute the script in a safe manner and extract information about the behavior providing better classification
+\item \textbf{Caching and incremental scanning.} Caching cargo audit's artifacts such as different compiler versions and implementing incremental analysis that only re-analyzes crates whose source code or dependency graph has changed would reduce the scan time.
 
-- Collaborative review would be great to integrate with cargo crev to notify maintainers or contributors about possible security issues
+\item \textbf{Sandboxed build script execution.} A very important gap in the current implementation is the lack of understanding what the build.rs script executes at runtime. Implementing a sandbox and monitoring behavior would be a great addition, especially with a classifier to determine possible maliciousness.
 
-- Caching of repositories would greatly improve the performance of the system, by avoiding the need to clone each repository every time.
+\item \textbf{Continuous monitoring.} Integrating the framework with crates.io's real-time feed (instead of the current "periodic" database dump) would enable analysis of newly published crates. The redis queue already is capable of handling a continuous addition of crates.
+
+\item \textbf{Improved LLM integration.} Deploying a larger model with RAG for cross-file context, would be a great addition, especially deployed on a cluster for fast inference, with the current implementation was not properly tested due to hardware limitations.
+
+\item \textbf{Metadata anomaly detection.} Analyzing patterns in maintainer and ownership changes, release frequency, and version-tag rewriting would complement the current analysis methods.
+
+\end{enumerate}
+

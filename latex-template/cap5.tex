@@ -10,7 +10,7 @@ Cargo audit cannot run locally in parallel due to a shared lock, to mitigate thi
 
 Results are stored in the 'cargo\_audit\_results' table and 'scan\_results' table for aggregation.
 
-\section{Gitleaks - Secret Detection}\label{sect:gitleaks}
+\section{Gitleaks - Secret Detection}\label{sect:gitleaks-module}
 
 The Gitleaks module detects hardcoded secrets, API keys, tokens, and other credentials present in the source code. Gitleaks output JSON is parsed to extract the following information:
 
@@ -20,7 +20,7 @@ The Gitleaks module detects hardcoded secrets, API keys, tokens, and other crede
 
 - Location - Path and line number of the secret from the repository
 
-- Entropy - Caculated shannon entropy by gitleaks of the string, which can indicate if it's a real secret or a false positive
+- Entropy - Calculated shannon entropy by gitleaks of the string, which can indicate if it's a real secret or a false positive
 
 The results are stored in the 'gitleaks\_results'.
 The module is prone to returning false positives due to test secrets present in most of the cases.
@@ -44,7 +44,7 @@ The build script analysis module has six heuristic implementations to detect pot
 \section{LLM-Assisted Malicious Code Detection}\label{sect:llm-detect}
 
 The LLM analysis module uses a locally hosted LLM using LM Studio to perform analysis of crate source code. This module is optional due to extremely high computational cost compared to the rest of the modules.
-It opperates in the following way:
+It operates in the following way:
 
 - Collects all source code files from a target extension list
 
@@ -52,13 +52,13 @@ It opperates in the following way:
 
 - Each batch is sent to the LLM together with a prompt that instructs the LLM to evaluate the code for potential malicious behavior, such as reverse shells, unauthorized network access, data exfiltration, cryptocurrency mining and more.
 
-- The LLM returns a score from 0 to 100 together with a summary for each batch. The final score is set to the maximum score across teh batches.
+- The LLM returns a score from 0 to 100 together with a summary for each batch. The final score is set to the maximum score across the batches.
 
 - Crates with a score above the set threshold are flagged for human review.
 
 The module has a five minute timeout per batch.
 
-\section{Typosquatting Detection}\label{sect:typosquatting}
+\section{Typosquatting Detection}\label{sect:typosquatting-module}
 
 The typosquatting detection module computes pairwise name similarity between crates in parallel using multiple string similarity algorithms:
 
