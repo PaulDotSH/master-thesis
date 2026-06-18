@@ -84,6 +84,7 @@ fn render_bool_badge(b: bool) -> String {
     format!("<span class=\"badge {}\">{}</span>", cls, text)
 }
 
+// Could've used sailfish as well here
 fn render_score_bar(score: i16, max: i16) -> String {
     let pct = (score as f64 / max as f64 * 100.0).min(100.0);
     let cls = risk_label(score);
@@ -93,6 +94,7 @@ fn render_score_bar(score: i16, max: i16) -> String {
     )
 }
 
+// Could've used sailfish as well here
 fn render_risk_badge(score: i16) -> String {
     let label = match score {
         0..=30 => "Low",
@@ -114,6 +116,7 @@ fn build_base_query(params: &[(String, String)], exclude: &[&str]) -> String {
     pairs.join("&")
 }
 
+// Simple encode
 fn urlencoding(s: &str) -> String {
     s.replace('&', "%26")
         .replace('=', "%3D")
@@ -134,8 +137,6 @@ fn parse_opt_bool(s: &str) -> Option<bool> {
         _ => None,
     }
 }
-
-// ---- Template helpers for pagination rendering ----
 
 #[allow(unused)]
 struct PaginationHtml {
@@ -216,8 +217,6 @@ impl PaginationHtml {
         h
     }
 }
-
-// ====== TEMPLATE STRUCTS ======
 
 #[allow(unused)]
 #[derive(TemplateOnce)]
@@ -450,8 +449,6 @@ struct MetricRow {
     completed_at: String,
 }
 
-// ====== ERROR ======
-
 struct AppError(anyhow::Error);
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
@@ -475,10 +472,6 @@ impl<E: Into<anyhow::Error>> From<E> for AppError {
 fn base_no_sort(params: &[(String, String)]) -> String {
     build_base_query(params, &["page", "sort_by", "sort_desc"])
 }
-
-// ====== ROUTE HANDLERS ======
-
-// ---- Dashboard ----
 
 async fn dashboard(State(pool): State<Arc<DbPool>>) -> Result<Html<String>, AppError> {
     let mut conn = pool.get().await?;
@@ -550,7 +543,6 @@ async fn dashboard(State(pool): State<Arc<DbPool>>) -> Result<Html<String>, AppE
         RiskBar { label: "Critical (81–100)".into(), count: critical.to_string(), pct: if total_risk > 0.0 { critical as f64 / total_risk * 100.0 } else { 0.0 }, cls: "critical".into() },
     ];
 
-    // build.rs stats
     let scanned: i64 = stats.total_scanned;
     let scanned_f = scanned as f64;
     let br = vec![
@@ -570,7 +562,6 @@ async fn dashboard(State(pool): State<Arc<DbPool>>) -> Result<Html<String>, AppE
         })
         .collect();
 
-    // top downloads
     let top: Vec<(i64, String, i64)> = crates::table
         .select((crates::id, crates::name, crates::crate_downloads))
         .order(crates::crate_downloads.desc())
@@ -585,7 +576,6 @@ async fn dashboard(State(pool): State<Arc<DbPool>>) -> Result<Html<String>, AppE
         })
         .collect();
 
-    // gitleaks rules
     let gl_rows: Vec<(String, i64)> = gitleaks_results::table
         .group_by(gitleaks_results::rule_id)
         .select((gitleaks_results::rule_id, count_star()))
@@ -729,8 +719,6 @@ async fn crates_list(
     Ok(Html(html))
 }
 
-// ---- Dependencies ----
-
 #[derive(Debug, Deserialize, Default)]
 struct DepFilters {
     page: Option<String>,
@@ -827,8 +815,6 @@ async fn deps_list(
     }.render_once()?;
     Ok(Html(html))
 }
-
-// ---- Vulnerabilities ----
 
 #[derive(Debug, Deserialize, Default)]
 struct CargoAuditFilters {
@@ -941,8 +927,6 @@ async fn vulns_list(
     Ok(Html(html))
 }
 
-// ---- Secrets ----
-
 #[derive(Debug, Deserialize, Default)]
 struct GitleaksFilters {
     page: Option<String>,
@@ -1031,8 +1015,6 @@ async fn secrets_list(
     }.render_once()?;
     Ok(Html(html))
 }
-
-// ---- Typosquat ----
 
 #[derive(Debug, Deserialize, Default)]
 struct TypoFilters {
@@ -1137,8 +1119,6 @@ async fn typosquat_list(
     }.render_once()?;
     Ok(Html(html))
 }
-
-// ---- Scan Results ----
 
 #[derive(Debug, Deserialize, Default)]
 struct ScanFilters {
@@ -1259,8 +1239,6 @@ async fn scan_results_list(
     Ok(Html(html))
 }
 
-// ---- Scan Result Detail (JSON for modal) ----
-
 #[derive(serde::Serialize)]
 struct ScanDetail {
     id: i64,
@@ -1304,8 +1282,6 @@ async fn scan_result_detail(
         build_rs_has_free_tlds: r.13,
     }))
 }
-
-// ---- Metrics ----
 
 #[derive(Debug, Deserialize, Default)]
 struct MetricFilters {
@@ -1400,8 +1376,6 @@ async fn metrics_list(
     Ok(Html(html))
 }
 
-// ====== MAIN ======
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
@@ -1419,7 +1393,6 @@ async fn main() -> anyhow::Result<()> {
     let pool = Arc::new(pool);
 
     let app = Router::new()
-        // HTML pages (server-rendered)
         .route("/", get(dashboard))
         .route("/crates", get(crates_list))
         .route("/dependencies", get(deps_list))
@@ -1428,9 +1401,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/typosquat", get(typosquat_list))
         .route("/scan-results", get(scan_results_list))
         .route("/metrics", get(metrics_list))
-        // JSON API (for modals)
+        // JSON API for modals
         .route("/api/scan-results/{id}", get(scan_result_detail))
-        // Static files
+        // Static
         .nest_service("/static", ServeDir::new(concat!(env!("CARGO_MANIFEST_DIR"), "/static")))
         .with_state(pool)
         .layer(CorsLayer::permissive());

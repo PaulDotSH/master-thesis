@@ -1,4 +1,3 @@
-/* Layout — sidebar */
 .app { display: flex; min-height: 100vh; }
 
 .sidebar {
@@ -20,13 +19,11 @@
 
 .content { flex: 1; padding: 2rem 2.5rem; overflow-x: auto; }
 
-/* Section headings */
 .content h1 { margin-bottom: 1.5rem; }
 .content h3 { margin-top: 2rem; margin-bottom: 1rem; }
 .content section { margin-bottom: 2rem; }
 .content hgroup { margin-bottom: 2rem; }
 
-/* Stats grid */
 .stats-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem; margin-bottom: 2rem;
@@ -62,7 +59,6 @@
   font-size: .875rem; color: var(--pico-color); width: 60px; flex-shrink: 0; text-align: left; font-weight: 600;
 }
 
-/* Filter bar */
 .filter-bar { margin-bottom: 1.5rem; }
 .filter-row { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
 .filter-input, .filter-select {
@@ -75,14 +71,12 @@
 .filter-num { width: 110px; }
 .filter-select { cursor: pointer; }
 
-/* Buttons (PicoCSS handles base, just override what we need) */
 .btn-outline {
   background: transparent !important; border-color: var(--pico-form-element-border-color) !important;
   color: var(--pico-muted-color) !important; text-decoration: none;
 }
 .btn-outline:hover { border-color: var(--pico-primary) !important; color: var(--pico-color) !important; }
 
-/* Table */
 .table-wrap {
   border: 1px solid var(--pico-table-border-color); border-radius: var(--pico-border-radius);
   background: var(--pico-card-background-color); overflow-x: auto; margin-bottom: .5rem;
@@ -90,7 +84,6 @@
 .table-wrap table { margin-bottom: 0; }
 .empty { text-align: center; padding: 2rem !important; color: var(--pico-muted-color); }
 
-/* Badges */
 .badge {
   display: inline-block; padding: .1em .5em; border-radius: 3px;
   font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
@@ -102,7 +95,6 @@
 .badge-high { background: rgba(249,115,22,.15); color: #f97316; }
 .badge-critical { background: rgba(239,68,68,.15); color: #ef4444; }
 
-/* Score bar */
 .score-bar { display: flex; align-items: center; gap: .4rem; min-width: 100px; }
 .score-bar .score-fill { height: 8px; border-radius: 3px; }
 .score-bar span { font-size: .75rem; font-weight: 600; }
@@ -111,7 +103,6 @@
 .score-fill.high { background: #f97316; }
 .score-fill.critical { background: #ef4444; }
 
-/* Pagination */
 .pag { display: flex; align-items: center; gap: .5rem; margin-top: 1.25rem; font-size: .8125rem; flex-wrap: wrap; }
 .pag-info { color: var(--pico-muted-color); margin-right: 1rem; }
 .pag-btn {
@@ -128,11 +119,9 @@
   border-radius: var(--pico-border-radius); padding: .2rem .35rem; font-size: .8125rem; cursor: pointer;
 }
 
-/* Utility */
 .truncate { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mono { font-family: var(--pico-font-family-monospace); font-size: .75rem; }
 
-/* Modal */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.75); display: flex;
   align-items: center; justify-content: center; z-index: 1000;
@@ -161,7 +150,6 @@
 .modal-body .kv-label { color: var(--pico-muted-color); width: 180px; flex-shrink: 0; font-weight: 600; }
 .modal-body .kv-value { color: var(--pico-color); word-break: break-all; }
 
-/* Spinner */
 .spinner {
   width: 32px; height: 32px; border: 3px solid var(--pico-card-border-color);
   border-top-color: var(--pico-primary); border-radius: 50%;
@@ -169,7 +157,6 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Responsive */
 @media (max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
   .sidebar { width: 180px; }

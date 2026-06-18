@@ -4,7 +4,6 @@
   var modalBody = document.getElementById('modal-body');
   var detailPrefix = 'scan detail #';
 
-  // Modal: open
   document.addEventListener('click', function (e) {
     var link = e.target.closest('.scan-detail-link');
     if (!link) return;
@@ -13,7 +12,6 @@
     openModal(id);
   });
 
-  // Modal: close on overlay click
   if (modal) {
     modal.addEventListener('click', function (e) {
       if (e.target === modal) closeModal();

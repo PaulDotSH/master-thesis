@@ -1,9 +1,5 @@
--- ============================================================
--- QUICK REFERENCE: Most Useful Vulnerability Queries
--- ============================================================
 
--- Query 1: Top 10 Most Vulnerable Crates (Quick Overview)
--- ============================================================
+-- Top 10 Most Vulnerable Crates (Quick Overview)
 SELECT 
     c.name,
     COUNT(car.id) AS vulnerabilities,
@@ -16,8 +12,7 @@ ORDER BY max_score DESC, vulnerabilities DESC
 LIMIT 10;
 
 
--- Query 2: Critical Vulnerabilities (Score >= 90)
--- ============================================================
+-- Score >= 90
 SELECT 
     c.name AS crate,
     'RUSTSEC-' || car.rustsec_id AS vuln_id,
@@ -29,8 +24,7 @@ WHERE car.severity >= 90
 ORDER BY car.severity DESC, c.crate_downloads DESC;
 
 
--- Query 3: Summary Statistics
--- ============================================================
+-- Summary Statistics
 SELECT 
     COUNT(DISTINCT crate) AS total_vulnerable_crates,
     COUNT(*) AS total_vulnerabilities,
@@ -43,8 +37,7 @@ SELECT
 FROM cargo_audit_results;
 
 
--- Query 4: Crates with Multiple High-Severity Issues
--- ============================================================
+-- Crates with Multiple High-Severity Issues
 SELECT 
     c.name,
     COUNT(CASE WHEN car.severity >= 70 THEN 1 END) AS high_severity_count,
@@ -58,8 +51,7 @@ HAVING COUNT(CASE WHEN car.severity >= 70 THEN 1 END) >= 2
 ORDER BY high_severity_count DESC, max_severity DESC;
 
 
--- Query 5: Most Common Vulnerabilities (by RustSec ID)
--- ============================================================
+-- Most Common Vulnerabilities (by RustSec ID)
 SELECT 
     'RUSTSEC-' || rustsec_id AS vulnerability,
     COUNT(DISTINCT crate) AS affected_crates,
@@ -74,15 +66,13 @@ ORDER BY affected_crates DESC
 LIMIT 20;
 
 
--- Query 6: Vulnerable Crates with Highest Download Impact
--- (Total downloads affected by vulnerabilities)
--- ============================================================
+-- Vulnerable Crates with Highest Download Impact
 SELECT 
     c.name,
     c.crate_downloads,
     COUNT(car.id) AS vuln_count,
     MAX(car.severity) AS max_severity,
-    -- Download impact: downloads * number of high-severity vulns
+    -- impact: downloads * number of severe vulns
     c.crate_downloads * COUNT(CASE WHEN car.severity >= 70 THEN 1 END) AS download_impact
 FROM crates c
 INNER JOIN cargo_audit_results car ON c.id = car.crate
@@ -92,9 +82,7 @@ ORDER BY download_impact DESC
 LIMIT 20;
 
 
--- Query 7: Detailed Vulnerability Report for a Specific Crate
--- ============================================================
--- Replace 'serde' with the crate name you want to investigate
+-- Detailed Vulnerability Report for a Specific Crate
 SELECT 
     'RUSTSEC-' || car.rustsec_id AS vulnerability_id,
     car.severity AS severity_score,
@@ -109,12 +97,11 @@ SELECT
     c.repository
 FROM cargo_audit_results car
 INNER JOIN crates c ON car.crate = c.id
-WHERE c.name = 'time'  -- Change this to the crate you want to check
+WHERE c.name = 'time'  -- Crate to check
 ORDER BY car.severity DESC;
 
 
--- Query 8: Clean vs Vulnerable Crates Comparison
--- ============================================================
+-- Clean vs Vulnerable Crates Comparison
 SELECT 
     'Vulnerable Crates' AS category,
     COUNT(DISTINCT car.crate) AS count

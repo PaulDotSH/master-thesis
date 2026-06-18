@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""
-Master Thesis - Rust Crate Ecosystem Security Analysis
-======================================================
-Runs SQL queries against the crates PostgreSQL database and generates
-visualizations (PNG) + text data output for dissertation.
-
-Usage:
-    python3 analyze.py [--db DB_URL] [--out-dir OUTPUT_DIR] [--skip-plots]
-"""
-
 import argparse
 import csv
 import io
@@ -16,19 +6,19 @@ import math
 import os
 import subprocess
 import sys
-
-# --- Configuration -----------------------------------------------------------
-DEFAULT_DB = os.environ.get("PGDATABASE", "postgres://postgres:postgres@localhost:5432/crates")
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
-PLOTS_DIR = os.path.join(OUTPUT_DIR, "plots")
-DATA_DIR = os.path.join(OUTPUT_DIR, "data")
-
-# --- Matplotlib setup --------------------------------------------------------
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
+
+# Config
+DEFAULT_DB = os.environ.get("PGDATABASE", "postgres://postgres:postgres@localhost:5432/crates")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+PLOTS_DIR = os.path.join(OUTPUT_DIR, "plots")
+DATA_DIR = os.path.join(OUTPUT_DIR, "data")
+
+# Matplotlib
 
 plt.rcParams.update({
     "figure.dpi": 150,
@@ -39,18 +29,10 @@ plt.rcParams.update({
     "figure.figsize": (10, 5.5),
 })
 
-
-# =============================================================================
-# UTILITIES
-# =============================================================================
-
 def run_query(sql_path, db_url=DEFAULT_DB):
-    """Run a SQL file via psql, executing each statement separately.
-    Returns a list of dicts from all result sets merged."""
     with open(sql_path, "r") as f:
         sql_text = f.read()
 
-    # Split into individual statements, skipping empty ones and comments-only blocks
     statements = []
     for stmt in sql_text.split(";"):
         stmt = stmt.strip()
@@ -70,7 +52,7 @@ def run_query(sql_path, db_url=DEFAULT_DB):
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
-            print(f"[WARN] psql error in {os.path.basename(sql_path)}: {result.stderr[:200]}", file=sys.stderr)
+            print(f"!!! psql error in {os.path.basename(sql_path)}: {result.stderr[:200]}", file=sys.stderr)
             continue
         chunk = result.stdout.strip()
         if not chunk:
@@ -85,11 +67,10 @@ def run_query(sql_path, db_url=DEFAULT_DB):
 
 
 def run_raw_query(query_text, db_url=DEFAULT_DB):
-    """Run raw SQL text via psql and return list of dicts."""
     cmd = ["psql", db_url, "--csv", "-c", query_text]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"[ERROR] psql failed:\n{result.stderr}", file=sys.stderr)
+        print(f"!!! psql failed:\n{result.stderr}", file=sys.stderr)
         return []
     chunk = result.stdout.strip()
     if not chunk:
@@ -99,12 +80,10 @@ def run_raw_query(query_text, db_url=DEFAULT_DB):
 
 
 def print_data_table(title, rows, keys=None):
-    """Print data as a formatted table to stdout. Groups rows by key schema."""
     if not rows:
         print(f"\n--- {title} ---\n(no data)")
         return
 
-    # Group rows by their dict keys (different result sets have different column sets)
     groups = {}
     group_order = []
     for row in rows:
@@ -118,10 +97,10 @@ def print_data_table(title, rows, keys=None):
         group_rows = groups[key_sig]
         group_keys = list(key_sig)
         if len(group_order) > 1:
-            print(f"\n{'='*80}")
+            print(f"\n{'-'*10}")
             print(f"  {title}  [Part {gi + 1}/{len(group_order)}]")
         else:
-            print(f"\n{'='*80}")
+            print(f"\n{'-'*10}")
             print(f"  {title}")
         print(f"{'='*80}")
         header = "  ".join(f"{str(k)[:18]:>18}" for k in group_keys)
@@ -137,7 +116,7 @@ def print_data_table(title, rows, keys=None):
                 v = str(v)[:22]
                 vals.append(f"{v:>18}")
             print("  ".join(vals))
-    print(f"{'='*80}\n")
+    print(f"{'-'*10}\n")
 
 
 def safe_float(val, default=0.0):
@@ -154,13 +133,9 @@ def safe_int(val, default=0):
         return default
 
 
-# =============================================================================
-# PLOT 1: Most Vulnerable Crates (Bar Chart)
-# =============================================================================
-
 def plot_most_vulnerable_crates(rows, out_dir):
     if len(rows) < 3:
-        print("[SKIP] Not enough data for most-vulnerable crates plot")
+        print("Not enough data for most-vulnerable crates plot")
         return
     rows = sorted(rows, key=lambda r: safe_float(r.get("risk_score", 0)), reverse=True)[:20]
     names = [r.get("crate_name", "?")[:30] for r in rows]
@@ -179,12 +154,7 @@ def plot_most_vulnerable_crates(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "01_most_vulnerable_crates.png"))
     plt.close(fig)
-    print(f"[PLOT] 01_most_vulnerable_crates.png")
 
-
-# =============================================================================
-# PLOT 2: Ecosystem-Wide Vulnerability & Dependency Statistics
-# =============================================================================
 
 def plot_vuln_per_download(rows, out_dir):
     if not rows:
@@ -198,7 +168,6 @@ def plot_vuln_per_download(rows, out_dir):
     fig = plt.figure(figsize=(14, 9))
     gs = fig.add_gridspec(2, 3, height_ratios=[1, 1.2], hspace=0.45, wspace=0.4)
 
-    # --- Top-left: Ecosystem summary stats panel ---
     ax_stats = fig.add_subplot(gs[0, 0])
     ax_stats.axis("off")
     if stats_rows:
@@ -210,20 +179,20 @@ def plot_vuln_per_download(rows, out_dir):
         never = total - in_scan
         stats_text = (
             f"Ecosystem Vulnerability Statistics\n"
-            f"{'─' * 38}\n"
-            f"  Total crates in database:   {total:>8,}\n"
+            f"{'─' * 10}\n"
+            f"  Total crates in db:   {total:>8,}\n"
             f"  In scan_results (attempted):{in_scan:>8,}\n"
             f"  Successfully scanned:       {scanned:>8,}\n"
             f"  Failed scans (score = -1):  {failed:>8,}\n"
             f"  Never attempted:            {never:>8,}\n"
-            f"{'─' * 38}\n"
+            f"{'─' * 10}\n"
             f"  Crates with vulns:          {safe_int(r.get('crates_with_vulns', 0)):>8,}\n"
             f"  % of scanned vulnerable:    {safe_float(r.get('pct_vuln_crates', 0)):>7}%\n"
-            f"{'─' * 38}\n"
-            f"  Max vulns in a single crate: {safe_int(r.get('max_vulns_in_crate', 0)):>6,}\n"
+            f"{'─' * 10}\n"
+            f"  Max vulns in a crate: {safe_int(r.get('max_vulns_in_crate', 0)):>6,}\n"
             f"  Mean vulns per crate:       {safe_float(r.get('mean_vulns_per_crate', 0)):>8.2f}\n"
             f"  Median vulns per crate:     {safe_float(r.get('median_vulns_per_crate', 0)):>8.1f}\n"
-            f"{'─' * 38}\n"
+            f"{'─' * 10}\n"
             f"  Mean dependencies per crate:{safe_float(r.get('mean_deps_per_crate', 0)):>8.2f}\n"
             f"  Median dependencies/crate:  {safe_float(r.get('median_deps_per_crate', 0)):>8.1f}"
         )
@@ -232,7 +201,6 @@ def plot_vuln_per_download(rows, out_dir):
                       bbox=dict(boxstyle="round,pad=0.5", facecolor="#f8f9fa", edgecolor="#dee2e6"))
     ax_stats.set_title("Ecosystem Overview", fontsize=11, fontweight="bold")
 
-    # --- Top-middle: Donut chart of vuln vs non-vuln (of scanned) ---
     ax_donut = fig.add_subplot(gs[0, 1])
     if stats_rows:
         r = stats_rows[0]
@@ -250,7 +218,6 @@ def plot_vuln_per_download(rows, out_dir):
                         bbox_to_anchor=(0.5, -0.15), ncol=2)
         ax_donut.set_title("Scanned Crates:\nVulnerable vs Clean", fontsize=10, fontweight="bold")
 
-    # --- Top-right: Vulnerability concentration ---
     ax_conc = fig.add_subplot(gs[0, 2])
     if conc_rows:
         buckets = [r.get("concentration_bucket", "?") for r in conc_rows]
@@ -266,7 +233,6 @@ def plot_vuln_per_download(rows, out_dir):
         for i, p in enumerate(pcts):
             ax_conc.text(p + 1, i, f"{p}%", va="center", fontsize=8, fontweight="bold")
 
-    # --- Bottom-left: Vuln count distribution histogram ---
     ax_vuln = fig.add_subplot(gs[1, 0])
     if vuln_dist_rows:
         labels_v = [r.get("vuln_count_bracket", "?") for r in vuln_dist_rows]
@@ -280,7 +246,6 @@ def plot_vuln_per_download(rows, out_dir):
         for i, c in enumerate(counts_v):
             ax_vuln.text(i, c + max(counts_v) * 0.02, f"{c:,}", ha="center", fontsize=7)
 
-    # --- Bottom-middle: Dependency count distribution histogram ---
     ax_dep = fig.add_subplot(gs[1, 1])
     if dep_dist_rows:
         labels_d = [r.get("dep_count_bracket", "?") for r in dep_dist_rows]
@@ -294,7 +259,6 @@ def plot_vuln_per_download(rows, out_dir):
         for i, c in enumerate(counts_d):
             ax_dep.text(i, c + max(counts_d) * 0.02, f"{c:,}", ha="center", fontsize=7)
 
-    # --- Bottom-right: Downloads vs Vulns scatter (scanned crates only) ---
     ax_scatter = fig.add_subplot(gs[1, 2])
     scatter_rows = run_raw_query("""
         SELECT
@@ -317,12 +281,8 @@ def plot_vuln_per_download(rows, out_dir):
 
     fig.savefig(os.path.join(out_dir, "02_vuln_per_download_ratio.png"))
     plt.close(fig)
-    print(f"[PLOT] 02_vuln_per_download_ratio.png")
+    print(f"02_vuln_per_download_ratio.png")
 
-
-# =============================================================================
-# PLOT 3: Typosquatting Score Distribution (Histogram)
-# =============================================================================
 
 def plot_typosquat_distribution(bucket_rows, out_dir):
     if not bucket_rows:
@@ -344,12 +304,6 @@ def plot_typosquat_distribution(bucket_rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "03_typosquat_score_distribution.png"))
     plt.close(fig)
-    print(f"[PLOT] 03_typosquat_score_distribution.png")
-
-
-# =============================================================================
-# PLOT 4: Secret Types Distribution (Bar)
-# =============================================================================
 
 def plot_secret_types(rows, out_dir):
     if len(rows) < 2:
@@ -366,18 +320,12 @@ def plot_secret_types(rows, out_dir):
     ax.invert_yaxis()
     ax.set_xlabel("Number of Findings (log scale)")
     ax.set_xscale("log")
-    ax.set_title("Secrets Leaked: All Gitleaks Rule Matches (non-test/non-example locations)")
+    ax.set_title("All Gitleaks Rule Matches (non-test/non-example locations)")
     for i, c in enumerate(counts):
         ax.text(c * 1.15, i, f"{c:,}", va="center", fontsize=7)
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "04_secret_types.png"))
     plt.close(fig)
-    print(f"[PLOT] 04_secret_types.png")
-
-
-# =============================================================================
-# PLOT 5: Build.rs Suspicious Flags Overview (Horizontal Bar)
-# =============================================================================
 
 def plot_build_rs_flags(rows, out_dir):
     if not rows:
@@ -399,12 +347,7 @@ def plot_build_rs_flags(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "05_build_rs_suspicious_flags.png"))
     plt.close(fig)
-    print(f"[PLOT] 05_build_rs_suspicious_flags.png")
 
-
-# =============================================================================
-# PLOT 7: Vulnerability Severity Distribution (Pie/Donut)
-# =============================================================================
 
 def plot_severity_distribution(rows, out_dir):
     if not rows:
@@ -425,12 +368,7 @@ def plot_severity_distribution(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "06_severity_distribution.png"))
     plt.close(fig)
-    print(f"[PLOT] 06_severity_distribution.png")
 
-
-# =============================================================================
-# PLOT 8: Dependency Network - Most Depended-Upon (Bar)
-# =============================================================================
 
 def plot_dependency_centrality(rows, out_dir):
     if len(rows) < 2:
@@ -453,12 +391,6 @@ def plot_dependency_centrality(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "07_dependency_centrality.png"))
     plt.close(fig)
-    print(f"[PLOT] 07_dependency_centrality.png")
-
-
-# =============================================================================
-# PLOT 9: Ecosystem Risk - Depended-Upon Vulnerable Crates
-# =============================================================================
 
 def plot_ecosystem_risk(rows, out_dir):
     if len(rows) < 2:
@@ -482,12 +414,7 @@ def plot_ecosystem_risk(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "08_ecosystem_risk.png"))
     plt.close(fig)
-    print(f"[PLOT] 08_ecosystem_risk.png")
 
-
-# =============================================================================
-# PLOT 10: Temporal - Crates Created per Year vs Vulnerability Rate
-# =============================================================================
 
 def plot_temporal_creation(rows, out_dir):
     if not rows:
@@ -515,12 +442,7 @@ def plot_temporal_creation(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "09_temporal_creation_vs_vulns.png"))
     plt.close(fig)
-    print(f"[PLOT] 09_temporal_creation_vs_vulns.png")
 
-
-# =============================================================================
-# PLOT 11: Crate Age vs Vulnerability (Grouped Bar)
-# =============================================================================
 
 def plot_crate_age_vulns(rows, out_dir):
     if not rows:
@@ -543,12 +465,7 @@ def plot_crate_age_vulns(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "10_crate_age_vs_vulns.png"))
     plt.close(fig)
-    print(f"[PLOT] 10_crate_age_vs_vulns.png")
 
-
-# =============================================================================
-# PLOT 12: Executables Prevalence by Download Bracket
-# =============================================================================
 
 def plot_executables_by_downloads(rows, out_dir):
     if not rows:
@@ -574,12 +491,6 @@ def plot_executables_by_downloads(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "11_executables_by_downloads.png"))
     plt.close(fig)
-    print(f"[PLOT] 11_executables_by_downloads.png")
-
-
-# =============================================================================
-# PLOT 13: Analysis Timing Breakdown (Stacked Bar)
-# =============================================================================
 
 def plot_analysis_timing(out_dir):
     rows = run_raw_query("""
@@ -637,12 +548,6 @@ def plot_analysis_timing(out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "12_analysis_timing.png"))
     plt.close(fig)
-    print(f"[PLOT] 12_analysis_timing.png")
-
-
-# =============================================================================
-# PLOT 15: Download Velocity vs Vulnerability Rate
-# =============================================================================
 
 def plot_download_velocity(rows, out_dir):
     if not rows:
@@ -672,12 +577,6 @@ def plot_download_velocity(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "13_download_velocity.png"))
     plt.close(fig)
-    print(f"[PLOT] 13_download_velocity.png")
-
-
-# =============================================================================
-# PLOT 16: Dependency Count Distribution
-# =============================================================================
 
 def plot_dependency_distribution(rows, out_dir):
     if not rows:
@@ -698,12 +597,7 @@ def plot_dependency_distribution(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "14_dependency_distribution.png"))
     plt.close(fig)
-    print(f"[PLOT] 14_dependency_distribution.png")
 
-
-# =============================================================================
-# PLOT 17: Build.rs Entropy Distribution
-# =============================================================================
 
 def plot_build_rs_entropy(rows, out_dir):
     if not rows:
@@ -727,12 +621,6 @@ def plot_build_rs_entropy(rows, out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "15_build_rs_entropy.png"))
     plt.close(fig)
-    print(f"[PLOT] 15_build_rs_entropy.png")
-
-
-# =============================================================================
-# PLOT 18: Vulnerability Prevalence by Download Bracket
-# =============================================================================
 
 def plot_vulns_by_download_bracket(out_dir):
     rows = run_raw_query("""
@@ -780,12 +668,6 @@ def plot_vulns_by_download_bracket(out_dir):
     fig.tight_layout()
     fig.savefig(os.path.join(out_dir, "16_vulns_by_download_bracket.png"))
     plt.close(fig)
-    print(f"[PLOT] 16_vulns_by_download_bracket.png")
-
-
-# =============================================================================
-# MAIN
-# =============================================================================
 
 def main():
     parser = argparse.ArgumentParser(description="Crate Security Analysis for Dissertation")
@@ -806,22 +688,14 @@ def main():
             print(f"[ERROR] No SQL file matching '{args.only_sql}' found in {sql_dir}")
             sys.exit(1)
 
-    print(f"{'='*80}")
-    print(f"  RUST CRATE ECOSYSTEM SECURITY ANALYSIS")
-    print(f"  Database: {args.db}")
-    print(f"  Output:   {args.out_dir}")
-    print(f"  SQL files: {len(sql_files)}")
-    print(f"{'='*80}\n")
-
-    # --- Run each SQL file and print data tables ---
     all_results = {}
     for sf in sql_files:
         label = sf.replace(".sql", "")
         path = os.path.join(sql_dir, sf)
-        print(f"[SQL] Running {sf} ...")
+        print(f"Running {sf} ...")
         rows = run_query(path, args.db)
         all_results[label] = rows
-        print(f"       -> {len(rows)} rows returned\n")
+        print(f"    -> {len(rows)} rows returned\n")
         if rows:
             print_data_table(label.replace("_", " ").title(), rows)
 
@@ -840,123 +714,94 @@ def main():
         scanned = safe_int(r.get("successfully_scanned", 0))
         failed = safe_int(r.get("failed_scans", 0))
         never_attempted = total - with_results
-        print(f"\n{'='*80}")
-        print(f"  SCAN COVERAGE SUMMARY")
-        print(f"{'='*80}")
-        print(f"  Total crates in database:       {total:>8,}")
-        print(f"  Crates with scan results:       {with_results:>8,}  ({with_results/total*100:.1f}%)")
-        print(f"    Successfully scanned:         {scanned:>8,}  ({scanned/total*100:.1f}%)")
-        print(f"    Failed (score = -1):          {failed:>8,}  ({failed/total*100:.1f}%)")
-        print(f"  Never attempted:                {never_attempted:>8,}  ({never_attempted/total*100:.1f}%)")
-        print(f"{'='*80}")
-        print(f"  Using SUCCESSFULLY SCANNED crates as base for % calculations.")
+        print(f"Total crates in database:       {total:>8,}")
+        print(f"Crates with scan results:       {with_results:>8,}  ({with_results/total*100:.1f}%)")
+        print(f"  Successfully scanned:         {scanned:>8,}  ({scanned/total*100:.1f}%)")
+        print(f"  Failed (score = -1):          {failed:>8,}  ({failed/total*100:.1f}%)")
+        print(f"Never attempted:                {never_attempted:>8,}  ({never_attempted/total*100:.1f}%)")
+        print(f"{'-'*10}")
+        print(f"  Using Successfully Scanned crates as base for % calculations.")
         print(f"  Crates that failed or were never scanned have unknown vuln status.")
-        print(f"{'='*80}\n")
+        print(f"{'-'*10}\n")
 
-    # --- Generate plots ---
     if not args.skip_plots:
-        print(f"\n{'='*80}")
-        print(f"  GENERATING PLOTS")
-        print(f"{'='*80}\n")
         plots_dir = os.path.join(args.out_dir, "plots")
 
-        # Plot 01
         if "01_most_vulnerable_crates" in all_results:
             plot_most_vulnerable_crates(all_results["01_most_vulnerable_crates"], plots_dir)
 
-        # Plot 02
         if "02_vuln_per_download_ratio" in all_results:
             plot_vuln_per_download(all_results["02_vuln_per_download_ratio"], plots_dir)
 
-        # Plot 03 - typosquat distribution
         if "03_typosquatting_analysis" in all_results:
             bucket_rows = [r for r in all_results["03_typosquatting_analysis"]
                           if "bucket_lower_bound" in r]
             if bucket_rows:
                 plot_typosquat_distribution(bucket_rows, plots_dir)
-            # Also print asymmetry data
             asymmetry_rows = [r for r in all_results["03_typosquatting_analysis"]
                              if "download_ratio" in r]
             if asymmetry_rows:
                 print_data_table("Typosquat High Asymmetry Pairs", asymmetry_rows)
 
-        # Plot 04
         if "04_secrets_leaked" in all_results:
             secret_rows = [r for r in all_results["04_secrets_leaked"] if "secret_type" in r]
             if secret_rows:
                 plot_secret_types(secret_rows, plots_dir)
 
-        # Plot 05
         if "05_build_rs_suspicious" in all_results:
             flag_rows = [r for r in all_results["05_build_rs_suspicious"] if "pattern" in r]
             if flag_rows:
                 plot_build_rs_flags(flag_rows, plots_dir)
 
-        # Plot 06 - severity distribution from ecosystem overview
         if "10_ecosystem_overview" in all_results:
             sev_rows = [r for r in all_results["10_ecosystem_overview"] if "severity_level" in r]
             if sev_rows:
                 plot_severity_distribution(sev_rows, plots_dir)
 
-        # Plot 07 - dependency centrality
         if "08_dependency_network" in all_results:
             dep_rows = [r for r in all_results["08_dependency_network"] if "dependents_count" in r
                        and "has_vulnerabilities" in r]
             if dep_rows:
                 plot_dependency_centrality(dep_rows, plots_dir)
 
-        # Plot 08 - ecosystem risk
         if "08_dependency_network" in all_results:
             risk_rows = [r for r in all_results["08_dependency_network"] if "ecosystem_risk_score" in r]
             if risk_rows:
                 plot_ecosystem_risk(risk_rows, plots_dir)
 
-        # Plot 09 - temporal creation
         if "09_temporal_analysis" in all_results:
             creation_rows = [r for r in all_results["09_temporal_analysis"] if "creation_year" in r]
             if creation_rows:
                 plot_temporal_creation(creation_rows, plots_dir)
 
-        # Plot 10 - crate age
         if "09_temporal_analysis" in all_results:
             age_rows = [r for r in all_results["09_temporal_analysis"] if "crate_age" in r]
             if age_rows:
                 plot_crate_age_vulns(age_rows, plots_dir)
 
-        # Plot 11 - executable prevalence
         if "07_executable_files_analysis" in all_results:
             dl_rows = [r for r in all_results["07_executable_files_analysis"] if "download_bracket" in r]
             if dl_rows:
                 plot_executables_by_downloads(dl_rows, plots_dir)
 
-        # Plot 12 - analysis timing
         plot_analysis_timing(plots_dir)
 
-        # Plot 13 - download velocity
         if "09_temporal_analysis" in all_results:
             velocity_rows = [r for r in all_results["09_temporal_analysis"] if "download_velocity" in r]
             if velocity_rows:
                 plot_download_velocity(velocity_rows, plots_dir)
 
-        # Plot 14 - dependency count distribution
         if "08_dependency_network" in all_results:
             dep_dist_rows = [r for r in all_results["08_dependency_network"] if "dep_count_bracket" in r]
             if dep_dist_rows:
                 plot_dependency_distribution(dep_dist_rows, plots_dir)
 
-        # Plot 15 - build.rs entropy distribution
         if "05_build_rs_suspicious" in all_results:
             entropy_rows = [r for r in all_results["05_build_rs_suspicious"] if "entropy_bucket" in r]
             if entropy_rows:
                 plot_build_rs_entropy(entropy_rows, plots_dir)
 
-        # Plot 16 - vulnerability prevalence by download bracket
         plot_vulns_by_download_bracket(plots_dir)
-
-    print(f"\n{'='*80}")
-    print(f"  ANALYSIS COMPLETE")
-    print(f"  Data printed above. Plots saved to: {os.path.join(args.out_dir, 'plots')}/")
-    print(f"{'='*80}")
 
 
 if __name__ == "__main__":

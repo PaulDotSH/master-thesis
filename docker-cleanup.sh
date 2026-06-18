@@ -3,7 +3,7 @@ set -euo pipefail
 
 # - Stops workers
 # - Removes unused containers/images/networks
-#   ./docker-cleanup.sh --all      # also remove cache volumes
+# docker-cleanup.sh --all # also remove cache volumes
 
 REMOVE_VOLUMES=false
 if [[ "${1:-}" == "--all" ]]; then
@@ -28,7 +28,3 @@ if [[ "$REMOVE_VOLUMES" == "true" ]]; then
     master-thesis_worker_tmp 2>/dev/null || true
 fi
 
-echo
-
-echo "Current Docker disk usage:"
-sudo docker system df

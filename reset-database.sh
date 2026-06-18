@@ -43,5 +43,3 @@ psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -c "CREATE DATABASE $
 echo "Running Diesel migrations..."
 cd "$SCRIPT_DIR/crates_downloader"
 diesel migration run --database-url "$DATABASE_URL" --migration-dir ./migrations
-
-echo "=== Database reset complete ==="

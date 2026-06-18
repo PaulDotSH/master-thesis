@@ -1,14 +1,3 @@
--- ============================================================================
--- COMPREHENSIVE VULNERABILITY ANALYSIS QUERIES
--- ============================================================================
--- These queries analyze cargo audit results including dependency chains
--- and transitive vulnerability impacts
--- ============================================================================
-
-
--- ============================================================================
--- QUERY 1: CRATES WITH DIRECT VULNERABILITIES
--- ============================================================================
 -- Shows all crates that have direct vulnerabilities in their code
 -- Includes: vulnerability count, severity scores, and full details
 
@@ -21,11 +10,11 @@ SELECT
     MAX(car.severity) AS max_severity_score,
     ROUND(AVG(car.severity)::numeric, 2) AS avg_severity_score,
     CASE 
-        WHEN MAX(car.severity) >= 90 THEN '🔴 CRITICAL'
-        WHEN MAX(car.severity) >= 70 THEN '🟠 HIGH'
-        WHEN MAX(car.severity) >= 40 THEN '🟡 MEDIUM'
-        WHEN MAX(car.severity) >= 10 THEN '🟢 LOW'
-        ELSE 'ℹ️ INFO'
+        WHEN MAX(car.severity) >= 90 THEN 'CRITICAL'
+        WHEN MAX(car.severity) >= 70 THEN 'HIGH'
+        WHEN MAX(car.severity) >= 40 THEN 'MEDIUM'
+        WHEN MAX(car.severity) >= 10 THEN 'LOW'
+        ELSE 'INFO'
     END AS severity_rating,
     STRING_AGG(
         CONCAT('RUSTSEC-', car.rustsec_id, ' (score: ', COALESCE(car.severity::text, 'N/A'), ')'), 
@@ -45,9 +34,6 @@ ORDER BY
     c.crate_downloads DESC;
 
 
--- ============================================================================
--- QUERY 2: CRATES WITH THEIR DEPENDENCIES AND VULNERABILITIES
--- ============================================================================
 -- Shows each crate, its dependencies, and which dependencies have vulnerabilities
 -- This reveals the dependency chain and where vulnerabilities come from
 
@@ -94,16 +80,12 @@ FROM crate_deps cd
 JOIN dependencies d ON cd.id = d.crate_id
 JOIN dep_vuln_stats dvs ON d.dependency_id = dvs.dep_id
 GROUP BY cd.id, cd.name, cd.crate_downloads, cd.total_dependencies, cd.vulnerable_dependencies
-HAVING cd.vulnerable_dependencies > 0  -- Only show crates that have vulnerable dependencies
+HAVING cd.vulnerable_dependencies > 0  -- Only show crates that have vulnerable deps
 ORDER BY cd.vulnerable_dependencies DESC, vulnerable_dep_percentage DESC
 LIMIT 50;
 
 
--- ============================================================================
--- QUERY 3: MOST PROBLEMATIC DEPENDENCIES
--- ============================================================================
--- Shows which dependencies are most problematic (have vulnerabilities AND are used by many crates)
--- This identifies the highest-impact vulnerable dependencies in the ecosystem
+-- Shows which dependencies are most problematic (have vulnerabilities and are used by many crates)
 
 WITH ranked_dependents AS (
     SELECT 
@@ -120,10 +102,10 @@ SELECT
     MAX(car.severity) AS max_severity,
     ROUND(AVG(car.severity)::numeric, 2) AS avg_severity,
     COUNT(DISTINCT d.crate_id) AS used_by_crate_count,
-    -- Impact score: number of vulnerabilities × number of dependent crates
+    -- Impact score: number of vulnerabilities * number of dependent crates
     (COUNT(DISTINCT car.id) * COUNT(DISTINCT d.crate_id)) AS impact_score,
     STRING_AGG(DISTINCT 'RUSTSEC-' || car.rustsec_id, ', ' ORDER BY 'RUSTSEC-' || car.rustsec_id) AS vulnerabilities,
-    -- Show top 5 crates that depend on this (by download count)
+    -- Show top 5 crates that depend on this
     (
         SELECT STRING_AGG(dependent_name, ', ')
         FROM ranked_dependents rd
@@ -138,11 +120,8 @@ ORDER BY impact_score DESC, max_severity DESC
 LIMIT 30;
 
 
--- ============================================================================
--- QUERY 4: TOP 20 MOST VULNERABLE CRATES (WEIGHTED RISK SCORE)
--- ============================================================================
 -- Combines vulnerability count and severity for a comprehensive risk assessment
--- Risk Score = (vuln_count × avg_severity) + (max_severity / 10)
+-- Risk Score = (vuln_count * avg_severity) + (max_severity / 10)
 
 SELECT 
     c.id AS crate_id,
@@ -151,13 +130,12 @@ SELECT
     COUNT(car.id) AS vuln_count,
     MAX(car.severity) AS max_severity,
     ROUND(AVG(car.severity)::numeric, 2) AS avg_severity,
-    -- Enhanced weighted risk score
     ROUND((COUNT(car.id) * AVG(car.severity) + MAX(car.severity) / 10.0)::numeric, 2) AS risk_score,
     CASE 
-        WHEN MAX(car.severity) >= 90 THEN '🔴 CRITICAL'
-        WHEN MAX(car.severity) >= 70 THEN '🟠 HIGH'
-        WHEN MAX(car.severity) >= 40 THEN '🟡 MEDIUM'
-        ELSE '🟢 LOW'
+        WHEN MAX(car.severity) >= 90 THEN 'CRITICAL'
+        WHEN MAX(car.severity) >= 70 THEN 'HIGH'
+        WHEN MAX(car.severity) >= 40 THEN 'MEDIUM'
+        ELSE 'LOW'
     END AS severity_rating,
     STRING_AGG('RUSTSEC-' || car.rustsec_id, ', ' ORDER BY car.severity DESC) AS rustsec_ids
 FROM 
@@ -171,11 +149,7 @@ ORDER BY
 LIMIT 20;
 
 
--- ============================================================================
--- QUERY 5: HIGH-IMPACT VULNERABILITIES (CRITICAL & HIGH SEVERITY)
--- ============================================================================
 -- Shows all critical and high severity vulnerabilities (CVSS >= 7.0)
--- Includes which crates depend on the vulnerable packages
 
 WITH ranked_dependents_high_sev AS (
     SELECT 
@@ -193,18 +167,16 @@ SELECT
     'RUSTSEC-' || car.rustsec_id AS vulnerability_id,
     car.severity AS severity_score,
     CASE 
-        WHEN car.severity >= 90 THEN '🔴 CRITICAL'
-        WHEN car.severity >= 70 THEN '🟠 HIGH'
-        WHEN car.severity >= 40 THEN '🟡 MEDIUM'
-        WHEN car.severity >= 10 THEN '🟢 LOW'
-        ELSE 'ℹ️ INFO'
+        WHEN car.severity >= 90 THEN 'CRITICAL'
+        WHEN car.severity >= 70 THEN 'HIGH'
+        WHEN car.severity >= 40 THEN 'MEDIUM'
+        WHEN car.severity >= 10 THEN 'LOW'
+        ELSE 'INFO'
     END AS severity_rating,
     c.crate_downloads AS direct_downloads,
     COUNT(DISTINCT d.crate_id) AS used_as_dependency_by,
-    -- Calculate total exposure (direct downloads + downstream dependent usage)
     c.crate_downloads + COUNT(DISTINCT d.crate_id) AS total_exposure,
     c.repository,
-    -- Show top 10 crates that depend on this vulnerable package (by download count)
     (
         SELECT STRING_AGG(dependent_name, ', ')
         FROM ranked_dependents_high_sev rd
@@ -222,11 +194,7 @@ ORDER BY
     total_exposure DESC;
 
 
--- ============================================================================
--- QUERY 6: MOST POPULAR VULNERABLE CRATES
--- ============================================================================
 -- Shows widely-used crates that have security vulnerabilities
--- Sorted by download count to identify highest user impact
 
 SELECT 
     c.name AS crate_name,
@@ -235,10 +203,10 @@ SELECT
     MAX(car.severity) AS max_severity,
     ROUND(AVG(car.severity)::numeric, 2) AS avg_severity,
     CASE 
-        WHEN MAX(car.severity) >= 90 THEN '🔴 CRITICAL'
-        WHEN MAX(car.severity) >= 70 THEN '🟠 HIGH'
-        WHEN MAX(car.severity) >= 40 THEN '🟡 MEDIUM'
-        ELSE '🟢 LOW'
+        WHEN MAX(car.severity) >= 90 THEN 'CRITICAL'
+        WHEN MAX(car.severity) >= 70 THEN 'HIGH'
+        WHEN MAX(car.severity) >= 40 THEN 'MEDIUM'
+        ELSE 'LOW'
     END AS severity_rating,
     ARRAY_AGG('RUSTSEC-' || car.rustsec_id ORDER BY car.severity DESC) AS vulnerabilities,
     c.repository
@@ -246,21 +214,16 @@ FROM
     crates c
     INNER JOIN cargo_audit_results car ON c.id = car.crate
 WHERE 
-    c.crate_downloads > 100000  -- Crates with > 100k downloads
+    c.crate_downloads > 100000
 GROUP BY 
     c.id, c.name, c.crate_downloads, c.repository
 ORDER BY 
     c.crate_downloads DESC;
 
 
--- ============================================================================
--- QUERY 7: DEPENDENCY CHAIN ANALYSIS
--- ============================================================================
 -- Shows crates and their full dependency tree vulnerability status
--- Identifies both direct vulnerabilities and inherited risk from dependencies
 
 WITH RECURSIVE dep_tree AS (
-    -- Base case: start with each crate
     SELECT 
         c.id AS root_crate_id,
         c.name AS root_crate_name,
@@ -272,7 +235,6 @@ WITH RECURSIVE dep_tree AS (
     
     UNION ALL
     
-    -- Recursive case: follow dependency chain
     SELECT 
         dt.root_crate_id,
         dt.root_crate_name,
@@ -284,7 +246,7 @@ WITH RECURSIVE dep_tree AS (
     JOIN dependencies d ON dt.current_crate_id = d.crate_id
     JOIN crates c ON d.dependency_id = c.id
     WHERE 
-        dt.depth < 3  -- Limit to 3 levels deep to avoid performance issues
+        dt.depth < 3  -- Limit to 3 levels deep
         AND NOT (d.dependency_id = ANY(dt.path))  -- Avoid cycles
 )
 SELECT 
@@ -293,7 +255,6 @@ SELECT
     COUNT(DISTINCT CASE WHEN car.id IS NOT NULL THEN dt.current_crate_id END) AS vulnerable_deps_in_tree,
     COUNT(DISTINCT car.id) AS total_vulnerabilities_in_tree,
     MAX(car.severity) AS max_severity_in_tree,
-    -- List the vulnerable dependencies
     STRING_AGG(DISTINCT 
         CASE WHEN car.id IS NOT NULL 
         THEN CONCAT(dt.current_crate_name, ' [depth:', dt.depth, ']')
@@ -311,18 +272,15 @@ ORDER BY total_vulnerabilities_in_tree DESC, max_severity_in_tree DESC
 LIMIT 30;
 
 
--- ============================================================================
--- QUERY 8: VULNERABILITY DISTRIBUTION BY SEVERITY
--- ============================================================================
 -- Statistical overview of all vulnerabilities grouped by severity level
 
 SELECT 
     CASE 
-        WHEN severity >= 90 THEN '🔴 CRITICAL (9.0-10.0)'
-        WHEN severity >= 70 THEN '🟠 HIGH (7.0-8.9)'
-        WHEN severity >= 40 THEN '🟡 MEDIUM (4.0-6.9)'
-        WHEN severity >= 10 THEN '🟢 LOW (1.0-3.9)'
-        ELSE 'ℹ️ INFO (0.0-0.9)'
+        WHEN severity >= 90 THEN 'CRITICAL'
+        WHEN severity >= 70 THEN 'HIGH'
+        WHEN severity >= 40 THEN 'MEDIUM'
+        WHEN severity >= 10 THEN 'LOW'
+        ELSE 'INFO'
     END AS severity_category,
     COUNT(*) AS vuln_count,
     COUNT(DISTINCT crate) AS affected_crates,
@@ -332,20 +290,17 @@ FROM
     cargo_audit_results
 GROUP BY 
     CASE 
-        WHEN severity >= 90 THEN '🔴 CRITICAL (9.0-10.0)'
-        WHEN severity >= 70 THEN '🟠 HIGH (7.0-8.9)'
-        WHEN severity >= 40 THEN '🟡 MEDIUM (4.0-6.9)'
-        WHEN severity >= 10 THEN '🟢 LOW (1.0-3.9)'
-        ELSE 'ℹ️ INFO (0.0-0.9)'
+        WHEN severity >= 90 THEN 'CRITICAL'
+        WHEN severity >= 70 THEN 'HIGH'
+        WHEN severity >= 40 THEN 'MEDIUM'
+        WHEN severity >= 10 THEN 'LOW'
+        ELSE 'INFO'
     END
 ORDER BY 
     MIN(severity) DESC;
 
 
--- ============================================================================
--- QUERY 9: ECOSYSTEM SECURITY OVERVIEW
--- ============================================================================
--- High-level statistics about the entire crate ecosystem security
+-- Statistics about the entire crate ecosystem security
 
 SELECT 
     'Total Crates Analyzed' AS metric,
@@ -377,7 +332,7 @@ FROM cargo_audit_results
 UNION ALL
 
 SELECT 
-    'Critical Vulnerabilities (≥9.0)' AS metric,
+    'Critical Vulnerabilities (>=9.0)' AS metric,
     COUNT(*)::text AS value
 FROM cargo_audit_results
 WHERE severity >= 90
@@ -385,7 +340,7 @@ WHERE severity >= 90
 UNION ALL
 
 SELECT 
-    'High Vulnerabilities (7.0-8.9)' AS metric,
+    'High Vulnerabilities' AS metric,
     COUNT(*)::text AS value
 FROM cargo_audit_results
 WHERE severity >= 70 AND severity < 90
@@ -408,11 +363,7 @@ ORDER BY COUNT(*) DESC
 LIMIT 1;
 
 
--- ============================================================================
--- QUERY 10: CRATES AT RISK (NO DIRECT VULNS BUT VULNERABLE DEPENDENCIES)
--- ============================================================================
 -- Shows crates that are themselves clean but depend on vulnerable packages
--- These crates inherit security risks from their dependencies
 
 SELECT 
     c.name AS crate_name,

@@ -8,7 +8,6 @@
 logs/
 *.log
 
-# Database dumps
 db-dump/
 crates_downloader/db-dump/
 crates_downloader/migrations/db-dump/
