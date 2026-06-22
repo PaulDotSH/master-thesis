@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.18)  8 JUN 2026 01:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.18)  22 JUN 2026 23:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -590,11 +590,7 @@ File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
  (c:/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count360
-) (./main_file_template_bachelor_masters_english.aux
-
-LaTeX Warning: Label `tab:secret-type-distribution' multiply defined.
-
-)
+) (./main_file_template_bachelor_masters_english.aux)
 \openout1 = `main_file_template_bachelor_masters_english.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
@@ -675,7 +671,7 @@ Package hyperref Info: Link coloring OFF on input line 27.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \c@lstlisting=\count367
-<FI.png, id=461, 578.8827pt x 290.0436pt>
+<FI.png, id=481, 578.8827pt x 290.0436pt>
 File: FI.png Graphic file (type png)
 <use FI.png>
 Package pdftex.def Info: FI.png  used on input line 35.
@@ -701,15 +697,13 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ]
 Chapter 1.
 
+Underfull \vbox (badness 5862) has occurred while \output is active []
+
+ [9]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [9] [10]) (./cap2.tex [11{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [12
-
-]
+ [10] [11{c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]) (./cap2.tex [12]
 Chapter 2.
-
-LaTeX Warning: Citation `thompson1984trusting' on page 13 undefined on input line 9.
-
 
 Underfull \hbox (badness 2293) in paragraph at lines 26--27
 []|\OT1/cmr/m/n/12 Millions of Java ap-pli-ca-
@@ -730,7 +724,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 32--33
 []|\OT1/cmr/m/n/12 SSH back-door tar-get-ing
  []
 
-[13]
+[13
+
+]
 Overfull \hbox (35.37881pt too wide) in paragraph at lines 53--64
  [][] 
  []
@@ -755,169 +751,188 @@ Overfull \hbox (60.51266pt too wide) detected at line 160
 [] \OT1/cmr/m/n/12 = []
  []
 
-[18] [19] [20] [21] [22] [23] [24]
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+[18]
+
+LaTeX Warning: Citation `zahan2022npm' on page 19 undefined on input line 192.
+
+
+LaTeX Warning: Citation `vu2020pypi' on page 19 undefined on input line 198.
+
+
+LaTeX Warning: Citation `guo2023pypi' on page 19 undefined on input line 199.
+
+
+LaTeX Warning: Citation `ponta2020patterns' on page 19 undefined on input line 206.
+
+[19]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <14.4> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 215.
+ [20] [21] [22] [23]
+Underfull \vbox (badness 8132) has occurred while \output is active []
+
+ [24]
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 []|\OT1/cmr/m/n/10.95 Li et
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 \OT1/cmr/m/n/10.95 al. [[]]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 []|\OT1/cmr/m/n/10.95 Big-Vul (190K
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 \OT1/cmr/m/n/10.95 els; strug-gles with
  []
 
 
-Underfull \hbox (badness 4328) in paragraph at lines 396--396
+Underfull \hbox (badness 4328) in paragraph at lines 400--400
 \OT1/cmr/m/n/10.95 un-com-mon vul-ner-a-bil-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 []|\OT1/cmr/m/n/10.95 Gong et
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 \OT1/cmr/m/n/10.95 al. [[]]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 []|\OT1/cmr/m/n/10.95 GPT-3.5/4,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--396
+Underfull \hbox (badness 10000) in paragraph at lines 400--400
 \OT1/cmr/m/n/10.95 Claude,
  []
 
 
-Underfull \hbox (badness 1184) in paragraph at lines 396--396
+Underfull \hbox (badness 1184) in paragraph at lines 400--400
 []|\OT1/cmr/m/n/10.95 Vulnerable code in $\OML/cmm/m/it/10.95 >
- []
-
-[25
-pdfTeX warning (ext4): destination with the same identifier (name{table.2.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.412 
-      ]
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-[]|\OT1/cmr/bx/n/10.95 Automation in
- []
-
-
-Underfull \hbox (badness 1242) in paragraph at lines 477--477
-[]|\OT1/cmr/bx/n/10.95 Ecosystem Scale &
- []
-
-
-Underfull \hbox (badness 1048) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 High - CLI, JSON
- []
-
-
-Underfull \hbox (badness 8056) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 mal-ware or be-hav-ior
- []
-
-
-Underfull \hbox (badness 3009) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 License, ad-vi-sory,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 and de-pen-dency
- []
-
-
-Underfull \hbox (badness 5741) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 High - \OT1/cmtt/m/n/10.95 deny.toml
- []
-
-
-Underfull \hbox (badness 4441) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 tion; no community-
- []
-
-
-Underfull \hbox (badness 6825) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Distributed code-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Scales so-cially via
- []
-
-
-Underfull \hbox (badness 7468) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 Web of Trust (e.g.,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Review ef-fort does
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Organization-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 centric au-dit
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Designed for CI
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 en-force-ment (e.g.,
- []
-
-
-Underfull \hbox (badness 4765) in paragraph at lines 477--477
-[]|\OT1/cmr/m/n/10.95 Focused on ``safe to
- []
-
-
-Underfull \hbox (badness 5403) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 run/deploy,'' not de-
- []
-
-
-Underfull \hbox (badness 1584) in paragraph at lines 477--477
-\OT1/cmr/m/n/10.95 tect-ing un-known mal-
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[26] [27
+[25] [26
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.3}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.436 
+      ]
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+[]|\OT1/cmr/bx/n/10.95 Automation in
+ []
+
+
+Underfull \hbox (badness 1242) in paragraph at lines 481--481
+[]|\OT1/cmr/bx/n/10.95 Ecosystem Scale &
+ []
+
+
+Underfull \hbox (badness 1048) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 High - CLI, JSON
+ []
+
+
+Underfull \hbox (badness 8056) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 mal-ware or be-hav-ior
+ []
+
+
+Underfull \hbox (badness 3009) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 License, ad-vi-sory,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 and de-pen-dency
+ []
+
+
+Underfull \hbox (badness 5741) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 High - \OT1/cmtt/m/n/10.95 deny.toml
+ []
+
+
+Underfull \hbox (badness 4441) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 tion; no community-
+ []
+
+
+Underfull \hbox (badness 6825) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Distributed code-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Scales so-cially via
+ []
+
+
+Underfull \hbox (badness 7468) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 Web of Trust (e.g.,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Review ef-fort does
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Organization-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 centric au-dit
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Designed for CI
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 en-force-ment (e.g.,
+ []
+
+
+Underfull \hbox (badness 4765) in paragraph at lines 481--481
+[]|\OT1/cmr/m/n/10.95 Focused on ``safe to
+ []
+
+
+Underfull \hbox (badness 5403) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 run/deploy,'' not de-
+ []
+
+
+Underfull \hbox (badness 1584) in paragraph at lines 481--481
+\OT1/cmr/m/n/10.95 tect-ing un-known mal-
+ []
+
+[27
 pdfTeX warning (ext4): destination with the same identifier (name{table.2.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.516 
-      ] [28]) (./cap3.tex [29] [30
+l.509 
+      ] [28]) (./cap3.tex [29] [30]
+Chapter 3.
+[31
 
 ]
-Chapter 3.
-[31]
 Underfull \hbox (badness 1997) in paragraph at lines 50--51
 []|\OT1/cmr/m/n/12 Sophisticated at-tacks, tar-geted
  []
@@ -1033,35 +1048,32 @@ Overfull \hbox (17.62482pt too wide) in paragraph at lines 133--134
 Chapter 5.
 [39
 
-]
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+] [40]
+Underfull \hbox (badness 10000) in paragraph at lines 83--83
 []|\OT1/cmr/m/n/12 Minimum num-ber of single-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+Underfull \hbox (badness 10000) in paragraph at lines 83--83
 \OT1/cmr/m/n/12 character in-ser-tions, dele-tions,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 79--79
+Underfull \hbox (badness 10000) in paragraph at lines 83--83
 \OT1/cmr/m/n/12 and sub-sti-tu-tions re-quired to
  []
 
 
-Underfull \hbox (badness 1087) in paragraph at lines 79--79
+Underfull \hbox (badness 1087) in paragraph at lines 83--83
 \OT1/cmr/m/n/12 key-board lay-out, us-ing Eu-clidean
  []
 
 
-Overfull \hbox (17.62482pt too wide) in paragraph at lines 79--80
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 83--84
 [][] 
  []
 
-
-Underfull \vbox (badness 5787) has occurred while \output is active []
-
- [40]) (./cap6.tex [41] [42
+) (./cap6.tex [41] [42
 
 ]
 Chapter 6.
@@ -1092,7 +1104,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 35--35
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 35--35
-\OT1/cmr/m/n/12 fastest orm, mi-gra-tion
+\OT1/cmr/m/n/12 fastest ORM, mi-gra-tion
  []
 
 
@@ -1154,63 +1166,60 @@ Overfull \hbox (36.28008pt too wide) in paragraph at lines 99--114
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.118 \section
-              {Dependency network}\label{sect:dependency-network}
+l.118 \subsection
+                 {Weighted Risk Score Definition}\label{subsect:risk-score-def}
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.118 \section
-              {Dependency network}\label{sect:dependency-network}
+l.118 \subsection
+                 {Weighted Risk Score Definition}\label{subsect:risk-score-def}
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.5}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.118 \section
-              {Dependency network}\label{sect:dependency-network}] [49
+l.118 \subsection
+                 {Weighted Risk Score Definition}\label{subsect:risk-score-def}] [49
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.6}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.200 
-      
+l.210 \end{table}
+                 ] [50
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.7}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.200 
+l.250 
       
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.8}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.200 
-      ]
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <17.28> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 261.
-
-Underfull \vbox (badness 3078) has occurred while \output is active []
-
- [50
+l.250 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.9}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.280 
-      
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.10}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.280 
+l.250 
       ]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <17.28> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 257.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [51
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.10}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.341 
+      ] [52
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.11}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.345 
+l.593 
       
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.12}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.345 
-      ]) (./cap8.tex [52
+l.593 
+      ]) (./cap8.tex [53
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.13}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
@@ -1220,21 +1229,16 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.7.14}) h
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.1 \chapter
-            {Discussion}\label{chapter:chap8}
+            {Discussion}\label{chapter:chap8}] [54
 pdfTeX warning (ext4): destination with the same identifier (name{table.7.15}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [53
-pdfTeX warning (ext4): destination with the same identifier (name{table.7.16}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1 \chapter
-            {Discussion}\label{chapter:chap8}] [54
-
-]
+            {Discussion}\label{chapter:chap8}]
 Chapter 8.
-[55]) (./cap9.tex [56]
+[55
+
+]) (./cap9.tex [56]
 Chapter 9.
 
 Underfull \hbox (badness 4084) in paragraph at lines 23--24
@@ -1245,14 +1249,14 @@ Underfull \hbox (badness 4084) in paragraph at lines 23--24
 
 ] [58]) (./main_file_template_bachelor_masters_english.bbl [59] [60
 
-]) (./appendixA.tex [61] [62
-
-]
+] [61]) (./appendixA.tex [62]
 Appendix A.
 
 Underfull \vbox (badness 4927) has occurred while \output is active []
 
- [63]) (./appendixB.tex [64]
+ [63
+
+]) (./appendixB.tex [64]
 Appendix B.
 
 Overfull \hbox (20.53989pt too wide) in paragraph at lines 25--25
@@ -1365,18 +1369,18 @@ Overfull \hbox (31.56152pt too wide) in paragraph at lines 5--30
 pdfTeX warning (ext4): destination with the same identifier (name{table.E.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.245 \chapter
+l.142 \chapter
               {Generative AI Tools Usage}] [74
 
 ]
 Appendix F.
 
-Underfull \hbox (badness 10000) in alignment at lines 268--268
+Underfull \hbox (badness 10000) in alignment at lines 165--165
 [][][][] 
  []
 
 
-Underfull \hbox (badness 1320) in paragraph at lines 273--273
+Underfull \hbox (badness 1320) in paragraph at lines 170--170
 []\OT1/cmr/bx/n/17.28 Claude Opus 4.6, DeepSeek V4 Pro ---
  []
 
@@ -1384,8 +1388,8 @@ Underfull \hbox (badness 1320) in paragraph at lines 273--273
 pdfTeX warning (ext4): destination with the same identifier (name{table.F.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.296 \textbf{Method:}
-                       The author described manually wrote and implemented t...] [76] (./main_file_template_bachelor_masters_english.aux)
+l.193 \textbf{Method:}
+                       The author described, manually wrote and implemented ...] [76] (./main_file_template_bachelor_masters_english.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-29>
@@ -1394,25 +1398,22 @@ L3 programming layer <2025-12-29>
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: There were multiply-defined labels.
-
 Package rerunfilecheck Info: File `main_file_template_bachelor_masters_english.out' has not changed.
-(rerunfilecheck)             Checksum: F2D019F2AA7478371063A34FD92212B1;21872.
+(rerunfilecheck)             Checksum: 60F377BD145EEAC9F86A93E266986B51;23058.
  ) 
 Here is how much of TeX's memory you used:
- 25722 strings out of 467538
- 464155 string characters out of 5423725
- 877874 words of memory out of 5000000
- 53916 multiletter control sequences out of 15000+600000
- 638057 words of font info for 79 fonts, out of 8000000 for 9000
+ 25758 strings out of 467538
+ 464851 string characters out of 5423725
+ 878693 words of memory out of 5000000
+ 53939 multiletter control sequences out of 15000+600000
+ 638226 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,15n,94p,1806b,832s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,15n,94p,1826b,832s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on main_file_template_bachelor_masters_english.pdf (76 pages, 412960 bytes).
+Output written on main_file_template_bachelor_masters_english.pdf (76 pages, 423260 bytes).
 PDF statistics:
- 1127 PDF objects out of 1200 (max. 8388607)
- 1006 compressed objects within 11 object streams
- 257 named destinations out of 1000 (max. 500000)
- 922 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1176 PDF objects out of 1200 (max. 8388607)
+ 1055 compressed objects within 11 object streams
+ 270 named destinations out of 1000 (max. 500000)
+ 962 words of extra memory for PDF output out of 10000 (max. 10000000)
 

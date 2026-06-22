@@ -1,12 +1,51 @@
 \newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{{OWA}24}
 
+\bibitem[AMP{\etalchar{+}}20]{astrauskas2020unsafe}
+Vytautas Astrauskas, Christoph Matheja, Federico Poli, Alexander~J. Summers,
+  and Peter Mueller.
+\newblock {How Do Programmers Use Unsafe Rust?}
+\newblock {\em Proceedings of the ACM on Programming Languages (PACMPL)},
+  4(OOPSLA):136:1--136:27, 2020.
+
+\bibitem[B{\etalchar{+}}21]{baer2021rudra}
+Yechan Bae et~al.
+\newblock {RUDRA: Protecting Rust Programs from Memory Corruption via Static
+  Analysis}.
+\newblock In {\em Proceedings of the ACM SIGOPS 28th Symposium on Operating
+  Systems Principles (SOSP)}, pages 57--73, 2021.
+
+\bibitem[DMG19]{decan2019empirical}
+Alexandre Decan, Tom Mens, and Philippe Grosjean.
+\newblock {An Empirical Comparison of Dependency Network Evolution in Seven
+  Software Packaging Ecosystems}.
+\newblock {\em Empirical Software Engineering}, 24(1):381--416, 2019.
+
+\bibitem[{FIR}19]{cvss2024}
+{FIRST.org}.
+\newblock {Common Vulnerability Scoring System (CVSS) v3.1: Specification
+  Document}, 2019.
+
 \bibitem[GCL{\etalchar{+}}24]{gong2024securityeval}
 Yinhao Gong, Bian Chen, Zhenyu Li, et~al.
 \newblock {Evaluating the Security of Large Language Models in Code Generation:
   A Study with SecurityEval}.
 \newblock In {\em Proceedings of the 2024 IEEE/ACM International Conference on
   Software Engineering (ICSE)}, 2024.
+
+\bibitem[Lab22]{sentinelone2022cratedepression}
+SentinelOne Labs.
+\newblock {Supply Chain Threat: CrateDepression - The Rust Crate Registry
+  Attack Targeting GitLab CI}.
+\newblock SentinelOne Labs Technical Report, 2022.
+
+\bibitem[LCA{\etalchar{+}}17]{lauinger2017thou}
+Tobias Lauinger, Abdelberi Chaabane, Sajjad Arshad, William Robertson, Christo
+  Wilson, and Engin Kirda.
+\newblock {Thou Shalt Not Depend on Me: Analysing the Use of Outdated
+  JavaScript Libraries on the Web}.
+\newblock In {\em Proceedings of the 2017 Network and Distributed System
+  Security Symposium (NDSS)}, 2017.
 
 \bibitem[LHZQ23]{li2023chatgpt}
 Haonan Li, Yu~Hao, Yizhuo Zhai, and Zhiyun Qian.
@@ -50,6 +89,18 @@ Marc Ohm, Henrik Plate, Arnold Sykosch, and Michael Meier.
 \bibitem[{Son}26]{sonatype2026}
 {Sonatype}.
 \newblock {2026 State of the Software Supply Chain}, 2026.
+
+\bibitem[SP18]{staicu2018synode}
+Cristian-Alexandru Staicu and Michael Pradel.
+\newblock {Synode: Understanding and Automatically Preventing Injection Attacks
+  on Node.js}.
+\newblock In {\em Proceedings of the 27th USENIX Security Symposium}, pages
+  361--378, 2018.
+
+\bibitem[Tho84]{thompson1984trust}
+Ken Thompson.
+\newblock {Reflections on Trusting Trust}.
+\newblock {\em Communications of the ACM}, 27(8):761--763, 1984.
 
 \bibitem[ZSTP19]{zimmermann2019small}
 Markus Zimmermann, Cristian-Alexandru Staicu, Cam Tenny, and Michael Pradel.

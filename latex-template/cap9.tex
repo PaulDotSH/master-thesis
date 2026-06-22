@@ -5,7 +5,7 @@
 The thesis aims to design, implement and evaluate a security analysis framework for Rust's ecosystem. The results demonstrate that automated multi-dimensional analysis is effective and feasible, with some limitations including false positives and the need for manual verification.
 
 \begin{enumerate}[leftmargin=*,itemsep=2pt]
-\item \textbf{A modular and scalable analysis framework.} We designed and implemented a producer consumer architecture with a Redis-based work queue that enforces topological ordering. The system supports worker containers, handles crash recovery and graceful shutdown. A full ecosystem scan of 226,546 crates can be completed with consumer hardware. 
+\item \textbf{A modular and scalable analysis framework.} We designed and implemented a producer-consumer architecture with a Redis-based work queue that enforces topological ordering. The system supports worker containers, handles crash, recovery and graceful shutdown. A full ecosystem scan of 226,546 crates can be completed with consumer hardware. 
 
 \item \textbf{Five integrated modules.} The framework combines:
 \begin{itemize}[leftmargin=*,itemsep=1pt]
@@ -28,13 +28,14 @@ The thesis aims to design, implement and evaluate a security analysis framework 
 
 \item \textbf{Evidence-based risk characterization.} Beyond raw counts, the analysis revealed structural patterns with practical implications:
 \begin{itemize}[leftmargin=*,itemsep=1pt]
-\item Popular crates are safer high download crates have a 25.2\% vulnerability rate versus 32.1\% for medium download crates.
+\item Popular crates are safer; high-download crates have a 25.2\% vulnerability rate versus 32.1\% for medium download crates.
 \item Newest crates are most vulnerable (30.9\% rate for crates under 6 months), likely due to unpatched dependencies and less review.
 \item Crates shipping executables have a 67.7\% vulnerability rate; more than double the average.
 \item The Substrate/Polkadot ecosystem is the largest source of transitive vulnerability risk due to a single advisory from the dependency \texttt{sp-core}.
+\item \textbf{Cross-module correlation evidence.} A compound query (Section~\ref{sect:cross-module}) identifies crates that are simultaneously typosquat candidates, have a suspicious \texttt{build.rs} flag and have low download counts, which is a class of findings that does not exist when the modules are run independently.
 \end{itemize}
 
-\item \textbf{A negative result for LLM-based module.} Deploying a 14B-parameter LLM at ecosystem scale was not possible due to hardware limitations, scanning the most vulnerable crates didn't produce meaningful findings.
+\item \textbf{A negative result for LLM-based module.} Deploying a 14B-parameter LLM at ecosystem scale was not possible due to hardware limitations. Scanning the most vulnerable crates didn't produce meaningful findings.
 
 \end{enumerate}
 
@@ -48,15 +49,15 @@ The framework and findings show several opportunities for future work:
 \item \textbf{Integration with crates.io infrastructure.} The \texttt{build.rs} heuristic flags could trigger automated warnings on the crate's crates.io page, alerting users to compile-time execution before they add the dependency.
 
 \item \textbf{Gitleaks rule set specialization.} 
-Gitleaks has a very high false positive rate in this context. Even after removing test and example paths the remaining are too many for manual review.
+Gitleaks has a very high false positive rate in this context. Even after removing test and example paths, the remaining are too many for manual review.
 
 \item \textbf{Caching and incremental scanning.} Caching cargo audit's artifacts such as different compiler versions and implementing incremental analysis that only re-analyzes crates whose source code or dependency graph has changed would reduce the scan time.
 
-\item \textbf{Sandboxed build script execution.} A very important gap in the current implementation is the lack of understanding what the build.rs script executes at runtime. Implementing a sandbox and monitoring behavior would be a great addition, especially with a classifier to determine possible maliciousness.
+\item \textbf{Sandboxed build script execution.} A very important gap in the current implementation is the lack of understanding what the \texttt{build.rs} script executes at runtime. Implementing a sandbox and monitoring behavior would be a great addition, especially with a classifier to determine possible maliciousness.
 
-\item \textbf{Continuous monitoring.} Integrating the framework with crates.io's real-time feed (instead of the current "periodic" database dump) would enable analysis of newly published crates. The redis queue already is capable of handling a continuous addition of crates.
+\item \textbf{Continuous monitoring.} Integrating the framework with crates.io's real-time feed (instead of the current "periodic" database dump) would enable analysis of newly published crates. The Redis queue is already capable of handling a continuous addition of crates.
 
-\item \textbf{Improved LLM integration.} Deploying a larger model with RAG for cross-file context, would be a great addition, especially deployed on a cluster for fast inference, with the current implementation was not properly tested due to hardware limitations.
+\item \textbf{Improved LLM integration.} Deploying a larger model with RAG for cross-file context, would be a great addition, especially deployed on a cluster for fast inference, since the current implementation was not properly tested due to hardware limitations.
 
 \item \textbf{Metadata anomaly detection.} Analyzing patterns in maintainer and ownership changes, release frequency, and version-tag rewriting would complement the current analysis methods.
 

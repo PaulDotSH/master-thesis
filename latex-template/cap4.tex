@@ -73,7 +73,7 @@ These CSVs are all processed, firstly we resolve crate-version relationships and
 \section{Dependency Graph Construction}\label{sect:dep-graph}
 
 The dependency graph is a DAG where nodes represent crates and edges represent dependency relationships.
-The graph is build by:
+The graph is built by:
 
 1. Query PostgreSQL for all dependencies
 
@@ -84,9 +84,9 @@ tracking unprocessed dependencies.
 
 4. Pushing crates ready to process (with zero unprocessed dependencies) into the Redis ready queue.
 
-After a worker analyses a crate, it has to atomically update the dependency sets of all that crate's dependent crates. If any of these's sets becomes an empty set, it is pushed into the ready queue.
+After a worker analyses a crate, it has to atomically update the dependency sets of all of that crate's dependent crates. If any of these sets becomes an empty set, it is pushed into the ready queue.
 
-Dependency cycles are detected using depth first search and are resolved by breaking cycle edges.
+Dependency cycles are detected using depth-first search and are resolved by breaking cycle edges.
 
 \section{Distributed Work Queue}\label{sect:work-queue}
 
@@ -106,7 +106,7 @@ The Redis queue has the following structures:
 \hline
 \end{tabular}
 
-A worker uses 'BRPOPLPUSH' to do an atomic claim of a crate, this ensures there are no race conditions. Failed crates are marked as failed but are not re-queued and do not block dependent crates from being processed. This can be further improved if 
+A worker uses 'BRPOPLPUSH' to do an atomic claim of a crate, this ensures there are no race conditions. Failed crates are marked as failed but are not re-queued and do not block dependent crates from being processed. This can be further improved by implementing better retry logic.
 
 \section{Database Schema Design}\label{sect:db-schema}
 
@@ -139,19 +139,19 @@ The schema was designed to use indexing for commonly used queries for filtering,
 The web dashboard is implemented as a standalone project using Axum and provides an API for querying the database.
 The frontend supports the following features:
 
-- Dashboard view - Showing high level statistics such as crates analyzed, vulnerability count, secrets found and others providing charts for easy visualization.
+- Dashboard view - Showing high-level statistics such as crates analyzed, vulnerability count, secrets found and others providing charts for easy visualization.
 
 - Crates browser - a paginated, sortable and filterable list of all the analyzed crates.
 
 - Scan results view - A filterable, sortable and paginated list of all crates with their metadata.
 
-- Scan results page - Same as the others in terms of feature, showing information such as build.rs heuristics, vulnerability results and more.
+- Scan results page - Same as the others in terms of features, showing information such as build.rs heuristics, vulnerability results and more.
 
-- Vulnerability viewer - Lists all cargo audit findings for all crates with the serverity score and links to the advisory page.
+- Vulnerability viewer - Lists all cargo audit findings for all crates with the severity score and links to the advisory page.
 
 - Secrets viewer - Shows all gitleaks findings for all crates, with rule IDs, entropy and location in the repository.
 
-- Typosquatting viewer - Shows all typosquatting pairs with all of the similarity scores from all algorithms used, together with the combined score
+- Typosquatting viewer - Shows all typosquatting pairs with all of the similarity scores from all algorithms used, together with the combined score.
 
 - Dependency browser - Shows the dependencies between crates.
 
@@ -165,8 +165,8 @@ The workers are containerized using Docker to ensure easy scalability on a singl
 
 - Redis for the work queue and dependency graph
 
-- Worker containers, by using a custom Dockerfile we can scale multiple workers using 'docker-compose up -d --scale worker=N' where N is the number of workers to start. Each worker has a limit of 2 cores and 4GB of RAM.
+- Worker containers: using a custom Dockerfile we can scale multiple workers using 'docker-compose up -d --scale worker=N' where N is the number of workers to start. Each worker has a limit of 2 cores and 4GB of RAM.
 
-To achieve maximum I/O performance the analysis is done on a temporary mounted RAM disk at /tmp/crates, eliminating the disk I/O bottleneck during cloning and analysis.
+To achieve maximum I/O performance, the analysis is done on a temporary mounted RAM disk at /tmp/crates, eliminating the disk I/O bottleneck during cloning and analysis.
 
-Multiple machines can be used by configuring the workers on multiple machines to connect to the central Redis instance, this enables scaling across a cluster if needed.
+Multiple machines can be used by configuring the workers on multiple machines to connect to the central Redis instance; this enables scaling across a cluster if needed.

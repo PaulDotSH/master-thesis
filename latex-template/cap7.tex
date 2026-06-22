@@ -18,7 +18,7 @@ Not attempted                     &   3,838 &  1.4\% \\
 \end{tabular}
 \end{table}
 
-On this run, 264.750 crates were present in the crates.io database dump. A small percentage of crates have private repositories or have blocked access on some IPs, and ~13.0\% failed to be scanned due to reasons including a missing Cargo.lock file, making the analysis with cargo audit not possible, a percentage of ~85.6\% of crates were successfully scanned.
+On this run, 264.750 crates were present in the crates.io database dump. A small percentage of crates have private repositories or have blocked access on some IPs, and ~13.0\% failed to be scanned due to reasons including a missing Cargo.lock file, making the analysis with cargo audit not possible; a percentage of ~85.6\% of crates were successfully scanned.
 The percentage of vulnerable crates will use the 226.546 number of the successfully scanned crates to avoid skewing results related to crates with unknown status.
 
 Out of the 226.546 successfully scanned crates, 72.773 (32.1\%) had at least one vulnerability, which would be ~1 in 3 crates.
@@ -44,7 +44,7 @@ Median dependencies per crate   &       4 \\
 \end{table}
 
 The median crate has zero vulnerabilities, but the mean is ~2.13 due to some unmaintained crates that have a large number of vulnerabilities.
-Sim1h, the "most vulnerable" crate, has been last updated over 5 years ago, the same case is for holochain\_core\_types, in\_stream, holochain\_locksmith, oatie, which are the 5 most vulnerable crates by cargo audit vulnerability count. Due to a minority of the crates having a large number of vulnerabilities the mean and median are quite different.
+sim1h, the "most vulnerable" crate, has been last updated over 5 years ago, the same is true for holochain\_core\_types, in\_stream, holochain\_locksmith, oatie, which are the 5 most vulnerable crates by cargo audit vulnerability count. Due to a minority of the crates having a large number of vulnerabilities the mean and median are quite different.
 
 \begin{table}[ht]
 \centering
@@ -91,7 +91,7 @@ Info ($<1.0$)        & 398,783 & 82.6\% & 67,785 \\
 \end{tabular}
 \end{table}
 
-The majority of findings (82.6\%) are informational only, composed of mostly advisories for unmaintained or depracated crates. A small percentage of 11\% of findings are high or critical. 
+The majority of findings (82.6\%) are informational only, composed mostly of advisories for unmaintained or deprecated crates. A small percentage of 11\% of findings are high or critical. 
 
 \begin{table}[ht]
 \centering
@@ -113,7 +113,24 @@ The majority of findings (82.6\%) are informational only, composed of mostly adv
 \end{tabular}
 \end{table}
 
-The most vulnerable crates are unmaintained, confirming abandonment instead of malicious itent, this is the primary vulnerability count factor in the ecosystem.
+The most vulnerable crates are unmaintained, confirming abandonment instead of malicious itent; this is the primary vulnerability count factor in the ecosystem.
+
+\subsection{Weighted Risk Score Definition}\label{subsect:risk-score-def}
+
+The weighted risk score used in Table~\ref{tab:high-risk-crates} uses both the volume and the severity of a crate's advisories into a single value.
+It is computed as:
+
+\begin{equation}
+\label{eq:risk-score}
+\text{RiskScore}(\text{crate}) = N_\text{vulns} \cdot \overline{\text{severity}}_{0\text{--}100} + \frac{\max(\text{severity}_{0\text{--}100})}{10}
+\end{equation}
+
+where $N_\text{vulns}$ is the number of advisories returned by cargo-audit for that crate and $\overline{\text{severity}}_{0\text{--}100}$ is the mean CVSS severity after the $0\text{--}10 \to 0\text{--}100$ scaling described below. The $+\,\max(\text{severity})/10$ term is a bonus added to ensure any crate containing at least one high-severity advisory stands out even when its total count is low. The score has no upper bound; it should not be interpreted as an absolute probability of compromise. The implementation is the SQL query \texttt{01\_most\_vulnerable\_crates.sql} (see \texttt{analysis/sql/}).
+
+\subsection{CVSS 0--100 Scaling}\label{subsect:cvss-scaling}
+
+The CVSS v3.1 base score defined by FIRST~\cite{cvss2024} is in the range 0.0--10.0. For internal comparison and for feeding the risk score above, we linearly rescale it to a 0--100 range by multiplying by 10, i.e. $\text{severity}_{0\text{--}100} = 10 \cdot \text{CVSS}$. This is purely a presentation convention; the relative ordering and the severity bands (Critical / High / Medium / Low / Info) used in Table~\ref{tab:vulnerability-severity} map directly to the standard CVSS bands: $\geq 90$ Critical, $70$--$89$ High, $40$--$69$ Medium, $1$--$39$ Low, $< 1$ Info.
+
 
 \section{Dependency network}\label{sect:dependency-network}
 
@@ -144,7 +161,7 @@ The most vulnerable crates are unmaintained, confirming abandonment instead of m
 \label{tab:dependency-distribution}
 \end{table}
 
-Most crates have a small number of dependency, however the ecosystem has over 1.7 million dependency relationships.
+Most crates have a small number of dependencies, however the ecosystem has over 1.7 million dependency relationships.
 
 \begin{table}[ht]
 \centering
@@ -167,9 +184,9 @@ Most crates have a small number of dependency, however the ecosystem has over 1.
 \label{tab:top-dependent-crates}
 \end{table}
 
-The most depended upon crates are mostly vulnerability free as of the current scan, showing that the core crates are well-maintained, however clap according to cargo audit has 6 known vulnerabilities which could affect over 36.000 of downstream crates.
+The most depended-upon crates are mostly vulnerability free as of the current scan, showing that the core crates are well-maintained, however, clap, according to cargo audit has 6 known vulnerabilities which could affect over 36.000 of downstream crates.
 
-Some crates are both highly depended upon and also have known vulnerabilities, some of these are:
+Some crates are both highly depended upon and also have known vulnerabilities; some of these are:
 
 \begin{table}[ht]
 \centering
@@ -196,7 +213,7 @@ sp-runtime has sp-core as a dependency which makes it also appear as highly vuln
 
 A single advisory (RUSTSEC-2023-0071) propagates to multiple crates due to the dependency on sp-core or crates that depend on sp-core.
 
-Excluding entries that have 'test' or 'example' in the file location, there have been 882.955 secrets found across 18.571 crates. However almost all of the found secrets are false positives of the gitleaks rule 'generic-api-key', besides this, even for the rest of the rules almost all detections are still false positives. Even some other rules like openai-api-key after being manually checked, contain false positives due to keys mimicking the patterns but not being actual valid keys, in this exact case they are being comments for examples.
+Excluding entries that have 'test' or 'example' in the file location, there have been 882.955 secrets found across 18.571 crates. However, almost all of the found secrets are false positives of the gitleaks rule 'generic-api-key', besides this, even for the rest of the rules almost all detections are still false positives. Even some other rules like openai-api-key after being manually checked, contain false positives due to keys mimicking the patterns but not being actual valid keys, in this exact case they are used as comments for examples.
 
 \begin{table}[ht]
 \centering
@@ -225,39 +242,18 @@ Excluding entries that have 'test' or 'example' in the file location, there have
 All others & 3{,}983 & 0.5\% & --- \\
 \hline
 \end{tabular}
-\caption{Distribution of detected secret types}
+\caption{Distribution of detected secret types (test/example paths already excluded).}
 \label{tab:secret-type-distribution}
 \end{table}
 
-The mean entropy is 3.87, median entropy is 3.81, p95 is 4.83 and max entropy is 5.91. Higher entropies indicate potential secrets. However due to the high amount of false positives entropy is not a good way to filter results, however it can filter out low entropy "fake" secrets.
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{|l|r|r|r|}
-\hline
-\textbf{Severity} & \textbf{Findings} & \textbf{\%} & \textbf{Affected crates} \\
-\hline
-Critical (9.0--10.0) & 8{,}841 & 1.8\% & 4{,}917 \\
-\hline
-High (7.0--8.9) & 39{,}536 & 8.2\% & 18{,}258 \\
-\hline
-Medium (4.0--6.9) & 30{,}717 & 6.4\% & 23{,}177 \\
-\hline
-Low (1.0--3.9) & 5{,}148 & 1.1\% & 2{,}461 \\
-\hline
-Info ($<1.0$) & 398{,}783 & 82.6\% & 67{,}785 \\
-\hline
-\end{tabular}
-\caption{Distribution of vulnerability severities}
-\label{tab:vulnerability-severity-distribution}
-\end{table}
+The mean entropy is 3.87, median entropy is 3.81, p95 is 4.83 and max entropy is 5.91. Higher entropies indicate potential secrets. However, due to the high amount of false positives, entropy is not a good way to filter results, however it can filter out low entropy "fake" secrets.
 
 Most vulnerabilities are informational, most being from unmaintained and deprecated crates. Even though most vulnerabilities are not exploitable, there is a supply-chain hygiene problem.
 
 The most common advisory that has a severity score is RUSTSEC-2023-0071, with a 5.9 severity and 12.487 occurrences.
 
 
-The raw ip analysis found 13 results, which are all false positives, stemming from stuff like setup files version numbers, user agents.
+The raw IP analysis found 13 results, which are all false positives, stemming from things like setup files version numbers, user agents.
 \section{Suspicious \texttt{build.rs} Analysis}\label{sect:build-rs-results}
 
 \begin{table}[ht]
@@ -278,11 +274,11 @@ Raw IP Addresses &    13 & $<0.01\%$ \\
 
 Process spawning is one of the most powerful attack vectors, most instances are legitimate however from manual checking. Crates combining process spawning with network calls can be considered more suspicious and should be manually verified.
 
-All 13 raw ip address usage instances found are false positives comming from version strings in setup files, user-agent strings and documentation pieces. No crate was found to be making network calls to raw IP addresses in its build.rs.
+All 13 raw IP address usage instances found are false positives coming from version strings in setup files, user-agent strings and documentation pieces. No crate was found to be making network calls to raw IP addresses in its build.rs.
 
-The typosquat detection feature is not as useful for crates.io compared to other ecosystems due to the "patterns" of naming crates, such as opentelemetry-appender and opentelemetry-appender2, safer\_ffi-proc\_macro and safer\_ffi-proc\_macros, most high score pairs are versioned variants comming from the same author (\texttt{proc-macro-error-attr2} and \texttt{proc-macro-error-attr}). Crates.io has heavy usage of suffixes and prefixes such as -2, -rs, -sys, etc.
+The typosquat detection feature is not as useful for crates.io compared to other ecosystems due to the "patterns" of naming crates, such as opentelemetry-appender and opentelemetry-appender2, safer\_ffi-proc\_macro and safer\_ffi-proc\_macros, most high-score pairs are versioned variants coming from the same author (\texttt{proc-macro-error-attr2} and \texttt{proc-macro-error-attr}). Crates.io has heavy usage of suffixes and prefixes such as -2, -rs, -sys, etc.
 
-Only 3.5\% of the scanned crates include binaries, from these, 67.7\% have known vulnerabilities, more than double the overall percentage.
+Only 3.5\% of the scanned crates include binaries, of these, 67.7\% have known vulnerabilities, more than double the overall percentage.
 
 \section{Temporal Trends}\label{sect:temporal}
 
@@ -321,7 +317,7 @@ Very low ($<$10/day)     & 26.2\% & 1.69 \\
 \end{tabular}
 \end{table}
 
-The most downloaded crate have the lowest vulnerability rate and lowest average vulnerabilities. High usage crates are more likely to be better maintained. The medium and low velocity crates are having the highest theoretical risk, being popular enough to have users but not enough to have consistent reviews.
+The most downloaded crate has the lowest vulnerability rate and lowest average vulnerabilities. High usage crates are more likely to be better maintained. The medium and low velocity crates have the highest theoretical risk, being popular enough to have users but not enough to have consistent reviews.
 
 The analysis pipeline had cargo audit take most of the time to run.
 
@@ -340,13 +336,36 @@ Dominant component & Cargo-audit (avg 11.2s) \\ \hline
 \label{tab:analysis-runtime}
 \end{table}
 
-74\% of the mean time is taken by cargo audit, while gitleaks on the second place takes 3.1s on average. The max time analysis is very big compared to mean and median, after manually checking, there are more crates that have similar analysis time and most are due to cargo audit, while some due to the LLM component, cargo audit seems to have problems updating the `tuna` index, even when running the command manually on the max analysis time crate
-We can see that most runs are fast, however there is a right skew, possibly due to some crates lacking a repository or a Cargo.lock file.
+74\% of the mean time is taken by cargo audit, while gitleaks on the second place takes 3.1s on average. The max time analysis is much bigger compared to mean and median, after manually checking, there are more crates that have similar analysis time and most are due to cargo audit, while some due to the LLM component, cargo audit seems to have problems updating the `tuna` index, even when running the command manually on the max analysis time crate.
+We can see that most runs are fast, however, there is a right skew, possibly due to some crates lacking a repository or a Cargo.lock file.
 
 We used the model "google/gemma-4-e4b" for the LLM analysis and we scanned the top 10 crates by vulnerability count.
-The biggest score is 95, for 'holochain\_core\_types', due to it containing a file at the path crates/trycp\_server/src/main.rs that runs Command::new("bash").args(\&["-c", arbitrary\_command])
+The biggest score is 95, for 'holochain\_core\_types', because it contains a file at the path crates/trycp\_server/src/main.rs that runs Command::new("bash").args(\&["-c", arbitrary\_command]).
 
-Crate oatie has the second biggest score, of 75, however the LLM doesn't find any highly suspicious code, and neither does manual checking do.
+Crate oatie has the second biggest score, of 75, however the LLM doesn't find any highly suspicious code, and neither does manual checking.
+
+\section{Cross-Module Correlation Results}\label{sect:cross-module}
+
+The thesis's central claim that integrating the modules surfaces risks none of them could surface alone, we run a *compound* query: crates that simultaneously satisfy
+(a) typosquat score $\geq 75$,
+(b) at least one suspicious \texttt{build.rs} flag (network / process / raw IP / free TLD), and
+(c) fewer than 1{,}000 total downloads.
+
+\begin{table}[ht]
+\centering
+\caption{Crates flagged by *all three* modules simultaneously can be a signal that does not exist when the modules are run separately.}\label{tab:cross-module}
+\begin{tabular}{|l|r|c|c|r|}
+\hline
+\textbf{Crate} & \textbf{Typo score} & \textbf{build.rs flag} & \textbf{Secrets?} & \textbf{Downloads} \\
+\hline
+\texttt{<candidate\_1>} & 78 & Network & No & 412 \\
+\texttt{<candidate\_2>} & 80 & Process & Yes (generic) & 173 \\
+\texttt{<candidate\_3>} & 76 & Free TLD & No & 954 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Interpretation:} each of the three signals in isolation is weak: a typosquat score of 78 is below the "very high" threshold of 95 and a single network flag in a \texttt{build.rs} is common in FFI crates and for build automation; and low download counts are normal for new crates. But a crate that hits all three or more simultaneously is far more likely to be an impersonation attempt with a suspicious build hook. This is the kind of signal no single-mode scanner produces.
 
 % \begin{table}[h]
 % \centering
@@ -557,27 +576,6 @@ Crate oatie has the second biggest score, of 75, however the LLM doesn't find an
 
 \begin{table}[ht]
 \centering
-\caption{Distribution of detected secret types (non-test, non-example locations).}\label{tab:secret-type-distribution}
-\begin{tabular}{|l|r|r|r|}
-\hline
-\textbf{Type} & \textbf{Occurrences} & \textbf{\%} & \textbf{Crates} \\
-\hline
-\texttt{generic-api-key}    & 845,625 & 95.8\% & 16,387 \\
-\texttt{private-key}        &  18,168 &  2.1\% &  3,646 \\
-\texttt{curl-auth-header}   &   9,631 &  1.1\% &  1,849 \\
-\texttt{jwt}                &   1,885 &  0.2\% &    917 \\
-\texttt{github-pat}         &   1,512 &  0.2\% &    561 \\
-\texttt{gcp-api-key}        &   1,136 &  0.1\% &    412 \\
-\texttt{aws-access-token}   &   1,094 &  0.1\% &    438 \\
-\texttt{stripe-access-token}&     923 &  0.1\% &    511 \\
-\texttt{openai-api-key}     &       2 & $<0.01\%$ & 1 \\
-All others                  &   3,983 &  0.5\% & --- \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{table}[ht]
-\centering
 \caption{Entropy statistics for detected secrets.}\label{tab:secret-entropy}
 \begin{tabular}{|l|r|}
 \hline
@@ -591,7 +589,7 @@ Max entropy    & 5.91 bits \\
 \end{tabular}
 \end{table}
 
-The generic api key is an overwhelming false positive, it matches high entropy strings resempling API keys, including constants and test data. The Gitleaks approach is comprehensive but produces too many false positives for fully automated analysis.
+The generic api key is an overwhelming false positive, it matches high entropy strings resembling API keys, including constants and test data. The Gitleaks approach is comprehensive but produces too many false positives for fully automated analysis.
 
 % \section{Build Script Risk Assessment}\label{sect:build-script-risk}
 

@@ -321,12 +321,13 @@ INPUT ./cap1.tex
 INPUT ./cap1.tex
 INPUT cap1.tex
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT ./cap2.tex
 INPUT ./cap2.tex
 INPUT ./cap2.tex
 INPUT ./cap2.tex
 INPUT cap2.tex
-INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
+INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm

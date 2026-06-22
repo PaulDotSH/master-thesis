@@ -1,69 +1,3 @@
-\documentclass[final]{beamer}
-
-% <<< packages
-
-% `size` and `orientation` are options for `beamerposter`.
-% `scale` can be used to make the fonts bigger, as required.
-\usetheme[size=a1,orientation=landscape, scale=1.0]{uvtposter}
-
-% load math packages
-\usepackage{amsmath}
-
-% load more packages
-\usepackage{hyperref}
-\usepackage{booktabs}
-
-% for displaying code (using `minted` will probably give better results)
-\usepackage{listings}
-
-% for qr code in header
-% \usepackage{qrcode}
-
-% >>>
-
-% <<< formatting
-
-% use numbers for footnotes inside columns
-% \renewcommand\thempfootnote{\arabic{mpfootnote}}
-
-% add custom logos
-\headerlogoleft{\includegraphics[width=0.08\paperwidth]{assets/uvt-logo-en-alt.png}}
-\headerlogoright{\includegraphics[width=0.08\paperwidth]{assets/logo-info.png}}
-% \headerlogoright{\qrcode[height=0.06\paperwidth]{https://github.com/alexfikl/uvt-poster}}
-
-% remove logos
-% \headerlogoleft{}
-% \headerlogoright{}
-
-% >>>
-
-% <<< commands
-
-% define some helpful commands
-\NewDocumentCommand \dx { O{x} } {\,\mathrm{d} #1}
-
-% >>>
-
-% <<< metadata
-
-\title{West University of Timișoara: \\ A simple and modern Conference Poster Template}
-\author{Hubert J. Farnsworth\inst{1} \and Amy Wong-Kroker\inst{2}}
-\institute[shortinst]{\inst{1} West University of Timișoara \quad \inst{2} Mars University}
-
-% Add content to the footer. If this command is not defined, the footer is
-% not shown in the final poster.
-\footercontent{
-    \href{https://info.uvt.ro/}{https://info.uvt.ro/} \hfill
-    Faculty of Computer Science, Timișoara --- July 2026 \hfill
-    \href{mailto:info@e-uvt.ro}{info@e-uvt.ro}}
-
-% >>>
-
-\begin{document}
-
-% NOTE: each frame will create a new page with a new poster, so you probably do
-% not want more of them in a single file.
-\begin{frame}[fragile]
 
 % NOTE: this uses a three column format because it is in landscape mode. If you
 % are using a portrait mode, two columns is probably better to allow for larger text
@@ -325,6 +259,3 @@
 \end{column}
 \separatorcolumn
 \end{columns}
-\end{frame}
-
-\end{document}

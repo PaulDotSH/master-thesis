@@ -738,7 +738,7 @@ redis_url = "redis://localhost:6379"
 
 # LLM (LM Studio)
 lm_studio_url = "http://localhost:1234/v1"
-lm_studio_model = "qwen/qwen2.5-coder-14b"
+lm_studio_model = "gemma-4-e4b"
 llm_max_tokens = 4096
 llm_temperature = 0.1
 llm_max_context_chars = 24576       # 24KB

@@ -12,7 +12,7 @@ CLI framework & Rust + Clap & Easy command definition with subcommands \\
 \hline
 Async runtime & Tokio & Industry-standard Rust async runtime, speed and ease of use \\
 \hline
-Database ORM & Diesel (async) & Type-safe SQL queries, fastest orm, migration management \\
+Database ORM & Diesel (async) & Type-safe SQL queries, fastest ORM, migration management \\
 \hline
 Connection pooling & bb8 & Fastest async connection pool for PostgreSQL \\
 \hline
@@ -36,7 +36,7 @@ Containerization & Docker + Docker Compose & Reproducible and easy deployment, h
 
 \section{CLI Application Structure}\label{sect:cli-structure}
 
-The CLI app has the following CLI commands and structure:
+The CLI app has the following commands and structure:
 
 \begin{tabularx}{\textwidth}{|l|X|}
 \hline
@@ -46,7 +46,7 @@ The CLI app has the following CLI commands and structure:
 \hline
 \texttt{run-analysis} & Constructs dependency graph and populates Redis queue \\
 \hline
-\texttt{worker} & Starts a worker process that consumes from the queue, used from docker \\
+\texttt{worker} & Starts a worker process that consumes from the queue, used from Docker \\
 \hline
 \texttt{compute-dependencies} & Post-processing for dependency risk flags \\
 \hline
@@ -70,35 +70,33 @@ The CLI app has the following CLI commands and structure:
 
 \section{Redis Queue Implementation}\label{sect:redis-queue}
 
-The redis queue implementation was designed to handle multiple complex scenarios:
+The Redis queue implementation was designed to handle multiple complex scenarios:
 
 - Topological ordering of crates to ensure the dependents are analyzed first
 
-- Atomic operations - Atomic claim of crates, handling crate completion, dependent updates and others happen in a atomic manner to prevent race conditions
+- Atomic operations - Atomic claim of crates, handling crate completion, dependent updates and others happen in an atomic manner to prevent race conditions
 
 - Blocking pop - BRPOP is used to avoid busy waiting
 
-- Statistic tracking - The queue has counters for total crates, processed crates and others to provide monitoring capabilities.
+- Statistics tracking - The queue has counters for total crates, processed crates and others to provide monitoring capabilities.
 
 \section{Cycle Detection and Resolution}\label{sect:cycle-detection}
 
 Dependency cycles can prevent crates from ever being processed as dependency cycles will cause crates to always have dependencies.
 
-- Cycle detection - Using depth first search, we identify cycle edges
+- Cycle detection - Using depth-first search, we identify cycle edges
 
-- Cycle breaking - Removal of edges alows crates to be processed, 'fix-cycles' is used for simple A-B-A cycles, and 'break-cycles' is used for more complex cycles.
+- Cycle breaking - Removal of edges allows crates to be processed, 'fix-cycles' is used for simple A-B-A cycles, and 'break-cycles' is used for more complex cycles.
 
 \section{Worker Lifecycle and Fault Tolerance}\label{sect:worker-lifecycle}
 
-Each worker is an independent instance with a lifecycle that does;
+Each worker is an independent instance with a lifecycle consists of;
 
 - Initialization - Connects to PostgreSQL and Redis and sets up the state and handlers
 
-- Main loop - Claim a crate from the ready queue in an atomic way, download its depository and run each module, after that insert the results into PostgreSQL and remove the crate from Redis.
+- Main loop - Claim a crate from the ready queue in an atomic way, download its repository and run each module, after that insert the results into PostgreSQL and remove the crate from Redis.
 
-- Shutdown - handle signals like SIGINT and SIGTERM by finishing the current crate and only after that exiting.
-
-Failed analysis produce placeholder results.
+- Shutdown - Handle signals like SIGINT and SIGTERM by finishing the current crate and exit only after that.
 
 \section{Batch Processing and Database Optimization}\label{sect:batch-db-opt}
 
@@ -108,4 +106,4 @@ Failed analysis produce placeholder results.
 
 - Connection pooling - bb8 is used to manage database connections
 
-- Indexing - Indexes on commonly used queries in the codebase are used, they do not increase the database size enough to be a problem
+- Indexing - Indexes on commonly used queries in the codebase are used; they do not increase the database size enough to be a problem

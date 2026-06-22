@@ -80,7 +80,7 @@ MASTER STUDY PROGRAM:  CYBERSECURITY }}
 
 {\large\noindent{\bf SUPERVISOR:\hfill GRADUATE:}
 
-\noindent  Dr. Lect. Darius Galis \hfill 
+\noindent  Lect. Dr. Ing. Darius Galis \hfill 
 \noindent  Paul - Andrei Abrudan}
  
 
@@ -95,14 +95,14 @@ MASTER STUDY PROGRAM:  CYBERSECURITY }}
 \normalsize{}
 
 \section*{Abstract} 
-The Rust programming language has gained popularity in multiple programming fields due to its memory safety features and performance. Rust's package ecosystem, crates.io, delivers over 150.000 crates to the language's users. Due to the rapid growth of the language and ecosystem, potential security risks are present, including known vulnerabilities in dependencies, a history of supply chain attacks through code injection and typosquatting, secrets being leaked in source code and cases of malicious build scripts present in the optional build.rs file at the root of the packages. This thesis presents a distributed framework for automating security analysis on the Rust package library ecosystem. The system parses metadata from the crates.io database dump, constructing a dependency graph and applying multiple analysis modules: Vulnerability scanning using `cargo audit`, which uses the RustSec Advisory Database, Secret leakage detection using the FOSS tool GitLeaks, heuristic analysis for the `build.rs` script, detecting network calls, process creation, obfuscation and suspicious TLDs used, the possibility of LLM code scoring using LM Studio's REST API, typosquatting detection using multiple string similarity algorithms and transitive dependency chain risk propagation. Horizontal scaling is possible across multiple nodes, achieved with Redis used as a work queue, with the possibility of upgrading to a faster in-memory database. The results are persisted in a PostgreSQL database and can be visualized through the web dashboard. This thesis aims to make it easier to search for cases of malicious dependencies in the Rust ecosystem, providing tools for security auditing.
+The Rust programming language has gained popularity in multiple programming fields due to its memory safety features and performance. Rust's package ecosystem, crates.io, delivers over 264.750 crates and several billion downloads to the language's users. Due to the rapid growth of the language and ecosystem, potential security risks are present, including known vulnerabilities in dependencies, a history of supply-chain attacks through code injection and typosquatting, secrets being leaked in source code and cases of malicious build scripts present in the optional build.rs file at the root of the packages. This thesis presents a distributed framework for automating security analysis of the Rust package library ecosystem. The system parses metadata from the crates.io database dump, constructing a dependency graph and applying multiple analysis modules: Vulnerability scanning using `cargo audit`, which uses the RustSec Advisory Database, Secret leakage detection using the FOSS tool GitLeaks, heuristic analysis for the `build.rs` script, detecting network calls, process creation, obfuscation and suspicious TLDs used, optional LLM-based code scoring using LM Studio's REST API, typosquatting detection using multiple string similarity algorithms and transitive dependency chain risk propagation. Horizontal scaling is possible across multiple nodes, achieved using Redis as a work queue, with the possibility to upgrade to a faster in-memory database. The results are persisted in a PostgreSQL database and can be visualized through the web dashboard. This thesis aims to make it easier to search for cases of malicious dependencies in the Rust ecosystem, providing tools for security auditing.
 \newline
 \textbf{Keywords:} crates.io, Rust, supply chain security, typosquatting, distributed systems, software security
 
 
 \newpage
 
-\section*{Statement of Scientific integrity} 
+\section*{Statement of Scientific Integrity} 
 
 I declare that this BSc / MSc thesis is an original report and represents my own work, conducted under supervision of [name(s) supervisor(s)]. All research methods, data collection, analysis and interpretation presented in this thesis are accurately reported and all sources have been cited appropriately where I have made use of ideas and/or visuals of others.
 
@@ -127,109 +127,6 @@ I declare that this BSc / MSc thesis is an original report and represents my own
 \input{cap8}
 \input{cap9}
 
-% \chapter{Some Latex Commands}
-
-% In this chapter are presented some useful Latex commands that could be used in thesis written part.
-
-
-% \section{Enumeration usage}
-% Enumeration with numeric label:
-% \begin{enumerate}
-%     \item Option 1
-%     \item Option 2
-%     \item Option 3
-% \end{enumerate}
-
-% Enumeration without label:
-% \begin{itemize}
-%     \item Option 1
-%     \item Option 2
-%     \item Option 3
-% \end{itemize}
-
-% \section{If you need to add: definitions,  theorems, ...}
-% \begin{defn} ...
-% \end{defn}
-% \begin{thm} ...
-% \end{thm}
-% \begin{proof} ...
-% \end{proof}
-% \begin{rem} ...
-% \end{rem}
-% \begin{exmp} ...
-% \end{exmp}
-
-% \section{Bibliography References}
-% The bibliography has to be referenced in thesis content using cite (e.g. \cite{knuth1998}).
-
-% \section{Figure}
-% Each figure has to have a caption that is a suggestive description of what  the  picture represents (e.g. Figure \ref{fig:siglaUVT}).
-% \begin{figure}[h!]
-%     \centering
-%     \includegraphics[width=0.25\linewidth]{FI.png}
-%     \caption{ FMI logo scaled at 25\% of text width}
-%     \label{fig:siglaUVT}
-% \end{figure}
-
-% \section{Algorithm pseudo-code}
-% Pseudo-code is a formal way to describe an algorithm, is more clear than a textual description ore code (e.g. Algorithm \ref{alg:alg_ex}).
-
-% \begin{algorithm}[!ht]
-% \caption{An algorithm with caption}\label{alg:alg_ex}
-% \begin{algorithmic}[1]
-% \Require $n \geq 0$
-% \Ensure $y = x^n$
-% \State $y \gets 1$
-% \State $X \gets x$
-% \State $N \gets n$
-% \While{$N \neq 0$}
-% \If{$N$ is even}
-%     \State $X \gets X \times X$
-%     \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
-% \ElsIf{$N$ is odd}
-%     \State $y \gets y \times X$
-%     \State $N \gets N - 1$
-% \EndIf
-% \EndWhile
-% \end{algorithmic}
-% \end{algorithm}
-
-% \section{Source Code}
-% If the thesis contains source code from the application, do not use print-screens, or verbatim  use listing  (e.g. listing \ref{lst:p1}). 
-
-% \begin{lstlisting}[language=Python, numbers=left,
-%     stepnumber=1, caption=An exemple of Python code, label=lst:p1]
-% import numpy as np
-    
-% def incmatrix(genl1,genl2):
-%     m = len(genl1)
-%     n = len(genl2)
-%     M = None #to become the incidence matrix
-%     VT = np.zeros((n*m,1), int)  #dummy variable
-    
-%     #compute the bitwise xor matrix
-%     M1 = bitxormatrix(genl1)
-%     M2 = np.triu(bitxormatrix(genl2),1) 
-
-%     for i in range(m-1):
-%         for j in range(i+1, m):
-%             [r,c] = np.where(M2 == M1[i,j])
-%             for k in range(len(r)):
-%                 VT[(i)*n + r[k]] = 1;
-%                 VT[(i)*n + c[k]] = 1;
-%                 VT[(j)*n + r[k]] = 1;
-%                 VT[(j)*n + c[k]] = 1;
-                
-%                 if M is None:
-%                     M = np.copy(VT)
-%                 else:
-%                     M = np.concatenate((M, VT), 1)
-                
-%                 VT = np.zeros((n*m,1), int)
-    
-%     return M
-% \end{lstlisting}
-
 \bibliography{mybib}
 \bibliographystyle{alpha}
 \addcontentsline{toc}{chapter}{Bibliography}
@@ -246,7 +143,7 @@ I declare that this BSc / MSc thesis is an original report and represents my own
 \label{genAIUsage}
 
 
-An overview of how generative AI tools were used during the research and writing process is presented following table:
+An overview of how generative AI tools were used during the research and writing process is presented in the following table:
 
 \rowcolors{2}{gray!15}{white}
 \begin{table}[h!]
@@ -275,7 +172,7 @@ An overview of how generative AI tools were used during the research and writing
 \textbf{Purpose:} Claude Opus 4.6 and DeepSeek V4 Pro were used for:
 \begin{enumerate}[leftmargin=*,itemsep=1pt]
     \item \textbf{Rephrasing:} Paragraphs written by the author were submitted to the mentioned models with instructions to improve clarity, conciseness, and academic tone while preserving the accuracy of the content.
-    \item \textbf{Typo checking:} After each writing session, selected sections were submitted to different AI models with a prompt requesting identification of spelling errors, grammatical mistakes, and awkward phrasing. All suggested corrections were reviewed and rewritten with modifications by the authors.
+    \item \textbf{Typo checking:} After each writing session, selected sections were submitted to different AI models with a prompt requesting identification of spelling errors, grammatical mistakes, and awkward phrasing. All suggested corrections were reviewed and rewritten with modifications by the author.
 \end{enumerate}
 
 \textbf{Method:} The prompts used were variations of:
@@ -286,14 +183,14 @@ An overview of how generative AI tools were used during the research and writing
 
 \textbf{Verification:} All generated output was manually reviewed by the author and modified. For rephrasing, the author compared the suggested modifications against the original to ensure no meaning was altered or technical inaccuracies introduced.
 
-\textbf{Implementation:} Rephrased text was accepted or rejected on a word by word basis, with modifications and checks, nothing is copy-pasted.
+\textbf{Implementation:} Rephrased text was accepted or rejected on a word-by-word basis, with modifications and checks; nothing is copy-pasted.
 
 
 \section{Code Generation Assistance}
 
 \textbf{Purpose:} The mentioned models were used to assist with Rust code patterns during the development of the analysis framework.
 
-\textbf{Method:} The author described manually wrote and implemented the entire framework, asked for better code hygiene, better patterns and optimizations and received code suggestions. The author adapted, refactored, and integrated the generated code into the existing codebase following the project's conventions without copy-pasting or accepting agentic changes.
+\textbf{Method:} The author described, manually wrote and implemented the entire framework, asked for better code hygiene, better patterns and optimizations and received code suggestions. The author adapted, refactored, and integrated the generated code into the existing codebase following the project's conventions without copy-pasting or accepting agentic changes.
 
 \textbf{Implementation:} No generated code was used verbatim without understanding and modification.
 
