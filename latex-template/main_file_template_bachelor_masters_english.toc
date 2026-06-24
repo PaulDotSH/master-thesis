@@ -10,26 +10,26 @@
 \contentsline {subsection}{\numberline {2.1.1}Supply Chain Incidents}{13}{subsection.2.1.1}%
 \contentsline {subsection}{\numberline {2.1.2}Classification of Supply Chain Attacks}{15}{subsection.2.1.2}%
 \contentsline {paragraph}{Ohm et al. (2020) ``Backstabber's Knife Collection''}{15}{section*.4}%
-\contentsline {paragraph}{Ladisa et al. (2023) ``A Taxonomy of Attacks on Open-Source Software Supply Chains''}{16}{section*.5}%
+\contentsline {paragraph}{Ladisa et al. (2023) ``SoK: Taxonomy of Attacks on Open-Source Software Supply Chains''}{16}{section*.5}%
 \contentsline {subsection}{\numberline {2.1.3}The Dependency Problem at Scale}{16}{subsection.2.1.3}%
 \contentsline {subsection}{\numberline {2.1.4}Supply chain frameworks}{17}{subsection.2.1.4}%
 \contentsline {section}{\numberline {2.2}Package Ecosystem Security Analysis}{17}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Vulnerability Databases and Advisory Systems}{17}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Software Bill of Materials}{19}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.2}Software Bill of Materials}{18}{subsection.2.2.2}%
 \contentsline {subsection}{\numberline {2.2.3}Large-Scale Ecosystem Security Studies}{19}{subsection.2.2.3}%
 \contentsline {subsection}{\numberline {2.2.4}Rust-Specific Safety and \texttt {unsafe} Studies}{20}{subsection.2.2.4}%
 \contentsline {section}{\numberline {2.3}Typosquatting in Package Registries}{20}{section.2.3}%
 \contentsline {subsection}{\numberline {2.3.1}String Similarity Algorithms for Detection}{21}{subsection.2.3.1}%
 \contentsline {subsection}{\numberline {2.3.2}Typosquatting in the Rust Ecosystem}{21}{subsection.2.3.2}%
-\contentsline {paragraph}{Rust Foundation Typosquatting Protection}{22}{section*.6}%
+\contentsline {paragraph}{Rust Foundation Typosquatting Protection}{21}{section*.6}%
 \contentsline {section}{\numberline {2.4}Malicious Code Detection in Package Ecosystems}{22}{section.2.4}%
 \contentsline {subsection}{\numberline {2.4.1}Categories of Malicious Behavior}{22}{subsection.2.4.1}%
 \contentsline {subsection}{\numberline {2.4.2}Static Analysis Approaches}{22}{subsection.2.4.2}%
 \contentsline {subsection}{\numberline {2.4.3}Dynamic Analysis Approaches}{23}{subsection.2.4.3}%
 \contentsline {subsection}{\numberline {2.4.4}Machine Learning Approaches}{23}{subsection.2.4.4}%
 \contentsline {section}{\numberline {2.5}Build Script Security Risks and Detection}{23}{section.2.5}%
-\contentsline {section}{\numberline {2.6}Large Language Models for Code Analysis}{25}{section.2.6}%
-\contentsline {subsection}{\numberline {2.6.1}Evolution of Code-Aware Language Models}{25}{subsection.2.6.1}%
+\contentsline {section}{\numberline {2.6}Large Language Models for Code Analysis}{24}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Evolution of Code-Aware Language Models}{24}{subsection.2.6.1}%
 \contentsline {subsection}{\numberline {2.6.2}LLMs for Vulnerability Detection}{25}{subsection.2.6.2}%
 \contentsline {subsection}{\numberline {2.6.3}Challenges in Large-Scale LLM Security Analysis}{25}{subsection.2.6.3}%
 \contentsline {subsection}{\numberline {2.6.4}Local vs. API-Based LLM Deployment}{26}{subsection.2.6.4}%
@@ -41,7 +41,7 @@
 \contentsline {section}{\numberline {2.8}Existing Tools and Related Work}{27}{section.2.8}%
 \contentsline {subsection}{\numberline {2.8.1}Rust-Specific Security Tools}{27}{subsection.2.8.1}%
 \contentsline {subsection}{\numberline {2.8.2}General-Purpose Security Tools}{27}{subsection.2.8.2}%
-\contentsline {subsection}{\numberline {2.8.3}Commercial and Community Supply Chain Security Platforms}{28}{subsection.2.8.3}%
+\contentsline {subsection}{\numberline {2.8.3}Commercial and Community Supply Chain Security Platforms}{27}{subsection.2.8.3}%
 \contentsline {subsection}{\numberline {2.8.4}Academic Research on Ecosystem Security}{28}{subsection.2.8.4}%
 \contentsline {section}{\numberline {2.9}Distributed Systems for Large-Scale Analysis}{28}{section.2.9}%
 \contentsline {subsection}{\numberline {2.9.1}Challenges of Ecosystem-Scale Analysis}{28}{subsection.2.9.1}%
@@ -105,18 +105,18 @@
 \contentsline {chapter}{\numberline {9}Conclusions and Future Work}{57}{chapter.9}%
 \contentsline {section}{\numberline {9.1}Summary of Contributions}{57}{section.9.1}%
 \contentsline {section}{\numberline {9.2}Future Directions}{58}{section.9.2}%
-\contentsline {chapter}{Bibliography}{62}{chapter*.7}%
-\contentsline {chapter}{\numberline {A}Database Schema}{63}{appendix.A}%
-\contentsline {chapter}{\numberline {B}Configuration Reference}{65}{appendix.B}%
-\contentsline {chapter}{\numberline {C}Web Dashboard}{67}{appendix.C}%
-\contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{69}{appendix.D}%
-\contentsline {section}{\numberline {D.1}Software Artifacts}{69}{section.D.1}%
-\contentsline {section}{\numberline {D.2}Data Artifacts}{69}{section.D.2}%
-\contentsline {section}{\numberline {D.3}Hardware Requirements}{69}{section.D.3}%
-\contentsline {section}{\numberline {D.4}Software Requirements}{70}{section.D.4}%
-\contentsline {section}{\numberline {D.5}Reproduction Steps}{70}{section.D.5}%
-\contentsline {section}{\numberline {D.6}Expected Outputs}{71}{section.D.6}%
-\contentsline {chapter}{\numberline {E}Glossary}{73}{appendix.E}%
-\contentsline {chapter}{\numberline {F}Generative AI Tools Usage}{75}{appendix.F}%
-\contentsline {section}{\numberline {F.1}Claude Opus 4.6, DeepSeek V4 Pro --- Rephrasing, Typo Checking, and Bibliography}{75}{section.F.1}%
-\contentsline {section}{\numberline {F.2}Code Generation Assistance}{76}{section.F.2}%
+\contentsline {chapter}{Bibliography}{63}{chapter*.7}%
+\contentsline {chapter}{\numberline {A}Database Schema}{65}{appendix.A}%
+\contentsline {chapter}{\numberline {B}Configuration Reference}{67}{appendix.B}%
+\contentsline {chapter}{\numberline {C}Web Dashboard}{69}{appendix.C}%
+\contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{71}{appendix.D}%
+\contentsline {section}{\numberline {D.1}Software Artifacts}{71}{section.D.1}%
+\contentsline {section}{\numberline {D.2}Data Artifacts}{71}{section.D.2}%
+\contentsline {section}{\numberline {D.3}Hardware Requirements}{71}{section.D.3}%
+\contentsline {section}{\numberline {D.4}Software Requirements}{72}{section.D.4}%
+\contentsline {section}{\numberline {D.5}Reproduction Steps}{72}{section.D.5}%
+\contentsline {section}{\numberline {D.6}Expected Outputs}{73}{section.D.6}%
+\contentsline {chapter}{\numberline {E}Glossary}{75}{appendix.E}%
+\contentsline {chapter}{\numberline {F}Generative AI Tools Usage}{77}{appendix.F}%
+\contentsline {section}{\numberline {F.1}Claude Opus 4.6, DeepSeek V4 Pro --- Rephrasing, Typo Checking, and Bibliography}{77}{section.F.1}%
+\contentsline {section}{\numberline {F.2}Code Generation Assistance}{78}{section.F.2}%

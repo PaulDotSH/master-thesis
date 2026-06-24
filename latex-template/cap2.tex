@@ -56,16 +56,18 @@ The Rust ecosystem is still developing compared to other ecosystems like npm and
 \hline
 CrateDepression & 2022 & Typosquatting & GitLab CI pipelines \\
 \hline
-faster\_log / async\_println & 2025 & Combosquatting & Cryptocurrency wallet keys \\
+faster\_log & 2025 & Typosquatting & Cryptocurrency wallet keys \\
+\hline
+async\_println & 2025 & Deceptive naming & Cryptocurrency wallet keys \\
 \hline
 CI/CD targeting crates & Various & Env. exfiltration & GitHub/GitLab CI secrets \\
 \hline
 \end{tabular}
 \end{table}
 
-In 2022, researchers from SentinelOne discovered a supply chain attack which they named CrateDepression~\cite{sentinelone2022cratedepression}, the attack targeted GitLab CI pipelines through a typosquatting attack, by publishing a crate named 'rustdecimal', which is meant to be confused with 'rust\_decimal', which is a legitimate crate providing decimal number support without rounding errors compared to Rust's native floating point types (f32 and f64). The attack detected if the crate was used in a GitLab CI pipeline and would download and execute a binary written in Go, known as a language commonly used for malware since some antimalware solutions struggle to analyze newer languages; and Go is mature enough to be used for complex malware. This attack exfiltrated secrets from the environment and was able to persist in the system by modifying a configuration YAML file. Attacks like this one demonstrate how Rust's memory safety and other security features are unable to protect against these kinds of attacks.
+In 2022, researchers from SentinelOne discovered a supply chain attack which they named CrateDepression~\cite{sentinelone2022cratedepression}, the attack targeted GitLab CI pipelines through a typosquatting attack, by publishing a crate named 'rustdecimal', which is meant to be confused with 'rust\_decimal', which is a legitimate crate providing decimal number support without rounding errors compared to Rust's native floating point types (f32 and f64). The attack detected if the crate was used in a GitLab CI pipeline and would download and execute a binary written in Go, known as a language commonly used for malware since some antimalware solutions struggle to analyze newer languages; and Go is mature enough to be used for complex malware. This attack exfiltrated secrets from the environment. Attacks like this one demonstrate how Rust's memory safety and other security features are unable to protect against these kinds of attacks.
 
-A more recent attack, from 2025, consists of multiple malicious crates including 'faster\_log' and 'async\_println', which was one of the motivations of this paper. These crates that targeted cryptocurrency systems developers contained code which exfiltrated Solana and Ethereum wallet keys from popular wallets present in the system by scanning for files and environment variables and sending the found data to C2 servers. This is not an example of typosquatting, since there are no similar legitimate crates, however they promised improved speed compared to the log crate and the println macro from the Rust standard library. These attacks were probably meant to be large-scale due to Rust being popular in cryptocurrency development, with projects including Solana being written in Rust.
+A more recent attack, from 2025, consists of multiple malicious crates including 'faster\_log' and 'async\_println', which was one of the motivations of this paper. The 'faster\_log' crate is a typosquatting attack that impersonates the legitimate 'fast\_log' logging crate, copying its source code, README and repository metadata. The 'async\_println' crate is not a typosquatting attack since there is no similar legitimate crate it copies; it offers an asynchronous version of the println macro. Both crates targeted cryptocurrency systems developers, containing code which scanned source files for Ethereum and Solana private key patterns and exfiltrated the found data to C2 servers. These attacks were probably meant to be large-scale due to Rust being popular in cryptocurrency development, with projects including Solana being written in Rust.
 
 Other attacks which are oriented towards CI/CD exfiltration, where multiple Rust crates were identified to scan for environment variables related to CI/CD including 'CI', 'GITHUB\_ACTION', 'GITLAB\_ID' and others. These crates would exfiltrate environment files, secrets from the workflow and other credentials.
 
@@ -87,14 +89,14 @@ This is a complex review of supply chain attacks which introduced a taxonomy to 
 Besides introducing a taxonomy, Ohm et al.~\cite{ohm2020backstabber} also introduced the "Backstabber's Knife Collection" which is a dataset that compiles 174 malicious packages from npm, PyPI and RubyGems, dated from 2015 to 2019. The dataset has been reused multiple times in empirical studies of supply chain attacks and malicious package detection and behavior.
 There is no comparable dataset for crates.io which, is another motivation for our data collection and detection.
 
-\paragraph{Ladisa et al. (2023) ``A Taxonomy of Attacks on Open-Source Software Supply Chains''}~\cite{ladisa2023taxonomy} was published at IEEE S\&P 2023. This paper proposed another taxonomy based around the lifecycle of software development:
+\paragraph{Ladisa et al. (2023) ``SoK: Taxonomy of Attacks on Open-Source Software Supply Chains''}~\cite{ladisa2023taxonomy} was published at IEEE S\&P 2023. This paper proposed another taxonomy based around the lifecycle of software development:
 \begin{description}
 	\item[Development phase attacks] targeting local environments, such as IDE plugins, development tools and more.
 	\item[Build phase attacks] which compromise build systems such as CI/CD or build dependencies.
 	\item[Distribution phase attacks] which target package registries, distribution channels and infrastructure and more.
 \end{description}
 
-The taxonomy identified over 100 attack vectors across these phases and had defenses mapped to each one of the vectors, which revealed gaps in coverage, especially present in the build phase.
+The taxonomy identified 107 unique attack vectors across these phases and had defenses mapped to each one of the vectors, which revealed gaps in coverage, especially present in the build phase.
 
 \subsection{The Dependency Problem at Scale}\label{sect:dependency-problem}
 
@@ -102,7 +104,7 @@ We can consider the fundamental challenge of supply chain attacks to be the tran
 \begin{itemize}
 	\item The average npm package trusts 79 packages.
 	\item Up to 40\% of packages depend on at least one package with a publicly known vulnerability, even if it's exploitable or not in a real world scenario.
-	\item A single compromised maintainer account could affect multiple million packages through transitive dependencies.
+	\item A small number of compromised maintainer accounts could affect the majority of packages in the ecosystem through transitive dependencies.
 \end{itemize}
 
 The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing an npm package trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to npm's arhitecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical Rust application can have hundreds of transitive dependencies.
@@ -112,7 +114,7 @@ Many crates suffer from having a single maintainer, which is almost always an un
 
 \subsection{Supply chain frameworks}\label{sect:supply-chain-frameworks}
 
-The supply-chain levels for software artifacts (SLSA)~\cite{slsa2024}; is a framework for securing software supply chains by defining four levels of security. For level 1 it documents the build process, and for levels 2 to 4 it adds cryptographic signing and verification of the software provenance, isolated and reproducible builds and a human review process. SLSA is complementary to supply chain tools such as cargo audit however, SLSA focuses on just build integrity and provenance while our framework provides findings that can be used for assessment and mitigations.
+The supply-chain levels for software artifacts (SLSA)~\cite{slsa2023}; is a framework for securing software supply chains by defining four levels of security. For level 1 it documents the build process, and for levels 2 to 3 it adds cryptographic signing and verification of the software provenance, and isolated and reproducible builds. SLSA is complementary to supply chain tools such as cargo audit however, SLSA focuses on just build integrity and provenance while our framework provides findings that can be used for assessment and mitigations.
 Most of Rust's ecosystem currently operates at levels 0 to 1 for the majority of the crates, with some using tools for cryptographic signing but this is limited to a small percentage of the crates.
 
 \section{Package Ecosystem Security Analysis}\label{sect:ecosystem-analysis}
@@ -188,8 +190,8 @@ Multiple research efforts were already conducted on some package ecosystems, how
 
 The npm ecosystem has been studied in multiple papers:
 \begin{itemize}
-	\item Staicu and Pradel~\cite{staicu2018synode} (2018) analyzed over 235.000 npm packages for injection vulnerabilities, finding thousands of exploitable packages.
-	\item Zahan et al.~\cite{zahan2022npm} (2022) examined the relationship between maintainer activity, contributor diversity and security findings.
+	\item Staicu et al.~\cite{staicu2018synode} (2018) analyzed over 235,850 Node.js modules for injection vulnerabilities, finding thousands of exploitable packages.
+	\item Zahan et al.~\cite{zahan2022npm} (2022) proposed six weak-link signals for the npm supply chain, including expired email domains, install scripts, unmaintained packages and maintainer overload, validated via a developer survey.
 	\item Lauinger et al.~\cite{lauinger2017thou} (2017) analyzed client-side libraries in websites and found extremely high usage of outdated and vulnerable versions.
 \end{itemize}
 
@@ -202,19 +204,19 @@ PyPI has also received attention from researchers:
 
 Cross-ecosystem studies have also been done:
 \begin{itemize}
-	\item Decan et al.~\cite{decan2019empirical} (2018) compared npm, CRAN and RubyGems
-	\item Ponta et al.~\cite{ponta2020patterns} (2020) compared patterns between Maven, npm and PyPI.
+	\item Decan et al.~\cite{decan2019empirical} (2019) compared seven software packaging ecosystems including npm, CRAN, and RubyGems
+	\item Gu et al.~\cite{gu2023packagethreats} (2023) systematically analyzed security threats across six major package registries, including Maven, npm, and PyPI, uncovering ecosystem-specific attack patterns.
 \end{itemize}
 
 PyPI has invested in infrastructure focused on malware detection and telemetry. Livehaul is used to collect download telemetry to detect anomalies. For malware detection specifically, YARA rules are used to scan for known malicious patterns~\cite{pypi2023security}.
 
-Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2026} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY increase was found in malicious packages. It showed that 95\% of the time when a version with a fixed vulnerability is released, 80\% of the dependents remain on the older version for over a year. The report shows a consistent gap between fixes and patching.
+Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2024} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY increase was found in malicious packages. It showed that 95\% of the time when vulnerable components are consumed, a fixed version already exists, and that 80\% of application dependencies remain un-upgraded for over a year. The report shows a consistent gap between fixes and patching.
 
 However, despite Rust's high growth and importance in the industry, including security-critical fields, there is a lack of comprehensive security analysis of crates.io, existing research is mainly focused on memory safety and other language features, but not on the entire ecosystem. This thesis aims to address this gap.
 
 \subsection{Rust-Specific Safety and \texttt{unsafe} Studies}\label{sect:rust-unsafe-studies}
 
-Rust-specific security research focuses on the \texttt{unsafe} feature, not on the supply chain. Astrauskas et al.~\cite{astrauskas2020unsafe} measured how Rust programmers actually use \texttt{unsafe}, finding that \texttt{unsafe} is concentrated in a small fraction of crates but those crates are disproportionately FFI / systems crates at the root of dependency trees. Which makes sense due to the low-level nature of those usecases. Bae et al.~\cite{baer2021rudra} (RUDRA, SOSP 2021) built a static analyser that flags memory corruption patterns unique to Rust's ownership model (e.g. \texttt{Send}/\texttt{Sync}) and found new CVEs by running it ecosystem-wide. \textbf{Limitation:} both works target language memory safety, but *not* supply-chain attacks; they cannot detect typosquatting, malicious \texttt{build.rs} patterns or credential exfiltration. \textbf{Implication for our design:} our modules address a disjoint threat class (adversarial code rather than accidental bugs) and we do not duplicate \texttt{unsafe} scanning or the mentioned previous work.
+Rust-specific security research focuses on the \texttt{unsafe} feature, not on the supply chain. Astrauskas et al.~\cite{astrauskas2020unsafe} measured how Rust programmers actually use \texttt{unsafe}, finding that \texttt{unsafe} is concentrated in a small fraction of crates but those crates are disproportionately FFI / systems crates at the root of dependency trees. Which makes sense due to the low-level nature of those usecases. Bae et al.~\cite{bae2021rudra} (RUDRA, SOSP 2021) built a static analyser that flags memory corruption patterns unique to Rust's ownership model (e.g. \texttt{Send}/\texttt{Sync}) and found new CVEs by running it ecosystem-wide. \textbf{Limitation:} both works target language memory safety, but *not* supply-chain attacks; they cannot detect typosquatting, malicious \texttt{build.rs} patterns or credential exfiltration. \textbf{Implication for our design:} our modules address a disjoint threat class (adversarial code rather than accidental bugs) and we do not duplicate \texttt{unsafe} scanning or the mentioned previous work.
 
 \section{Typosquatting in Package Registries}\label{sect:typosquatting}
 
@@ -359,9 +361,9 @@ The application of LLMs to code understanding has rapidly evolved in the past ye
 
 Several researchers have evaluated LLMs on security tasks such as vulnerability detection.
 
-The Li et al. (2023) "Assessing the Promise and Pitfalls of ChatGPT for Automated Vulnerability Detection" study has evaluated ChatGPT's older 3.5 and 4 models on vulnerability detection, finding that they have a reasonable accuracy on well-known patterns, but that they struggle with uncommon vulnerability types and more complex code, and they have a high false positive rate.
+The Fu et al. (2023) "ChatGPT for Vulnerability Detection, Classification, and Repair: How Far Are We?" study has evaluated ChatGPT's older 3.5 and 4 models on vulnerability detection, finding that they have a reasonable accuracy on well-known patterns, but that they struggle with uncommon vulnerability types and more complex code, and they have a high false positive rate.
 
-"How Well Do Large Language Models Serve as End-to-End Secure Code Producers?" by Zhang et al. (2024) is an evaluation of multiple LLMs on SecurityEval, which found that SOTA LLMs still introduce vulnerabilities in generated code, and that they detect vulnerabilities far better than avoiding generating them at all.
+"How Well Do Large Language Models Serve as End-to-End Secure Code Agents for Python?" by Gong et al. (2024) is an evaluation of multiple LLMs on SecurityEval, which found that SOTA LLMs still introduce vulnerabilities in generated code, and that they detect vulnerabilities far better than avoiding generating them at all.
 
 \subsection{Challenges in Large-Scale LLM Security Analysis}\label{sect:challenges-llm-security}
 
@@ -384,7 +386,7 @@ Prompt engineering can help with accuracy, however it isn't a complete and perfe
 \hline
 \textbf{Study} & \textbf{Model(s)} & \textbf{Benchmark} & \textbf{Key Result} & \textbf{Key Limitation} \\
 \hline
-Li et al.~\cite{li2023chatgpt} (2023) 
+Fu et al.~\cite{fu2023chatgpt} (2023)
 & GPT-3.5/4 
 & Big-Vul (190K C/C++ funcs) 
 & F1: \textasciitilde10\% (3.5), \textasciitilde29\% (4) 
@@ -392,7 +394,7 @@ Li et al.~\cite{li2023chatgpt} (2023)
 \hline
 Gong et al.~\cite{gong2024securityeval} (2024) 
 & GPT-3.5/4, Claude, CodeLlama 
-& SecurityEval (121 tasks, 69 CWEs) 
+& SecurityEval (121 tasks, 67 CWEs) 
 & Vulnerable code in $>75\%$ of outputs 
 & Better at detection than secure generation \\
 \hline
@@ -514,11 +516,11 @@ Cosign is one of its components, for signing and verifying artifacts. Rekor is a
 
 \subsection{Academic Research on Ecosystem Security}\label{sect:academic-research-ecosystem-security}
 
-"Understanding Security Threats in Open-Source Software Packages" (Survey papers) provides surveys of attack techniques and defenses, analysis of detection effectiveness and categorization of attacks
+Pan et al.~\cite{pan2024ambush} ``Ambush from All Sides: Understanding Security Threats in Open-Source Software CI/CD Pipelines'' conducted a large-scale measurement of 320,000+ CI/CD-configured GitHub repositories, systematically analyzing attack surfaces, strategies, and impacts across the CI/CD pipeline.
 
-"On the Prevalence of Vulnerable Dependencies in the npm Ecosystem" analyzed large-scale data on npm.
+Alfadel et al.~\cite{alfadel2021npm} ``On the Threat of npm Vulnerable Dependencies in Node.js Applications'' analyzed 6,673 Node.js applications, finding that 67.93\% depend on at least one vulnerable package, though 94.91\% of vulnerable packages were classified as low threat at the time of use.
 
-"A Measurement Study of Security Threats Collected from npm and PyPI" analyzed both npm and PyPI ecosystems, including typosquatting and dependency confusion.
+Kaplan and Qian~\cite{kaplan2021survey} ``A Survey on Common Threats in npm and PyPi Registries'' surveyed threats across both ecosystems, including typosquatting, combosquatting, and technical lag, and proposed ML-based countermeasures.
 
 \section{Distributed Systems for Large-Scale Analysis}\label{sect:distributed-systems}
 

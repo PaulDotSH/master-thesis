@@ -1,11 +1,11 @@
-@misc{slsa2024,
+@misc{slsa2023,
   title = {{Supply-chain Levels for Software Artifacts (SLSA) v1.0}},
   author = {{OpenSSF}},
-  year = {2024},
+  year = {2023},
   url = {https://slsa.dev/spec/v1.0/levels}
 }
 @misc{spdx2024,
-  title = {{Software Package Data Exchange (SPDX) Specification 2.3}},
+  title = {{Software Package Data Exchange (SPDX) Specification 3.0}},
   author = {{Linux Foundation}},
   year = {2024},
   url = {https://spdx.dev/specifications/}
@@ -19,50 +19,65 @@
 @inproceedings{ohm2020backstabber,
   author = {Ohm, Marc and Plate, Henrik and Sykosch, Arnold and Meier, Michael},
   title = {{Backstabber's Knife Collection: A Review of Open Source Software Supply Chain Attacks}},
-  booktitle = {Proceedings of the 17th Conference on Detection of Intrusions and Malware, and Vulnerability Assessment (DIMVA)},
-  year = {2020}
+  booktitle = {Detection of Intrusions and Malware, and Vulnerability Assessment},
+  series = {Lecture Notes in Computer Science},
+  volume = {12223},
+  pages = {23--43},
+  year = {2020},
+  doi = {10.1007/978-3-030-52683-2_2}
 }
 @inproceedings{ladisa2023taxonomy,
   author = {Ladisa, Piergiorgio and Plate, Henrik and Martinez, Matias and Barais, Olivier},
-  title = {{A Taxonomy of Attacks on Open-Source Software Supply Chains}},
-  booktitle = {Proceedings of the 44th IEEE Symposium on Security and Privacy (S\&P)},
-  year = {2023}
+  title = {{SoK: Taxonomy of Attacks on Open-Source Software Supply Chains}},
+  booktitle = {2023 IEEE Symposium on Security and Privacy (SP)},
+  pages = {1509--1526},
+  year = {2023},
+  doi = {10.1109/SP46215.2023.10179304},
+  url = {https://doi.org/10.1109/SP46215.2023.10179304}
 }
 @inproceedings{zimmermann2019small,
   author = {Zimmermann, Markus and Staicu, Cristian-Alexandru and Tenny, Cam and Pradel, Michael},
   title = {{Small World with High Risks: A Study of Security Threats in the npm Ecosystem}},
-  booktitle = {Proceedings of the 28th USENIX Security Symposium},
-  year = {2019}
+  booktitle = {28th USENIX Security Symposium (USENIX Security 19)},
+  pages = {995--1010},
+  year = {2019},
+  url = {https://www.usenix.org/conference/usenixsecurity19/presentation/zimmerman}
 }
 @misc{sigstore2024,
-  title = {{Sigstore: Software Signing for Everybody}},
-  author = {{Linux Foundation}},
+  title = {{Sigstore: Open-Source Software Signing and Transparency}},
+  author = {{OpenSSF}},
   year = {2024},
-  url = {https://www.sigstore.dev/}
+  url = {https://github.com/sigstore/sigstore},
+  note = {Accessed: 2026-06-24}
 }
 @misc{pypi2023security,
-  title = {{Malware Detection on PyPI}},
-  author = {{Python Software Foundation}},
+  title = {{Announcing the launch of PyPI Malware Reporting and Response project}},
+  author = {Mohanan, Shamika},
   year = {2023},
-  url = {https://blog.pypi.org/posts/2023-11-14-malware-reporting/}
+  url = {https://blog.pypi.org/posts/2023-06-22-malware-detection-project/}
 }
-@misc{sonatype2026,
-  title = {{2026 State of the Software Supply Chain}},
+@misc{sonatype2024,
+  title = {{10th Annual State of the Software Supply Chain Report}},
   author = {{Sonatype}},
-  year = {2026},
-  url = {https://www.sonatype.com/state-of-the-software-supply-chain/introduction}
+  year = {2024},
+  url = {https://www.sonatype.com/state-of-the-software-supply-chain/2024/introduction}
 }
-@article{li2023chatgpt,
-  author = {Li, Haonan and Hao, Yu and Zhai, Yizhuo and Qian, Zhiyun},
-  title = {{Assessing the Promise and Pitfalls of ChatGPT for Automated Vulnerability Detection}},
-  journal = {arXiv preprint arXiv:2308.12434},
-  year = {2023}
+@inproceedings{fu2023chatgpt,
+  author = {Fu, Michael and Tantithamthavorn, Chakkrit and Nguyen, Van and Le, Trung},
+  title = {{ChatGPT for Vulnerability Detection, Classification, and Repair: How Far Are We?}},
+  booktitle = {2023 30th Asia-Pacific Software Engineering Conference (APSEC)},
+  pages = {632--636},
+  publisher = {IEEE},
+  year = {2023},
+  doi = {10.1109/APSEC58848.2023.00085},
+  url = {https://doi.org/10.1109/APSEC58848.2023.00085}
 }
-@inproceedings{gong2024securityeval,
-  author = {Gong, Yinhao and Chen, Bian and Li, Zhenyu and others},
-  title = {{Evaluating the Security of Large Language Models in Code Generation: A Study with SecurityEval}},
-  booktitle = {Proceedings of the 2024 IEEE/ACM International Conference on Software Engineering (ICSE)},
-  year = {2024}
+@article{gong2024securityeval,
+  author = {Gong, Jianian and Duan, Nachuan and Tao, Ziheng and Gong, Zhaohui and Yuan, Yuan and Huang, Minlie},
+  title = {{How Well Do Large Language Models Serve as End-to-End Secure Code Agents for Python?}},
+  journal = {arXiv preprint arXiv:2408.10495},
+  year = {2024},
+  url = {https://arxiv.org/abs/2408.10495}
 }
 @article{thompson1984trust,
   author = {Thompson, Ken},
@@ -76,48 +91,54 @@
 }
 
 @inproceedings{staicu2018synode,
-  author = {Staicu, Cristian-Alexandru and Pradel, Michael},
-  title = {{Synode: Understanding and Automatically Preventing Injection Attacks on Node.js}},
-  booktitle = {Proceedings of the 27th USENIX Security Symposium},
+  author = {Staicu, Cristian-Alexandru and Pradel, Michael and Livshits, Benjamin},
+  title = {{SYNODE: Understanding and Automatically Preventing Injection Attacks on {Node.js}}},
+  booktitle = {Proceedings 2018 Network and Distributed System Security Symposium},
   year = {2018},
-  pages = {361--378}
+  doi = {10.14722/ndss.2018.23071},
+  url = {https://doi.org/10.14722/ndss.2018.23071}
 }
 
 @inproceedings{lauinger2017thou,
   author = {Lauinger, Tobias and Chaabane, Abdelberi and Arshad, Sajjad and Robertson, William and Wilson, Christo and Kirda, Engin},
   title = {{Thou Shalt Not Depend on Me: Analysing the Use of Outdated JavaScript Libraries on the Web}},
-  booktitle = {Proceedings of the 2017 Network and Distributed System Security Symposium (NDSS)},
-  year = {2017}
+  booktitle = {Proceedings 2017 Network and Distributed System Security Symposium},
+  year = {2017},
+  doi = {10.14722/ndss.2017.23414},
+  url = {https://doi.org/10.14722/ndss.2017.23414}
 }
 
 @article{decan2019empirical,
   author = {Decan, Alexandre and Mens, Tom and Grosjean, Philippe},
-  title = {{An Empirical Comparison of Dependency Network Evolution in Seven Software Packaging Ecosystems}},
+  title = {{An empirical comparison of dependency network evolution in seven software packaging ecosystems}},
   journal = {Empirical Software Engineering},
   volume = {24},
   number = {1},
   pages = {381--416},
-  year = {2019}
+  year = {2019},
+  doi = {10.1007/s10664-017-9589-y}
 }
 
 @misc{sentinelone2022cratedepression,
-  author = {SentinelOne Labs},
-  title = {{Supply Chain Threat: CrateDepression - The Rust Crate Registry Attack Targeting GitLab CI}},
-  howpublished = {SentinelOne Labs Technical Report},
+  author = {Guerrero-Saade, Juan Andr\'es and Stokes, Phil},
+  title = {{CrateDepression: Rust Supply-Chain Attack Infects Cloud {CI} Pipelines with {Go} Malware}},
+  howpublished = {SentinelLabs Blog Post},
   year = {2022},
-  url = {https://www.sentinelone.com/labs/supply-chain-threat-cratedepression-the-rust-crate-registry-attack-targeting-gitlab-ci/}
+  url = {https://www.sentinelone.com/labs/cratedepression-rust-supply-chain-attack-infects-cloud-ci-pipelines-with-go-malware/}
 }
 
-@inproceedings{baer2021rudra,
-  author = {Bae, Yechan and others},
-  title = {{RUDRA: Protecting Rust Programs from Memory Corruption via Static Analysis}},
+@inproceedings{bae2021rudra,
+  author = {Bae, Yechan and Kim, Youngsuk and Askar, Ammar and Lim, Jungwon and Kim, Taesoo},
+  title = {{Rudra: Finding Memory Safety Bugs in Rust at the Ecosystem Scale}},
   booktitle = {Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP)},
+  pages = {84--99},
   year = {2021},
-  pages = {57--73}
+  doi = {10.1145/3477132.3483570},
+  url = {https://doi.org/10.1145/3477132.3483570}
 }
 
 @article{astrauskas2020unsafe,
-  author = {Astrauskas, Vytautas and Matheja, Christoph and Poli, Federico and Summers, Alexander J. and Mueller, Peter},
+  author = {Astrauskas, Vytautas and Matheja, Christoph and Poli, Federico and M\"uller, Peter and Summers, Alexander J.},
   title = {{How Do Programmers Use Unsafe Rust?}},
   journal = {Proceedings of the ACM on Programming Languages (PACMPL)},
   volume = {4},
@@ -127,9 +148,71 @@
   url = {https://doi.org/10.1145/3428204}
 }
 
-@misc{cvss2024,
+@misc{cvss2019,
   title = {{Common Vulnerability Scoring System (CVSS) v3.1: Specification Document}},
-  author = {{FIRST.org}},
+  author = {{FIRST.Org, Inc.}},
   year = {2019},
   url = {https://www.first.org/cvss/v3.1/specification-document}
+}
+
+@inproceedings{zahan2022npm,
+  author = {Zahan, Nusrat and Zimmermann, Thomas and Godefroid, Patrice and Murphy, Brendan and Maddila, Chandra Shekhar and Williams, Laurie},
+  title = {{What are Weak Links in the npm Supply Chain?}},
+  booktitle = {Proceedings of the 44th International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP)},
+  pages = {331--340},
+  year = {2022},
+  doi = {10.1145/3510457.3513044}
+}
+
+@inproceedings{vu2020pypi,
+  author = {Vu, Duc-Ly and Pashchenko, Ivan and Massacci, Fabio and Plate, Henrik and Sabetta, Antonino},
+  title = {{Typosquatting and Combosquatting Attacks on the Python Ecosystem}},
+  booktitle = {2020 IEEE European Symposium on Security and Privacy Workshops (EuroS\&PW)},
+  pages = {509--514},
+  year = {2020},
+  doi = {10.1109/EuroSPW51379.2020.00074}
+}
+
+@inproceedings{guo2023pypi,
+  author = {Guo, Wenbo and Xu, Zhengzi and Liu, Chengwei and Huang, Cheng and Fang, Yong and Liu, Yang},
+  title = {{An Empirical Study of Malicious Code In PyPI Ecosystem}},
+  booktitle = {Proceedings of the 38th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages = {166--177},
+  year = {2023},
+  doi = {10.1109/ASE56229.2023.00135}
+}
+
+@inproceedings{gu2023packagethreats,
+  author = {Gu, Yacong and Ying, Lingyun and Pu, Yingyuan and Hu, Xiao and Chai, Huajun and Wang, Ruimin and Gao, Xing and Duan, Haixin},
+  title = {{Investigating Package Related Security Threats in Software Registries}},
+  booktitle = {2023 IEEE Symposium on Security and Privacy (SP)},
+  pages = {1578--1595},
+  year = {2023},
+  doi = {10.1109/SP46215.2023.10179332}
+}
+
+@article{pan2024ambush,
+  author = {Pan, Ziyue and Shen, Wenbo and Wang, Xingkai and Yang, Yutian and Chang, Rui and Liu, Yao and Liu, Chengwei and Liu, Yang and Ren, Kui},
+  title = {{Ambush from All Sides: Understanding Security Threats in Open-Source Software CI/CD Pipelines}},
+  journal = {IEEE Transactions on Dependable and Secure Computing},
+  volume = {21},
+  number = {1},
+  pages = {403--418},
+  year = {2024},
+  doi = {10.1109/TDSC.2023.3253572}
+}
+
+@misc{alfadel2021npm,
+  author = {Alfadel, Mahmoud and Costa, Diego Elias and Mokhallalati, Mouafak and Shihab, Emad and Adams, Bram},
+  title = {{On the Threat of npm Vulnerable Dependencies in Node.js Applications}},
+  year = {2020},
+  url = {https://arxiv.org/abs/2009.09019},
+  note = {arXiv:2009.09019}
+}
+
+@misc{kaplan2021survey,
+  author = {Kaplan, Berkay and Qian, Jingyu},
+  title = {{A Survey on Common Threats in npm and PyPi Registries}},
+  year = {2021},
+  url = {https://arxiv.org/abs/2108.09576}
 }

@@ -129,7 +129,7 @@ where $N_\text{vulns}$ is the number of advisories returned by cargo-audit for t
 
 \subsection{CVSS 0--100 Scaling}\label{subsect:cvss-scaling}
 
-The CVSS v3.1 base score defined by FIRST~\cite{cvss2024} is in the range 0.0--10.0. For internal comparison and for feeding the risk score above, we linearly rescale it to a 0--100 range by multiplying by 10, i.e. $\text{severity}_{0\text{--}100} = 10 \cdot \text{CVSS}$. This is purely a presentation convention; the relative ordering and the severity bands (Critical / High / Medium / Low / Info) used in Table~\ref{tab:vulnerability-severity} map directly to the standard CVSS bands: $\geq 90$ Critical, $70$--$89$ High, $40$--$69$ Medium, $1$--$39$ Low, $< 1$ Info.
+The CVSS v3.1 base score defined by FIRST~\cite{cvss2019} is in the range 0.0--10.0. For internal comparison and for feeding the risk score above, we linearly rescale it to a 0--100 range by multiplying by 10, i.e. $\text{severity}_{0\text{--}100} = 10 \cdot \text{CVSS}$. This is purely a presentation convention; the relative ordering and the severity bands (Critical / High / Medium / Low / Info) used in Table~\ref{tab:vulnerability-severity} map directly to the standard CVSS bands: $\geq 90$ Critical, $70$--$89$ High, $40$--$69$ Medium, $1$--$39$ Low, $< 1$ Info.
 
 
 \section{Dependency network}\label{sect:dependency-network}

@@ -1,92 +1,162 @@
 \newcommand{\etalchar}[1]{$^{#1}$}
 \begin{thebibliography}{{OWA}24}
 
-\bibitem[AMP{\etalchar{+}}20]{astrauskas2020unsafe}
-Vytautas Astrauskas, Christoph Matheja, Federico Poli, Alexander~J. Summers, and Peter Mueller.
-\newblock {How Do Programmers Use Unsafe Rust?}
-\newblock {\em Proceedings of the ACM on Programming Languages (PACMPL)}, 4(OOPSLA):136:1--136:27, 2020.
+\bibitem[ACM{\etalchar{+}}20]{alfadel2021npm}
+Mahmoud Alfadel, Diego~Elias Costa, Mouafak Mokhallalati, Emad Shihab, and Bram
+  Adams.
+\newblock {On the Threat of npm Vulnerable Dependencies in Node.js
+  Applications}, 2020.
+\newblock arXiv:2009.09019.
 
-\bibitem[B{\etalchar{+}}21]{baer2021rudra}
-Yechan Bae et~al.
-\newblock {RUDRA: Protecting Rust Programs from Memory Corruption via Static Analysis}.
-\newblock In {\em Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP)}, pages 57--73, 2021.
+\bibitem[AMP{\etalchar{+}}20]{astrauskas2020unsafe}
+Vytautas Astrauskas, Christoph Matheja, Federico Poli, Peter M\"uller, and
+  Alexander~J. Summers.
+\newblock {How Do Programmers Use Unsafe Rust?}
+\newblock {\em Proceedings of the ACM on Programming Languages (PACMPL)},
+  4(OOPSLA):136:1--136:27, 2020.
+
+\bibitem[BKA{\etalchar{+}}21]{bae2021rudra}
+Yechan Bae, Youngsuk Kim, Ammar Askar, Jungwon Lim, and Taesoo Kim.
+\newblock {Rudra: Finding Memory Safety Bugs in Rust at the Ecosystem Scale}.
+\newblock In {\em Proceedings of the ACM SIGOPS 28th Symposium on Operating
+  Systems Principles (SOSP)}, pages 84--99, 2021.
 
 \bibitem[DMG19]{decan2019empirical}
 Alexandre Decan, Tom Mens, and Philippe Grosjean.
-\newblock {An Empirical Comparison of Dependency Network Evolution in Seven Software Packaging Ecosystems}.
+\newblock {An empirical comparison of dependency network evolution in seven
+  software packaging ecosystems}.
 \newblock {\em Empirical Software Engineering}, 24(1):381--416, 2019.
 
-\bibitem[{FIR}19]{cvss2024}
-{FIRST.org}.
-\newblock {Common Vulnerability Scoring System (CVSS) v3.1: Specification Document}, 2019.
+\bibitem[{FIR}19]{cvss2019}
+{FIRST.Org, Inc.}
+\newblock {Common Vulnerability Scoring System (CVSS) v3.1: Specification
+  Document}, 2019.
 
-\bibitem[GCL{\etalchar{+}}24]{gong2024securityeval}
-Yinhao Gong, Bian Chen, Zhenyu Li, et~al.
-\newblock {Evaluating the Security of Large Language Models in Code Generation: A Study with SecurityEval}.
-\newblock In {\em Proceedings of the 2024 IEEE/ACM International Conference on Software Engineering (ICSE)}, 2024.
+\bibitem[FTNL23]{fu2023chatgpt}
+Michael Fu, Chakkrit Tantithamthavorn, Van Nguyen, and Trung Le.
+\newblock {ChatGPT for Vulnerability Detection, Classification, and Repair: How
+  Far Are We?}
+\newblock In {\em 2023 30th Asia-Pacific Software Engineering Conference
+  (APSEC)}, pages 632--636. IEEE, 2023.
 
-\bibitem[Lab22]{sentinelone2022cratedepression}
-SentinelOne Labs.
-\newblock {Supply Chain Threat: CrateDepression - The Rust Crate Registry Attack Targeting GitLab CI}.
-\newblock SentinelOne Labs Technical Report, 2022.
+\bibitem[GDT{\etalchar{+}}24]{gong2024securityeval}
+Jianian Gong, Nachuan Duan, Ziheng Tao, Zhaohui Gong, Yuan Yuan, and Minlie
+  Huang.
+\newblock {How Well Do Large Language Models Serve as End-to-End Secure Code
+  Agents for Python?}
+\newblock {\em arXiv preprint arXiv:2408.10495}, 2024.
+
+\bibitem[GSS22]{sentinelone2022cratedepression}
+Juan~Andr\'es Guerrero-Saade and Phil Stokes.
+\newblock {CrateDepression: Rust Supply-Chain Attack Infects Cloud {CI}
+  Pipelines with {Go} Malware}.
+\newblock SentinelLabs Blog Post, 2022.
+
+\bibitem[GXL{\etalchar{+}}23]{guo2023pypi}
+Wenbo Guo, Zhengzi Xu, Chengwei Liu, Cheng Huang, Yong Fang, and Yang Liu.
+\newblock {An Empirical Study of Malicious Code In PyPI Ecosystem}.
+\newblock In {\em Proceedings of the 38th IEEE/ACM International Conference on
+  Automated Software Engineering (ASE)}, pages 166--177, 2023.
+
+\bibitem[GYP{\etalchar{+}}23]{gu2023packagethreats}
+Yacong Gu, Lingyun Ying, Yingyuan Pu, Xiao Hu, Huajun Chai, Ruimin Wang, Xing
+  Gao, and Haixin Duan.
+\newblock {Investigating Package Related Security Threats in Software
+  Registries}.
+\newblock In {\em 2023 IEEE Symposium on Security and Privacy (SP)}, pages
+  1578--1595, 2023.
+
+\bibitem[KQ21]{kaplan2021survey}
+Berkay Kaplan and Jingyu Qian.
+\newblock {A Survey on Common Threats in npm and PyPi Registries}, 2021.
 
 \bibitem[LCA{\etalchar{+}}17]{lauinger2017thou}
-Tobias Lauinger, Abdelberi Chaabane, Sajjad Arshad, William Robertson, Christo Wilson, and Engin Kirda.
-\newblock {Thou Shalt Not Depend on Me: Analysing the Use of Outdated JavaScript Libraries on the Web}.
-\newblock In {\em Proceedings of the 2017 Network and Distributed System Security Symposium (NDSS)}, 2017.
+Tobias Lauinger, Abdelberi Chaabane, Sajjad Arshad, William Robertson, Christo
+  Wilson, and Engin Kirda.
+\newblock {Thou Shalt Not Depend on Me: Analysing the Use of Outdated
+  JavaScript Libraries on the Web}.
+\newblock In {\em Proceedings 2017 Network and Distributed System Security
+  Symposium}, 2017.
 
-\bibitem[LHZQ23]{li2023chatgpt}
-Haonan Li, Yu~Hao, Yizhuo Zhai, and Zhiyun Qian.
-\newblock {Assessing the Promise and Pitfalls of ChatGPT for Automated Vulnerability Detection}.
-\newblock {\em arXiv preprint arXiv:2308.12434}, 2023.
-
-\bibitem[{Lin}24a]{sigstore2024}
+\bibitem[{Lin}24]{spdx2024}
 {Linux Foundation}.
-\newblock {Sigstore: Software Signing for Everybody}, 2024.
-
-\bibitem[{Lin}24b]{spdx2024}
-{Linux Foundation}.
-\newblock {Software Package Data Exchange (SPDX) Specification 2.3}, 2024.
+\newblock {Software Package Data Exchange (SPDX) Specification 3.0}, 2024.
 
 \bibitem[LPMB23]{ladisa2023taxonomy}
 Piergiorgio Ladisa, Henrik Plate, Matias Martinez, and Olivier Barais.
-\newblock {A Taxonomy of Attacks on Open-Source Software Supply Chains}.
-\newblock In {\em Proceedings of the 44th IEEE Symposium on Security and Privacy (S\&P)}, 2023.
+\newblock {SoK: Taxonomy of Attacks on Open-Source Software Supply Chains}.
+\newblock In {\em 2023 IEEE Symposium on Security and Privacy (SP)}, pages
+  1509--1526, 2023.
 
-\bibitem[{Ope}24]{slsa2024}
+\bibitem[Moh23]{pypi2023security}
+Shamika Mohanan.
+\newblock {Announcing the launch of PyPI Malware Reporting and Response
+  project}, 2023.
+
+\bibitem[{Ope}23]{slsa2023}
 {OpenSSF}.
-\newblock {Supply-chain Levels for Software Artifacts (SLSA) v1.0}, 2024.
+\newblock {Supply-chain Levels for Software Artifacts (SLSA) v1.0}, 2023.
+
+\bibitem[{Ope}24]{sigstore2024}
+{OpenSSF}.
+\newblock {Sigstore: Open-Source Software Signing and Transparency}, 2024.
+\newblock Accessed: 2026-06-24.
 
 \bibitem[OPSM20]{ohm2020backstabber}
 Marc Ohm, Henrik Plate, Arnold Sykosch, and Michael Meier.
-\newblock {Backstabber's Knife Collection: A Review of Open Source Software Supply Chain Attacks}.
-\newblock In {\em Proceedings of the 17th Conference on Detection of Intrusions and Malware, and Vulnerability Assessment (DIMVA)}, 2020.
+\newblock {Backstabber's Knife Collection: A Review of Open Source Software
+  Supply Chain Attacks}.
+\newblock In {\em Detection of Intrusions and Malware, and Vulnerability
+  Assessment}, volume 12223 of {\em Lecture Notes in Computer Science}, pages
+  23--43, 2020.
 
 \bibitem[{OWA}24]{owasp2024}
 {OWASP Foundation}.
 \newblock {OWASP CycloneDX Specification 1.6}, 2024.
 
-\bibitem[{Pyt}23]{pypi2023security}
-{Python Software Foundation}.
-\newblock {Malware Detection on PyPI}, 2023.
+\bibitem[PSW{\etalchar{+}}24]{pan2024ambush}
+Ziyue Pan, Wenbo Shen, Xingkai Wang, Yutian Yang, Rui Chang, Yao Liu, Chengwei
+  Liu, Yang Liu, and Kui Ren.
+\newblock {Ambush from All Sides: Understanding Security Threats in Open-Source
+  Software CI/CD Pipelines}.
+\newblock {\em IEEE Transactions on Dependable and Secure Computing},
+  21(1):403--418, 2024.
 
-\bibitem[{Son}26]{sonatype2026}
+\bibitem[{Son}24]{sonatype2024}
 {Sonatype}.
-\newblock {2026 State of the Software Supply Chain}, 2026.
+\newblock {10th Annual State of the Software Supply Chain Report}, 2024.
 
-\bibitem[SP18]{staicu2018synode}
-Cristian-Alexandru Staicu and Michael Pradel.
-\newblock {Synode: Understanding and Automatically Preventing Injection Attacks on Node.js}.
-\newblock In {\em Proceedings of the 27th USENIX Security Symposium}, pages 361--378, 2018.
+\bibitem[SPL18]{staicu2018synode}
+Cristian-Alexandru Staicu, Michael Pradel, and Benjamin Livshits.
+\newblock {SYNODE: Understanding and Automatically Preventing Injection Attacks
+  on {Node.js}}.
+\newblock In {\em Proceedings 2018 Network and Distributed System Security
+  Symposium}, 2018.
 
 \bibitem[Tho84]{thompson1984trust}
 Ken Thompson.
 \newblock {Reflections on Trusting Trust}.
 \newblock {\em Communications of the ACM}, 27(8):761--763, 1984.
 
+\bibitem[VPM{\etalchar{+}}20]{vu2020pypi}
+Duc-Ly Vu, Ivan Pashchenko, Fabio Massacci, Henrik Plate, and Antonino Sabetta.
+\newblock {Typosquatting and Combosquatting Attacks on the Python Ecosystem}.
+\newblock In {\em 2020 IEEE European Symposium on Security and Privacy
+  Workshops (EuroS\&PW)}, pages 509--514, 2020.
+
 \bibitem[ZSTP19]{zimmermann2019small}
 Markus Zimmermann, Cristian-Alexandru Staicu, Cam Tenny, and Michael Pradel.
-\newblock {Small World with High Risks: A Study of Security Threats in the npm Ecosystem}.
-\newblock In {\em Proceedings of the 28th USENIX Security Symposium}, 2019.
+\newblock {Small World with High Risks: A Study of Security Threats in the npm
+  Ecosystem}.
+\newblock In {\em 28th USENIX Security Symposium (USENIX Security 19)}, pages
+  995--1010, 2019.
+
+\bibitem[ZZG{\etalchar{+}}22]{zahan2022npm}
+Nusrat Zahan, Thomas Zimmermann, Patrice Godefroid, Brendan Murphy,
+  Chandra~Shekhar Maddila, and Laurie Williams.
+\newblock {What are Weak Links in the npm Supply Chain?}
+\newblock In {\em Proceedings of the 44th International Conference on Software
+  Engineering: Software Engineering in Practice (ICSE-SEIP)}, pages 331--340,
+  2022.
 
 \end{thebibliography}

@@ -1,8 +1,8 @@
-PWD c:/Users/pauld/repos/master-thesis/latex-template
+PWD C:/Users/pauld/repos/master-thesis/latex-template
 INPUT c:/texlive/2025/texmf.cnf
 INPUT c:/texlive/2025/texmf-dist/web2c/texmf.cnf
 INPUT c:/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt
-INPUT c:/Users/pauld/repos/master-thesis/latex-template/main_file_template_bachelor_masters_english.tex
+INPUT main_file_template_bachelor_masters_english.tex
 OUTPUT main_file_template_bachelor_masters_english.log
 INPUT c:/texlive/2025/texmf-dist/tex/latex/base/book.cls
 INPUT c:/texlive/2025/texmf-dist/tex/latex/base/book.cls

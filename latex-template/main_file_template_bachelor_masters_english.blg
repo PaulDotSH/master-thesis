@@ -3,49 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main_file_template_bachelor_masters_english.aux
 The style file: alpha.bst
 Database file #1: mybib.bib
-Warning--I didn't find a database entry for "zahan2022npm"
-Warning--I didn't find a database entry for "vu2020pypi"
-Warning--I didn't find a database entry for "guo2023pypi"
-Warning--I didn't find a database entry for "ponta2020patterns"
-You've used 19 entries,
+You've used 26 entries,
             2543 wiz_defined-function locations,
-            648 strings with 7674 characters,
-and the built_in function-call counts, 7096 in all, are:
-= -- 664
-> -- 365
-< -- 11
-+ -- 128
-- -- 127
-* -- 460
-:= -- 1159
-add.period$ -- 50
-call.type$ -- 19
-change.case$ -- 121
-chr.to.int$ -- 18
-cite$ -- 19
-duplicate$ -- 279
-empty$ -- 556
-format.name$ -- 151
-if$ -- 1451
-int.to.chr$ -- 2
+            682 strings with 9478 characters,
+and the built_in function-call counts, 12034 in all, are:
+= -- 1149
+> -- 681
+< -- 18
++ -- 246
+- -- 246
+* -- 858
+:= -- 1915
+add.period$ -- 72
+call.type$ -- 26
+change.case$ -- 199
+chr.to.int$ -- 26
+cite$ -- 26
+duplicate$ -- 446
+empty$ -- 856
+format.name$ -- 270
+if$ -- 2488
+int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 11
-newline$ -- 92
-num.names$ -- 57
-pop$ -- 170
+missing$ -- 16
+newline$ -- 127
+num.names$ -- 78
+pop$ -- 255
 preamble$ -- 1
-purify$ -- 140
+purify$ -- 225
 quote$ -- 0
-skip$ -- 248
+skip$ -- 417
 stack$ -- 0
-substring$ -- 279
-swap$ -- 42
-text.length$ -- 11
-text.prefix$ -- 9
+substring$ -- 588
+swap$ -- 120
+text.length$ -- 18
+text.prefix$ -- 8
 top$ -- 0
-type$ -- 152
+type$ -- 208
 warning$ -- 0
-while$ -- 60
-width$ -- 22
-write$ -- 222
-(There were 4 warnings)
+while$ -- 105
+width$ -- 29
+write$ -- 316
