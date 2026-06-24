@@ -6,7 +6,7 @@ The cargo audit module uses cargo audit, which is integrated with the RustSec ad
 
 Severity scores are calculated by implementing the CVSS v3.1 calculation from the raw vector strings. The resulting score is rescaled from 0--10 to 0--100 for internal ranking only (see Section~\ref{subsect:cvss-scaling}).
 
-Cargo audit cannot run locally in parallel due to a shared lock, to mitigate this, we used docker containers for parallelization.
+Cargo audit cannot run locally in parallel due to a shared lock, to mitigate this, we used Docker containers for parallelization.
 
 Results are stored in the 'cargo\_audit\_results' table and 'scan\_results' table for aggregation.
 
@@ -31,7 +31,7 @@ The build script analysis module has six heuristic implementations to detect pot
 
 - Network call detection - Strings related to network libraries and calls such as 'reqwest', 'hyper', 'curl', 'ureq', 'tokio::net', 'std::net::TcpStream' and others. Network calls, as previously mentioned, can be used to download payloads or exfiltrate data.
 
-- Link directive detection - Using Regex, we look for patterns such as link attributes, mostly used for FFI and non-malicious behaviors, these can be used to link to malicious libraries.
+- Link directive detection - Using Regex, we look for patterns such as link attributes, mostly used for FFI and non-malicious behaviours, these can be used to link to malicious libraries.
 
 - Shannon entropy calculation - High values can indicate obfuscated or encoded data and code; we also compute an average entropy of all '.rs' files from the repository to compare against.
 

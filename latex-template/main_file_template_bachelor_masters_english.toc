@@ -112,7 +112,7 @@
 \contentsline {chapter}{\numberline {D}Artifact Documentation and Reproducibility}{71}{appendix.D}%
 \contentsline {section}{\numberline {D.1}Software Artifacts}{71}{section.D.1}%
 \contentsline {section}{\numberline {D.2}Data Artifacts}{71}{section.D.2}%
-\contentsline {section}{\numberline {D.3}Hardware Requirements}{71}{section.D.3}%
+\contentsline {section}{\numberline {D.3}Hardware Requirements}{72}{section.D.3}%
 \contentsline {section}{\numberline {D.4}Software Requirements}{72}{section.D.4}%
 \contentsline {section}{\numberline {D.5}Reproduction Steps}{72}{section.D.5}%
 \contentsline {section}{\numberline {D.6}Expected Outputs}{73}{section.D.6}%

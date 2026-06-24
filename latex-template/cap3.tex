@@ -22,7 +22,7 @@ The ecosystem has the following principal entities:
 - Consumers: Developers who have at least a crate dependent on a project.
 - Crates.io registry: The centralized repository that stores the crate versions, metadata and sometimes code, and provides them to the consumers.
 - Build infrastructure: Cargo, rustc and CI/CD systems.
-- End users: Users of software build using crates from crates.io, who can also be affected by any compromise in the supply chain
+- End users: Users of software built using crates from crates.io, who can also be affected by any compromise in the supply chain
 
 \subsection{Attacker Model}\label{subsect:attacker-model}
 
@@ -30,11 +30,11 @@ We consider attackers with the following skills:
 Package registration - an attacker can register any crate name allowed by crates.io and with no existing crate
 Code publication - an attacker can publish crate versions containing arbitrary code
 Build-time execution - Code can be executed at compile-time using build.rs
-Metadata manipulation - Keywords, descriptions and documentations from a crate page are written by the authors
+Metadata manipulation - Keywords, descriptions and documentation from a crate page are written by the authors
 Ecosystem knowledge - knowledge of popular crate names, popular keywords, types of crates, naming conventions, etc.
 Resources - limited resources compared to nation sponsored actors
 
-We assume attackers cannot modify crates infrastructure or compromise it's server, or find any exploits that would allow them to modify crates owned by other maintainers without having direct access to their accounts, or do Man in the Middle (MITM) attacks between victims and crates.io.
+We assume attackers cannot modify crates infrastructure or compromise its server, or find any exploits that would allow them to modify crates owned by other maintainers without having direct access to their accounts, or do Man in the Middle (MITM) attacks between victims and crates.io.
 
 \subsection{Attacker Classes}\label{subsect:attacker-classes}
 
@@ -82,7 +82,7 @@ We operate the framework under these assumptions:
 
 1. The source code is available and hosted on a git repository that doesn't rate limit or restrict our access, grabbed from the crates.io database.
 
-2. LLM reliability, due to models becomming better at code reviews, and the 
+2. LLM reliability, due to models becoming better at code reviews, and the 
 framework being easy to extend for API usage with state of the art models
 
 3. Attackers reuse patterns and techniques that can be found through the use of heuristics.

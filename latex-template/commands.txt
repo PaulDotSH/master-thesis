@@ -1,0 +1,4 @@
+pdflatex -interaction=nonstopmode main_file_template_bachelor_masters_english.tex
+bibtex main_file_template_bachelor_masters_english
+pdflatex -interaction=nonstopmode main_file_template_bachelor_masters_english.tex
+pdflatex -interaction=nonstopmode main_file_template_bachelor_masters_english.tex

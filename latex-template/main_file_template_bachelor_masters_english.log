@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.18)  25 JUN 2026 01:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.18)  25 JUN 2026 01:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1522,8 +1522,13 @@ l.1 \chapter
 ]
 Appendix D.
 
-Overfull \hbox (151.08192pt too wide) in paragraph at lines 7--22
- [][] 
+Underfull \hbox (badness 1609) in paragraph at lines 21--21
+[]|\OT1/cmr/m/n/12 Dashboard web ap-pli-ca-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--21
+[]|\OT1/cmtt/m/n/12 docker-compose.*.yml\OT1/cmr/m/n/12 ,
  []
 
 
@@ -1531,7 +1536,16 @@ Overfull \hbox (17.46674pt too wide) in paragraph at lines 49--64
  [][] 
  []
 
-[71
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \vbox (badness 8056) has occurred while \output is active []
+
+ [71
 
 ]
 Overfull \hbox (31.38957pt too wide) in paragraph at lines 100--100
@@ -1545,13 +1559,13 @@ Overfull \hbox (25.21457pt too wide) in paragraph at lines 131--131
 worker=10[] 
  []
 
-
+[72]
 Overfull \hbox (12.86456pt too wide) in paragraph at lines 146--146
  []\OT1/cmtt/m/n/12 cargo run --release -- typosquat --min-score 75 --top-crate
 s 10000[] 
  []
 
-[72]) (./appendixE.tex [73] [74
+) (./appendixE.tex [73] [74
 
 ]
 Appendix E.
@@ -1571,8 +1585,13 @@ l.142 \chapter
 ]
 Appendix F.
 
-Underfull \hbox (badness 10000) in alignment at lines 165--165
-[][][][] 
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
+[]|\OT1/cmr/m/n/12 Claude Opus 4.6,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 165--165
+[]|\OT1/cmr/m/n/12 Claude Opus 4.6,
  []
 
 
@@ -1585,9 +1604,8 @@ pdfTeX warning (ext4): destination with the same identifier (name{table.F.1}) h
 as been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.193 \textbf{Method:}
-                       The author described, manually wrote and implemented ...
-] [78] (./main_file_template_bachelor_masters_english.aux)
+l.187 
+      ] [78] (./main_file_template_bachelor_masters_english.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-29>
@@ -1619,7 +1637,7 @@ onts/type1/public/amsfonts/cm/cmtt10.pfb><c:/texlive/2025/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmtt12.pfb><c:/texlive/2025/texmf-dist/fonts/type1/public/
 cm-super/sfrm1200.pfb>
 Output written on main_file_template_bachelor_masters_english.pdf (78 pages, 42
-8429 bytes).
+8595 bytes).
 PDF statistics:
  1200 PDF objects out of 1200 (max. 8388607)
  1077 compressed objects within 11 object streams

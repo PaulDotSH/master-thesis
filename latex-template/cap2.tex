@@ -107,7 +107,7 @@ We can consider the fundamental challenge of supply chain attacks to be the tran
 	\item A small number of compromised maintainer accounts could affect the majority of packages in the ecosystem through transitive dependencies.
 \end{itemize}
 
-The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing an npm package trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to npm's arhitecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical Rust application can have hundreds of transitive dependencies.
+The study analyzed over 5.3 million versions, over 199.000 maintainers and over 600 security issues. The study found that on average, installing an npm package trusts 79 packages and 39 maintainers, and some maintainers or packages can impact large parts of the ecosystem. Even though the study was specific to npm's architecture, Rust tends to follow a similar culture of micropackages. Rust's culture highly encourages code reuse and the development of small focused crates, similar to the Unix philosophy, which results in complex and deep dependency trees. A typical Rust application can have hundreds of transitive dependencies.
 Our work partially fills this gap by analyzing the dependency graph of crates.io.
 
 Many crates suffer from having a single maintainer, which is almost always an unpaid volunteer. The previously mentioned xz-utils incident demonstrated how attackers are able to mentally drain maintainers with harassment and spend multiple years gaining trust before executing an attack.
@@ -208,7 +208,7 @@ Cross-ecosystem studies have also been done:
 	\item Gu et al.~\cite{gu2023packagethreats} (2023) systematically analyzed security threats across six major package registries, including Maven, npm, and PyPI, uncovering ecosystem-specific attack patterns.
 \end{itemize}
 
-PyPI has invested in infrastructure focused on malware detection and telemetry. Livehaul is used to collect download telemetry to detect anomalies. For malware detection specifically, YARA rules are used to scan for known malicious patterns~\cite{pypi2023security}.
+PyPI has invested in infrastructure focused on malware detection and telemetry. Livehaul is used to collect download telemetry to detect anomalies. For malware detection specifically, YARA rules are used to scan for known malicious patterns~\cite{PyPI2023security}.
 
 Besides academic research, Sonatype has an annual report called "State of the Software Supply Chain"~\cite{sonatype2024} which provides large-scale analysis across multiple ecosystems. The report from 2024 analyzes more than 7.000.000 open source projects and 6.6 trillion downloads. A 156\% YoY increase was found in malicious packages. It showed that 95\% of the time when vulnerable components are consumed, a fixed version already exists, and that 80\% of application dependencies remain un-upgraded for over a year. The report shows a consistent gap between fixes and patching.
 
@@ -275,7 +275,7 @@ Cryptocurrency mining, mostly CPU-based mining of Monero due to its privacy and 
 
 Payload downloading, by downloading additional malware. It sometimes uses legitimate services as the hosts such as github, free CDNs, pastebin or others.
 
-Conditional excution; sometimes, the malware authors implement malicious behavior execution only in some branches of the code, ran only if specific conditions are met, such as a CI environment being detected, executing only in specific countries or after a specified date.
+Conditional execution; sometimes, the malware authors implement malicious behavior execution only in some branches of the code, ran only if specific conditions are met, such as a CI environment being detected, executing only in specific countries or after a specified date.
 
 \subsection{Static Analysis Approaches}\label{sect:static-analysis}
 
@@ -295,7 +295,7 @@ Metadata analysis, looking at new maintainers, recent ownership transfers, unusu
 
 \subsection{Dynamic Analysis Approaches}\label{sect:dynamic-analysis}
 
-Dynamic analysis is the counter part to static analysis, that involves emulating the code or executing it in a sandboxed or controlled environment to observe the runtime behavior.
+Dynamic analysis is the counterpart to static analysis, that involves emulating the code or executing it in a sandboxed or controlled environment to observe the runtime behavior.
 
 Sandboxed execution is running packages in isolated environments such as virtual machines or containers, with the interception of system calls, network connections and more to assess the behavior of the package.
 
@@ -305,7 +305,7 @@ Differential analysis refers to comparing behavior between two versions, to chec
 
 \subsection{Machine Learning Approaches}\label{sect:ml-analysis}
 
-Feature based classification consists of extracting features such as metadata from packages and training machine learning classifiers. It can be effective for some patterns. Code metrics, dependency graph, metadata and behaviors are analyzed.
+Feature based classification consists of extracting features such as metadata from packages and training machine learning classifiers. It can be effective for some patterns. Code metrics, dependency graph, metadata and behaviours are analyzed.
 
 Text-based classification is ran on the source code and applies NLP techniques such as bag of words, TF-IDF, code embeddings, sequence models and more to classify code.
 
@@ -349,13 +349,13 @@ Suspicious domain names, such as free or commonly abused TLDs are also suspiciou
 
 High entropy strings are very suspicious and can indicate obfuscated and encrypted code or payloads.
 
-Link directive analysis can also be used, since linking to libraries downloaded by the crate from a suspicous source can indicate malicious behavior.
+Link directive analysis can also be used, since linking to libraries downloaded by the crate from a suspicious source can indicate malicious behavior.
 
 \section{Large Language Models for Code Analysis}\label{sect:llm-code-analysis}
 
 \subsection{Evolution of Code-Aware Language Models}\label{sect:evolution-code-aware-models}
 
-The application of LLMs to code understanding has rapidly evolved in the past years, starting from models such as CodeBert, Starcoder To Qwen2.5-Coder and Claude Opus. 
+The application of LLMs to code understanding has rapidly evolved in the past years, starting from models such as CodeBERT, StarCoder To Qwen2.5-Coder and Claude Opus. 
 
 \subsection{LLMs for Vulnerability Detection}\label{sect:llm-vulnerability-detection}
 
@@ -487,7 +487,7 @@ The Rust ecosystem has several overlapping but distinct tools. The table below c
 
 Our framework focuses on automated, ecosystem-wide analysis, rather than per-project analysis.
 
-% Cargo audit is the official RustSec vulnerability scanning tool it requires just the Project's Cargo files and lists all the known vulnerabilities of all of the depdendencies. It is well maintained and accurate.
+% Cargo audit is the official RustSec vulnerability scanning tool it requires just the Project's Cargo files and lists all the known vulnerabilities of all of the dependencies. It is well maintained and accurate.
 
 % Cargo deny is a plugin that enforces dependency policies, such as license checking, advisory checking (similar to cargo audit), bans on specific crates or versions, duplicate detection and source verification.
 
@@ -520,7 +520,7 @@ Pan et al.~\cite{pan2024ambush} ``Ambush from All Sides: Understanding Security 
 
 Alfadel et al.~\cite{alfadel2021npm} ``On the Threat of npm Vulnerable Dependencies in Node.js Applications'' analyzed 6,673 Node.js applications, finding that 67.93\% depend on at least one vulnerable package, though 94.91\% of vulnerable packages were classified as low threat at the time of use.
 
-Kaplan and Qian~\cite{kaplan2021survey} ``A Survey on Common Threats in npm and PyPi Registries'' surveyed threats across both ecosystems, including typosquatting, combosquatting, and technical lag, and proposed ML-based countermeasures.
+Kaplan and Qian~\cite{kaplan2021survey} ``A Survey on Common Threats in npm and PyPI Registries'' surveyed threats across both ecosystems, including typosquatting, combosquatting, and technical lag, and proposed ML-based countermeasures.
 
 \section{Distributed Systems for Large-Scale Analysis}\label{sect:distributed-systems}
 
@@ -528,7 +528,7 @@ Kaplan and Qian~\cite{kaplan2021survey} ``A Survey on Common Threats in npm and 
 
 Analyzing an entire package ecosystem has multiple, highly-complex challenges including:
 
-The scale of the ecosystem, crates contains over 264.000 crates with each having multiple versions, easily spanning over a million releases, analysis would involve downloading each repository, running multiple advanced modules, storing results and managing temporary storage for execution speed.
+The scale of the ecosystem, crates.io contains over 264.000 crates with each having multiple versions, easily spanning over a million releases, analysis would involve downloading each repository, running multiple advanced modules, storing results and managing temporary storage for execution speed.
 
 Dependency ordering, transitive risk propagation is a key feature and it requires analyzing dependencies before the dependents. This heavily complicates parallelization.
 
@@ -568,6 +568,6 @@ Security tools are used in a reactive way, isolated, there is a benefit to corre
 
 \subsection{Contributions of This Thesis}\label{sect:contributions-thesis}
 
-The thesis addresses these gaps by designing a complex, comprehensive optimized framework for analysis integrating multiple modules with a focus on the Rust crates ecosystem, by implementing a distributed architecture, with an in memory work queue, web dashboard and a database that can be used for further analysis.
+The thesis addresses these gaps by designing a complex, comprehensive optimized framework for analysis integrating multiple modules with a focus on the Rust crates ecosystem, by implementing a distributed architecture, with an in-memory work queue, web dashboard and a database that can be used for further analysis.
 The framework uses multiple modules such as heuristic build script analysis together with existing tools, we are conducting a large scale empirical assessment to more easily identify possible malicious packages and signal possible vulnerabilities.
 The plan is to open source all of the code, with the possibility of having the Rust foundation integrating parts of it or a modified version into their infrastructure, to provide better security for the entire ecosystem.
